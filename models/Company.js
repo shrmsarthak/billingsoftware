@@ -1,0 +1,79 @@
+const { EntitySchema } = require("typeorm");
+
+const CompanyModel = new EntitySchema({
+    name:"company",
+    columns:{
+        companyid:{
+            type:Number,
+            primary:true,
+            generated:true,
+        },
+        companyname:{
+            type:String,
+            unique:true,
+            nullable:false,
+        },
+        companypan:{
+            type:String,
+            nullable:false,
+            unique:true
+        },
+        
+        tin:{
+            type:String,
+            nullable:true,
+            unique:true
+        },
+        vat:{
+            type:String,
+            nullable:true,
+            unique:true
+        },
+        service_tax_no:{
+            type:String,
+            nullable:true,
+            unique:true
+        },
+        cst_no:{
+            type:String,
+            nullable:true,
+            unique:true
+        },
+        phone:{
+            type:String,
+            nullable:false,
+            unique:true
+        },
+        email:{
+            type:String,
+            nullable:false,
+            unique:true
+        },
+        website:{
+            type:String,
+            nullable:false,
+            unique:true
+        },
+        additional_detail:{
+            type:String,
+            nullable:true
+        },
+        password:{
+            type:String,
+            nullable:false,
+            default:"123"
+        },
+        addressid:{
+            type:Number,
+            nullable:false
+        }
+        
+    },
+    relations:{
+        addressid:{
+            type:"one-to-one",
+            target:"address"
+        }
+    }
+})
+module.exports = {CompanyModel}
