@@ -5,6 +5,7 @@ import Signup from "./screens/Login/Signup";
 import SignIn from "./screens/Login/SignIn";
 import ShowClientPage from "./screens/Sales/Client/ShowClients";
 import ShowProductsPage from "./screens/Sales/ProductService/ShowProducts";
+import ShowInvoicePage from "./screens/Sales/Invoice/ShowInvoices";
 function App() {
   
   return (
@@ -15,7 +16,7 @@ function App() {
           <Route path="/sales/invoice/new" element = {<ModuleSalePage page = "newinvoice" /> }/> 
           <Route path="/sales/invoice/show" element = {<ModuleSalePage page = "showinvoice" /> }/>
           <Route path="/sales/client/show" element = {<ShowClientPage />} />
-          <Route path="/sales/product_service/show" element = {<ShowProductsPage />} />          
+          <Route path="/sales/product_service/show" element = {<ShowProductsPage />} />      
       </Routes>
   )
 }
