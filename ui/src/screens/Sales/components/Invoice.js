@@ -5,15 +5,15 @@ const Invoice = ({ data, details }) => {
   // Calculate total amount
   const totalAmount = data.reduce(
     (acc, item) =>
-      acc + item.Unit_Price * item.Qty * (1 - parseFloat(item.Discount) / 100),
+      acc + item.UnitPrice * item.Qty * (1 - parseFloat(item.Discount) / 100),
     0
   );
 
-  // Function to convert total amount to words
-  const convertAmountToWords = (amount) => {
-    // Function to convert numbers to words
-    // This is a simplified version, you can use a library for more precise conversion
-    const units = [
+  function convertAmountToWords(n) {
+    if (n < 0) return false;
+
+    // Arrays to hold words for single-digit, double-digit, and below-hundred numbers
+    let single_digit = [
       "",
       "One",
       "Two",
@@ -25,19 +25,7 @@ const Invoice = ({ data, details }) => {
       "Eight",
       "Nine",
     ];
-    const tens = [
-      "",
-      "",
-      "Twenty",
-      "Thirty",
-      "Forty",
-      "Fifty",
-      "Sixty",
-      "Seventy",
-      "Eighty",
-      "Ninety",
-    ];
-    const teens = [
+    let double_digit = [
       "Ten",
       "Eleven",
       "Twelve",
@@ -49,21 +37,55 @@ const Invoice = ({ data, details }) => {
       "Eighteen",
       "Nineteen",
     ];
+    let below_hundred = [
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
+    ];
 
-    const numToWords = (num) => {
-      if (num < 10) return units[num];
-      if (num >= 10 && num < 20) return teens[num - 10];
-      const digit = num % 10;
-      const ten = Math.floor(num / 10);
-      return `${tens[ten]} ${units[digit]}`;
-    };
+    if (n === 0) return "Zero";
 
-    const amountString = amount.toFixed(2).toString().split(".");
-    const dollars = parseInt(amountString[0], 10);
-    const cents = parseInt(amountString[1] || "0", 10);
-    return `${numToWords(dollars)} dollars and ${numToWords(cents)} cents`;
-  };
+    // Recursive function to translate the number into words
+    function translate(n) {
+      let word = "";
+      if (n < 10) {
+        word = single_digit[n] + " ";
+      } else if (n < 20) {
+        word = double_digit[n - 10] + " ";
+      } else if (n < 100) {
+        let rem = translate(n % 10);
+        word = below_hundred[(n - (n % 10)) / 10 - 2] + " " + rem;
+      } else if (n < 1000) {
+        word =
+          single_digit[Math.trunc(n / 100)] + " Hundred " + translate(n % 100);
+      } else if (n < 1000000) {
+        word =
+          translate(parseInt(n / 1000)).trim() +
+          " Thousand " +
+          translate(n % 1000);
+      } else if (n < 1000000000) {
+        word =
+          translate(parseInt(n / 1000000)).trim() +
+          " Million " +
+          translate(n % 1000000);
+      } else {
+        word =
+          translate(parseInt(n / 1000000000)).trim() +
+          " Billion " +
+          translate(n % 1000000000);
+      }
+      return word;
+    }
 
+    // Get the result by translating the given number
+    let result = translate(n);
+    return result.trim() + " rupees only.";
+  }
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -71,6 +93,16 @@ const Invoice = ({ data, details }) => {
         <View style={styles.logoContainer}>
           {/* Insert your company logo here */}
           <Text>Company Logo</Text>
+
+          {/* Client Details */}
+          <View style={styles.details}>
+            <Text style={styles.subHeader}>Client Information</Text>
+            {Object.entries(details).map(([key, value]) => (
+              <Text key={key} style={styles.detailText}>
+                {key}: {value}
+              </Text>
+            ))}
+          </View>
         </View>
 
         {/* Invoice Title */}
@@ -86,16 +118,6 @@ const Invoice = ({ data, details }) => {
           <Text style={styles.detailText}>Phone: +1234567890</Text>
         </View>
 
-        {/* Client Details */}
-        <View style={styles.details}>
-          <Text style={styles.subHeader}>Client Information</Text>
-          {Object.entries(details).map(([key, value]) => (
-            <Text key={key} style={styles.detailText}>
-              {key}: {value}
-            </Text>
-          ))}
-        </View>
-
         {/* Invoice Table */}
         <View style={styles.table}>
           <View style={styles.tableRow}>
@@ -103,14 +125,10 @@ const Invoice = ({ data, details }) => {
             <Text style={[styles.tableHeader, styles.lightGreyBg]}>
               Product
             </Text>
-            <Text style={[styles.tableHeader, styles.whiteBg]}>
-              Description
-            </Text>
+            <Text style={[styles.tableHeader, styles.whiteBg]}>HSN/SAC</Text>
             <Text style={[styles.tableHeader, styles.lightGreyBg]}>Qty</Text>
             <Text style={[styles.tableHeader, styles.whiteBg]}>Unit Price</Text>
-            <Text style={[styles.tableHeader, styles.lightGreyBg]}>
-              Discount
-            </Text>
+            {/* <Text style={[styles.tableHeader, styles.lightGreyBg]}>Tax</Text> */}
             <Text style={[styles.tableHeader, styles.whiteBg]}>Amount</Text>
           </View>
           {data.map((item, index) => (
@@ -137,7 +155,7 @@ const Invoice = ({ data, details }) => {
                   index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
                 ]}
               >
-                {item.Description}
+                {item.HSNSAC}
               </Text>
               <Text
                 style={[
@@ -153,25 +171,35 @@ const Invoice = ({ data, details }) => {
                   index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
                 ]}
               >
-                {item.Unit_Price}
+                {item.UnitPrice}
+                {item.Discount !== "0%" && (
+                  <>
+                    {"\n"}
+                    <Text style={styles.discountText}>
+                      Discount-{item.Discount}
+                    </Text>
+                  </>
+                )}
               </Text>
-              <Text
+              {/* <Text
                 style={[
                   styles.tableCell,
                   index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
                 ]}
               >
                 {item.Discount}
-              </Text>
+              </Text> */}
               <Text
                 style={[
                   styles.tableCell,
                   index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
                 ]}
               >
-                {item.Unit_Price *
+                {(
+                  item.UnitPrice *
                   item.Qty *
-                  (1 - parseFloat(item.Discount) / 100)}
+                  (1 - parseFloat(item.Discount) / 100)
+                ).toFixed(2)}
               </Text>
             </View>
           ))}
@@ -185,8 +213,10 @@ const Invoice = ({ data, details }) => {
 
         {/* Total Amount in Words */}
         <View style={styles.totalAmountInWords}>
-          <Text>Total Amount in Words:</Text>
-          <Text>{convertAmountToWords(totalAmount)}</Text>
+          <Text style={styles.totalText}>Total Amount in Words:</Text>
+          <Text style={styles.totalText}>
+            {convertAmountToWords(totalAmount)}
+          </Text>
         </View>
 
         {/* Footer */}
@@ -227,7 +257,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   table: {
-    display: "table",
+    display: "block",
     width: "100%",
     borderCollapse: "collapse",
     border: "none", // Make the entire table border invisible
@@ -244,8 +274,11 @@ const styles = StyleSheet.create({
   tableCell: {
     flex: 1,
     fontSize: 10,
-    padding: 5,
+    padding: 8, // Adjust padding as needed for proper alignment
     border: "none", // Make the entire table border invisible
+    textAlign: "left", // Align content to the left
+    alignItems: "center", // Center content vertically
+    justifyContent: "center", // Center content horizontally
   },
   whiteBg: {
     backgroundColor: "#fff",
@@ -275,6 +308,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     left: 20,
+  },
+  discountText: {
+    color: "#615e5e",
   },
 });
 
