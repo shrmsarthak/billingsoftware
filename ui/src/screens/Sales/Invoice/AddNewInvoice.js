@@ -320,6 +320,7 @@ export default function NewInvoicePage() {
               PO_Number: formData.PO_Number,
               PO_Date: formData.PO_Date,
               Due_Date: formData.Due_Date,
+              Payment_Term: formData.Payment_Term,
               Place_Of_Supply: formData.Place_Of_Supply,
               Notes: formData.Notes,
             }}
@@ -330,8 +331,10 @@ export default function NewInvoicePage() {
     );
   };
   return (
-    <div className="flex flex-col w-full h-full px-5">
-      <div className="flex flex-col border border-gray-400 p-3 mb-3">
+    <div className="flex flex-col w-full h-full px-1">
+      {" "}
+      {/* Decrease the padding */}
+      <div className="flex flex-col border border-gray-400 p-1 mb-1">
         <div className="my-2 flex-1">
           <Typography variant="h6">Document Data</Typography>
           <hr />
@@ -449,7 +452,6 @@ export default function NewInvoicePage() {
         </div>
       </div>
       <hr />
-
       <div className="my-2 ">
         <div className="flex my-2">
           <div className="mr-12">
@@ -552,9 +554,7 @@ export default function NewInvoicePage() {
           </div>
         </div>
       </div>
-
       <hr />
-
       <div className="flex flex-1 mb-2 h-full">
         <ProductInvoiceTable
           TABLE_HEAD={TABLE_HEAD}
@@ -562,7 +562,6 @@ export default function NewInvoicePage() {
           handleDeleteRow={handleDeleteRow}
         />
       </div>
-
       <div className="flex w-full flex-row">
         <div className="">
           <div className="flex items-center">
