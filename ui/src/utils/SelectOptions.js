@@ -72,6 +72,7 @@ export const get_all_client_option = async () => {
     option.push({
       text: c.client_name,
       value: c.id,
+      all: c,
     });
   });
   return option;
@@ -82,7 +83,12 @@ export const get_all_product_option = async () => {
   let product_option = [{ text: "Add New Product", value: "*" }];
 
   res.data.map((c, idx) => {
-    product_option.push({ text: c.product_name, value: c.id });
+    product_option.push({
+      text: c.product_name,
+      value: c.id,
+      price: c.unit_price,
+      uom: c.uom,
+    });
   });
   return product_option;
 };
