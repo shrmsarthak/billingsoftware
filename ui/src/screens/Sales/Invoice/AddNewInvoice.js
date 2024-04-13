@@ -16,11 +16,13 @@ import {
   get_all_product_option,
   tax_type,
   uom_type,
+  get_all_invoices,
 } from "../../../utils/SelectOptions";
 import { api_new_client, api_new_product } from "../../../utils/PageApi";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import ReactDOM from "react-dom"; // Add this import
+const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -69,23 +71,19 @@ const payemnt_options = [
     text: "90 days",
     value: "90 days",
   },
-  {
-    text: "Due On The Specified Date",
-    value: "Due On The Specified Date",
-  },
 ];
 
 let invoice = {};
 let client_option = await get_all_client_option();
 let shiping_option = [];
 let product_option = await get_all_product_option();
+let invoices = await get_all_invoices();
 let tax_option = tax_type();
 let uom_option = uom_type();
 export default function NewInvoicePage() {
   useEffect(() => {
     document.title = "New Invoice";
   });
-
   const initialValues = {
     Client: "",
     Document_No: "",
@@ -102,12 +100,13 @@ export default function NewInvoicePage() {
     Qty: "",
     Unit_Price: "",
     Discount: "",
-    Tax: "",
+    Tax: "GST Rate 18%",
     Notes: "",
     Private_Notes: "",
+    Shipping_Charges: 0,
+    Shipping_Tax: 0,
   };
   const [formData, setFormData] = useState(initialValues);
-
   useEffect(() => {
     // Convert the issue date to a Date object
     const issueDate = new Date(formData.Issue_Date);
@@ -153,13 +152,12 @@ export default function NewInvoicePage() {
 
   const [rows, setRows] = useState([]);
   const [discountOnAll, setDiscountOnAll] = useState(false);
-  const [discountValue, setDiscountValue] = useState(""); // State to track input field value
-
-  // Update discountValue state when input field value changes
+  const [discountValue, setDiscountValue] = useState(-1);
   const handleDiscountInputChange = (e) => {
     setDiscountValue(e.target.value);
     updateRowsWithDiscount(e.target.value);
   };
+  const [shippingChecked, setShippingChecked] = useState(false);
 
   const updateRowsWithDiscount = (discount) => {
     const updatedRows = rows.map((item) => {
@@ -173,7 +171,7 @@ export default function NewInvoicePage() {
 
       return {
         ...item,
-        Discount: discount ? `${discount}%` : item.Discount, // Update Discount field
+        Discount: discount ? `${discount}%` : 0, // Update Discount field
         Value: discountedValue.toFixed(2),
         CGST: cgst.toFixed(2),
         SGST: sgst.toFixed(2),
@@ -186,6 +184,20 @@ export default function NewInvoicePage() {
   const handleDeleteRow = (index) => {
     setRows((prevRows) => prevRows.filter((_, i) => i !== index));
   };
+  function getIntegerFromPercentageString(percentageString) {
+    // Using a regular expression to extract the integer before '%'
+    const match = percentageString.match(/\d+/);
+
+    // Checking if a match is found
+    if (match) {
+      // Extracting the matched integer and converting it to a number
+      const integer = parseInt(match[0], 10);
+      return integer;
+    }
+
+    // If no match is found, return NaN or any other default value as needed
+    return NaN;
+  }
 
   const rowData = rows.map((item, index) => ({
     Product: item.Product,
@@ -203,28 +215,30 @@ export default function NewInvoicePage() {
             (1 - parseFloat(item.Discount) / 100)
           ).toFixed(2),
     Discount:
-      discountValue !== ""
+      discountValue !== -1
         ? discountValue + "%"
         : item.Discount
         ? item.Discount + "%"
         : "0%",
     CGST: (
-      ((item.Discount === ""
+      (((item.Discount === ""
         ? item.Unit_Price * (item.Qty || 1)
         : item.Unit_Price *
           (item.Qty || 1) *
           (1 - parseFloat(item.Discount) / 100)) /
         100) *
-      9
+        getIntegerFromPercentageString(item.Tax)) /
+      2
     ).toFixed(2),
     SGST: (
-      ((item.Discount === ""
+      (((item.Discount === ""
         ? item.Unit_Price * (item.Qty || 1)
         : item.Unit_Price *
           (item.Qty || 1) *
           (1 - parseFloat(item.Discount) / 100)) /
         100) *
-      10
+        getIntegerFromPercentageString(item.Tax)) /
+      2
     ).toFixed(2),
     IGST: (
       ((item.Discount === ""
@@ -233,26 +247,30 @@ export default function NewInvoicePage() {
           (item.Qty || 1) *
           (1 - parseFloat(item.Discount) / 100)) /
         100) *
-      11
+      9
     ).toFixed(2),
     Action: "DELETE",
   }));
+
+  console.log(JSON.stringify(formData));
 
   // Calculate total value
   const totalValue = rowData
     .reduce((accumulator, currentItem) => {
       const value = parseFloat(currentItem.Value);
+      return accumulator + value;
+    }, 0)
+    .toFixed(2);
+
+  const totalTax = rowData
+    .reduce((accumulator, currentItem) => {
       const cgst = parseFloat(currentItem.CGST);
       const sgst = parseFloat(currentItem.SGST);
       const igst = parseFloat(currentItem.IGST);
 
-      // Add Value, CGST, SGST, and IGST to the accumulator
-      return accumulator + value + cgst + sgst + igst;
+      return accumulator + cgst + sgst + igst;
     }, 0)
     .toFixed(2);
-  // Move .toFixed(2) outside the reduce function
-
-  console.log(JSON.stringify(rowData));
 
   const handleFieldChange = (fieldName, value) => {
     setFormData((prevState) => ({
@@ -276,14 +294,13 @@ export default function NewInvoicePage() {
   const generateFieldValue = () => {
     const today = new Date();
     const day = ("0" + today.getDate()).slice(-2); // Get day with leading zero if needed
-    const month = ("0" + (today.getMonth() + 1)).slice(-2); // Get month with leading zero if needed
     const hours = ("0" + today.getHours()).slice(-2); // Get hours with leading zero if needed
     const minutes = ("0" + today.getMinutes()).slice(-2); // Get minutes with leading zero if needed
     const monthAbbreviation = today
       .toLocaleString("default", { month: "short" })
       .toUpperCase(); // Get month abbreviation
 
-    const generatedValue = `${day}${month}${monthAbbreviation}${hours}${minutes}`;
+    const generatedValue = `${day}${monthAbbreviation}-${hours}${minutes}`;
 
     handleFieldChange("Document_No", generatedValue);
   };
@@ -291,8 +308,39 @@ export default function NewInvoicePage() {
   useEffect(() => {
     generateFieldValue();
   }, []);
+  useEffect(() => {
+    if (!shippingChecked) {
+      handleFieldChange("Shipping_Charges", 0);
+      handleFieldChange("Shipping_Tax", 0);
+    }
+  }, [shippingChecked]);
+  useEffect(() => {
+    if (!discountOnAll) {
+      setDiscountValue(-1);
+      updateRowsWithDiscount(0); // Use false instead of 0
+    }
+  }, [discountOnAll]);
 
-  const openInvoicePreviewWindow = () => {
+  const openInvoicePreviewWindow = async () => {
+    const invoiceData = {
+      rowData: rowData,
+      Client: formData.Client,
+      Document_No: formData.Document_No,
+      Issue_Date: formData.Issue_Date,
+      Ship_To: formData.Ship_To,
+      PO_Number: formData.PO_Number,
+      Payment_Term: formData.Payment_Term,
+      PO_Date: formData.PO_Date,
+      Due_Date: formData.Due_Date,
+      Place_Of_Supply: formData.Place_Of_Supply,
+      Notes: formData.Notes,
+      Private_Notes: formData.Private_Notes,
+      Shipping_Charges: formData.Shipping_Charges,
+      Shipping_Tax: formData.Shipping_Tax,
+      Discount_on_all: formData.Discount_on_all,
+    };
+    const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
+    console.log(res);
     const win = window.open("", "_blank");
     win.document.title = "Invoice Preview";
     win.document.body.style.margin = "0";
@@ -562,75 +610,179 @@ export default function NewInvoicePage() {
           handleDeleteRow={handleDeleteRow}
         />
       </div>
-      <div className="flex w-full flex-row">
-        <div className="">
-          <div className="flex items-center">
-            <div>
-              <Checkbox
-                label="Discount on all"
-                checked={discountOnAll}
-                onChange={() => setDiscountOnAll(!discountOnAll)}
-              />
-            </div>
-            {discountOnAll && (
+      <div
+        className="flex w-full flex-row"
+        style={{ justifyContent: "space-between" }}
+      >
+        {/* First Column */}
+        <div className="mr-10">
+          <div className="flex flex-col">
+            <div className="flex items-center">
               <div>
-                <input
-                  type="number"
-                  value={discountValue}
-                  onChange={handleDiscountInputChange}
-                  placeholder="Enter discount"
-                  style={{
-                    width: 50,
-                    height: 25,
-                    marginRight: 2,
-                    marginLeft: 15,
-                    border: "1px solid",
-                  }}
+                <Checkbox
+                  label="Discount on all"
+                  checked={discountOnAll}
+                  onChange={() => setDiscountOnAll(!discountOnAll)}
                 />
-                %
+                {discountOnAll && (
+                  <div className="flex items-center" style={{ maxWidth: 120 }}>
+                    <Input
+                      type="number"
+                      value={discountValue === -1 ? 0 : discountValue}
+                      label="Enter discount"
+                      onChange={handleDiscountInputChange}
+                      placeholder="Enter discount"
+                    />
+                    %
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className="flex items-center">
-            <div className="mr-7">
-              <Checkbox label="Add Shipping & Packaging Cost" />
+            </div>
+            <div className="flex items-center mt-3">
+              <div className="mr-7">
+                <Checkbox
+                  label="Add Shipping & Packaging Cost"
+                  onChange={() => setShippingChecked(!shippingChecked)}
+                  checked={shippingChecked}
+                />
+                {shippingChecked && (
+                  <div className="flex items-center" style={{ maxWidth: 120 }}>
+                    <Input
+                      variant="outlined"
+                      label="Shipping Charges"
+                      type="number"
+                      placeholder="Shipping Charges"
+                      onChange={(e) =>
+                        handleFieldChange("Shipping_Charges", e.target.value)
+                      }
+                    />
+                    <SelectComp
+                      label="Shipping Tax"
+                      options={tax_option}
+                      isinput={false}
+                      handle={(values) => {
+                        handleFieldChange(
+                          "Shipping_Tax",
+                          getIntegerFromPercentageString(
+                            getTextForValue(tax_option, values.select)
+                          )
+                        );
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex ml-10">
-          <div className="mr-5">
-            <Textarea
-              label="Notes"
-              onChange={(e) => handleFieldChange("Notes", e.target.value)}
-            />
+        {/* Second Column */}
+        <div className="mr-10">
+          <div className="flex flex-col">
+            <div className="mr-5">
+              <Textarea
+                label="Notes"
+                onChange={(e) => handleFieldChange("Notes", e.target.value)}
+              />
+            </div>
+            <div className="mr-5 mt-3">
+              <Textarea
+                label="Private Notes"
+                onChange={(e) =>
+                  handleFieldChange("Private_Notes", e.target.value)
+                }
+              />
+            </div>
           </div>
-          <div className="mr-5">
-            <Textarea
-              label="Private Notes"
-              onChange={(e) =>
-                handleFieldChange("Private_Notes", e.target.value)
-              }
-            />
-          </div>
-          <div
-            className="py-2 self-end"
-            style={{
-              width: "500px",
-              marginLeft: "100px",
-              display: "grid",
-              alignContent: "center",
-              justifyContent: "end",
-              justifyItems: "start",
-            }}
-          >
-            Total: &#8377;{totalValue}
-            <Button
-              onClick={openInvoicePreviewWindow}
-              disabled={rows.length === 0}
+        </div>
+        {/* Third Column */}
+        <div className="py-2 self-end" style={{ marginRight: 40 }}>
+          <div style={{ textAlign: "left", marginRight: "auto" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto 1fr",
+                gap: "10px",
+              }}
             >
-              Preview Document
-            </Button>
+              <div>Total Before Tax:</div>
+              <div style={{ textAlign: "right" }}>&#8377;{totalValue}</div>
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto 1fr",
+                gap: "10px",
+              }}
+            >
+              <div>Total Tax</div>
+              <div style={{ textAlign: "right" }}>
+                &#8377;{totalTax ? totalTax : "0.00"}
+              </div>
+            </div>
+            {formData.Shipping_Charges !== 0 && (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "auto 1fr",
+                  gap: "10px",
+                }}
+              >
+                <div>Shipping Charges:</div>
+                <div style={{ textAlign: "right" }}>
+                  &#8377;{formData.Shipping_Charges}
+                </div>
+              </div>
+            )}
+            {formData.Shipping_Charges !== 0 && formData.Shipping_Tax !== 0 && (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "auto 1fr",
+                  gap: "10px",
+                }}
+              >
+                <div>Shipping Tax @{formData.Shipping_Tax}:</div>
+                <div style={{ textAlign: "right" }}>
+                  &#8377;
+                  {(
+                    (formData.Shipping_Charges / 100) *
+                    formData.Shipping_Tax
+                  ).toFixed(2)}
+                </div>
+              </div>
+            )}
+            <br />
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto 1fr",
+                gap: "10px",
+                fontWeight: 600,
+              }}
+            >
+              <div>Total:</div>
+              <div style={{ textAlign: "right" }}>
+                &#8377;
+                {(
+                  Number(totalValue) +
+                    Number(totalTax) +
+                    Number(formData.Shipping_Charges) ||
+                  0 +
+                    Number(
+                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                    ) ||
+                  0
+                ).toFixed(2)}
+              </div>
+            </div>
           </div>
+          <Button
+            onClick={openInvoicePreviewWindow}
+            disabled={rows.length === 0}
+          >
+            Preview & Save Document
+          </Button>
         </div>
       </div>
     </div>

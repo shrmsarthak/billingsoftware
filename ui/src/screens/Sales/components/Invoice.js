@@ -1,5 +1,7 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Button } from "@material-tailwind/react";
+const { ipcRenderer } = window.require("electron");
 
 const Invoice = ({ data, details }) => {
   // Calculate total amount
@@ -118,257 +120,276 @@ const Invoice = ({ data, details }) => {
 
     return formattedDate;
   }
+  const totalValue = data
+    .reduce((accumulator, currentItem) => {
+      const value = parseFloat(currentItem.Value);
+      const cgst = parseFloat(currentItem.CGST);
+      const sgst = parseFloat(currentItem.SGST);
+      const igst = parseFloat(currentItem.IGST);
+
+      // Add Value, CGST, SGST, and IGST to the accumulator
+      return accumulator + value + cgst + sgst + igst;
+    }, 0)
+    .toFixed(2);
   return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.header_container}>
-          {/* Logo on the top left corner */}
-          <View style={styles.logo_container}>
-            {/* Insert your company logo here */}
-            <Text>Company Logo</Text>
+    <>
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <View style={styles.header_container}>
+            {/* Logo on the top left corner */}
+            <View style={styles.logo_container}>
+              {/* Insert your company logo here */}
+              <Text>Company Logo</Text>
+            </View>
+
+            {/* Company details on the top right corner */}
+            <View style={styles.company_details}>
+              <Text style={styles.company_name}>Your Company</Text>
+              <Text style={styles.detail_text}>123 Street, City, Country</Text>
+              <Text style={styles.detail_text}>info@company.com</Text>
+              <Text style={styles.detail_text}>+1234567890</Text>
+            </View>
           </View>
 
-          {/* Company details on the top right corner */}
-          <View style={styles.company_details}>
-            <Text style={styles.company_name}>Your Company</Text>
-            <Text style={styles.detail_text}>123 Street, City, Country</Text>
-            <Text style={styles.detail_text}>info@company.com</Text>
-            <Text style={styles.detail_text}>+1234567890</Text>
-          </View>
-        </View>
-
-        <View style={styles.invoice_title_container}>
-          <View style={styles.line}></View>
-          <Text style={styles.invoice_title}>INVOICE</Text>
-          <View style={styles.line}></View>
-        </View>
-
-        <View style={styles.bill_ship_container}>
-          {/* Bill To section on the left */}
-          <View style={styles.bill_to}>
-            <Text style={styles.sub_header}>Bill To:</Text>
-            {/* Your bill to details here */}
+          <View style={styles.invoice_title_container}>
+            <View style={styles.line}></View>
+            <Text style={styles.invoice_title}>INVOICE</Text>
+            <View style={styles.line}></View>
           </View>
 
-          {/* Ship To section on the right */}
-          <View style={styles.ship_to}>
-            <Text style={styles.sub_header}>Ship To:</Text>
-            {/* Your ship to details here */}
-          </View>
-        </View>
+          <View style={styles.bill_ship_container}>
+            {/* Bill To section on the left */}
+            <View style={styles.bill_to}>
+              <Text style={styles.sub_header}>Bill To:</Text>
+              {/* Your bill to details here */}
+            </View>
 
-        {/* Table with Invoice Date, Terms, and Due Date */}
-        <View style={styles.invoice_details_container}>
-          <View style={styles.table_row}>
-            <Text
-              style={[
-                styles.tableCell,
-                styles.whiteBg,
-                { width: "33%" }, // Adjusted width for the fourth column
-              ]}
-            >
-              Invoice Date
-            </Text>
-            <Text
-              style={[
-                styles.tableCell,
-                styles.lightGreyBg,
-                { width: "33%" }, // Adjusted width for the fourth column
-              ]}
-            >
-              Payment Terms
-            </Text>
-            <Text
-              style={[
-                styles.tableCell,
-                styles.whiteBg,
-                { width: "33%" }, // Adjusted width for the fourth column
-              ]}
-            >
-              Due Date
-            </Text>
+            {/* Ship To section on the right */}
+            <View style={styles.ship_to}>
+              <Text style={styles.sub_header}>Ship To:</Text>
+              {/* Your ship to details here */}
+            </View>
           </View>
-          <View style={styles.table_row}>
-            <Text
-              style={[
-                styles.tableCell,
-                styles.whiteBg,
-                { width: "33%" }, // Adjusted width for the fourth column
-              ]}
-            >
-              {formatDate(details.Issue_Date)}
-            </Text>
-            <Text
-              style={[
-                styles.tableCell,
-                styles.lightGreyBg,
-                { width: "33%" }, // Adjusted width for the fourth column
-              ]}
-            >
-              {details.Payment_Term}
-            </Text>
-            <Text
-              style={[
-                styles.tableCell,
-                styles.whiteBg,
-                { width: "33%" }, // Adjusted width for the fourth column
-              ]}
-            >
-              {formatDate(details.Due_Date)}
-            </Text>
-          </View>
-        </View>
 
-        {/* Invoice Table */}
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text
-              style={[
-                styles.tableHeader,
-                styles.whiteBg,
-                { flexBasis: "5%" }, // Adjusted width
-              ]}
-            >
-              S.No
-            </Text>
-            <Text
-              style={[
-                styles.tableHeader,
-                styles.lightGreyBg,
-                { flexBasis: "19%" }, // Adjusted width
-              ]}
-            >
-              Product
-            </Text>
-            <Text
-              style={[
-                styles.tableHeader,
-                styles.whiteBg,
-                { flexBasis: "19%" }, // Adjusted width
-              ]}
-            >
-              HSN/SAC
-            </Text>
-            <Text
-              style={[
-                styles.tableHeader,
-                styles.lightGreyBg,
-                { flexBasis: "13%" }, // Adjusted width
-              ]}
-            >
-              Qty
-            </Text>
-            <Text
-              style={[
-                styles.tableHeader,
-                styles.whiteBg,
-                { flexBasis: "19%" }, // Adjusted width
-              ]}
-            >
-              Unit Price
-            </Text>
-            <Text
-              style={[
-                styles.tableHeader,
-                styles.lightGreyBg,
-                { flexBasis: "25%" }, // Adjusted width
-              ]}
-            >
-              Amount
-            </Text>
-          </View>
-          {data.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
+          {/* Table with Invoice Date, Terms, and Due Date */}
+          <View style={styles.invoice_details_container}>
+            <View style={styles.table_row}>
               <Text
                 style={[
                   styles.tableCell,
-                  index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
-                  { width: "5%" }, // Adjusted width for the first column
+                  styles.whiteBg,
+                  { width: "33%" }, // Adjusted width for the fourth column
                 ]}
               >
-                {index + 1}
+                Invoice Date
               </Text>
               <Text
                 style={[
                   styles.tableCell,
-                  index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
-                  { width: "19%" }, // Adjusted width for the second column
+                  styles.lightGreyBg,
+                  { width: "33%" }, // Adjusted width for the fourth column
                 ]}
               >
-                {item.Product}
+                Payment Terms
               </Text>
               <Text
                 style={[
                   styles.tableCell,
-                  index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
-                  { width: "19%" }, // Adjusted width for the third column
+                  styles.whiteBg,
+                  { width: "33%" }, // Adjusted width for the fourth column
                 ]}
               >
-                {item.HSNSAC}
-              </Text>
-              <Text
-                style={[
-                  styles.tableCell,
-                  index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
-                  { width: "13%" }, // Adjusted width for the fourth column
-                ]}
-              >
-                {item.Qty}
-              </Text>
-              <Text
-                style={[
-                  styles.tableCell,
-                  index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
-                  { width: "19%" }, // Adjusted width for the fifth column
-                ]}
-              >
-                {item.UnitPrice}
-                {item.Discount !== "0%" && (
-                  <>
-                    {"\n"}
-                    <Text style={styles.discountText}>
-                      Discount-{item.Discount}
-                    </Text>
-                  </>
-                )}
-              </Text>
-              <Text
-                style={[
-                  styles.tableCell,
-                  index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
-                  { width: "25%" }, // Adjusted width for the sixth column
-                ]}
-              >
-                {(
-                  item.UnitPrice *
-                  item.Qty *
-                  (1 - parseFloat(item.Discount) / 100)
-                ).toFixed(2)}
+                Due Date
               </Text>
             </View>
-          ))}
-        </View>
+            <View style={styles.table_row}>
+              <Text
+                style={[
+                  styles.tableCell,
+                  styles.whiteBg,
+                  { width: "33%" }, // Adjusted width for the fourth column
+                ]}
+              >
+                {formatDate(details.Issue_Date)}
+              </Text>
+              <Text
+                style={[
+                  styles.tableCell,
+                  styles.lightGreyBg,
+                  { width: "33%" }, // Adjusted width for the fourth column
+                ]}
+              >
+                {details.Payment_Term}
+              </Text>
+              <Text
+                style={[
+                  styles.tableCell,
+                  styles.whiteBg,
+                  { width: "33%" }, // Adjusted width for the fourth column
+                ]}
+              >
+                {formatDate(details.Due_Date)}
+              </Text>
+            </View>
+          </View>
 
-        {/* Total Amount */}
-        <View style={styles.totalAmount}>
-          <Text style={styles.totalText}>Total Amount:</Text>
-          <Text style={styles.totalValue}>{totalAmount.toFixed(2)}</Text>
-        </View>
+          {/* Invoice Table */}
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              <Text
+                style={[
+                  styles.tableHeader,
+                  styles.whiteBg,
+                  { flexBasis: "5%" }, // Adjusted width
+                ]}
+              >
+                S.No
+              </Text>
+              <Text
+                style={[
+                  styles.tableHeader,
+                  styles.lightGreyBg,
+                  { flexBasis: "19%" }, // Adjusted width
+                ]}
+              >
+                Product
+              </Text>
+              <Text
+                style={[
+                  styles.tableHeader,
+                  styles.whiteBg,
+                  { flexBasis: "19%" }, // Adjusted width
+                ]}
+              >
+                HSN/SAC
+              </Text>
+              <Text
+                style={[
+                  styles.tableHeader,
+                  styles.lightGreyBg,
+                  { flexBasis: "13%" }, // Adjusted width
+                ]}
+              >
+                Qty
+              </Text>
+              <Text
+                style={[
+                  styles.tableHeader,
+                  styles.whiteBg,
+                  { flexBasis: "19%" }, // Adjusted width
+                ]}
+              >
+                Unit Price
+              </Text>
+              <Text
+                style={[
+                  styles.tableHeader,
+                  styles.lightGreyBg,
+                  { flexBasis: "25%" }, // Adjusted width
+                ]}
+              >
+                Amount
+              </Text>
+            </View>
+            {data.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text
+                  style={[
+                    styles.tableCell,
+                    index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
+                    { width: "5%" }, // Adjusted width for the first column
+                  ]}
+                >
+                  {index + 1}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableCell,
+                    index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
+                    { width: "19%" }, // Adjusted width for the second column
+                  ]}
+                >
+                  {item.Product}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableCell,
+                    index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
+                    { width: "19%" }, // Adjusted width for the third column
+                  ]}
+                >
+                  {item.HSNSAC}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableCell,
+                    index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
+                    { width: "13%" }, // Adjusted width for the fourth column
+                  ]}
+                >
+                  {item.Qty}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableCell,
+                    index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
+                    { width: "19%" }, // Adjusted width for the fifth column
+                  ]}
+                >
+                  {item.UnitPrice}
+                  {item.Discount !== "0%" && (
+                    <>
+                      {"\n"}
+                      <Text style={styles.discountText}>
+                        Discount-{item.Discount}
+                      </Text>
+                    </>
+                  )}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableCell,
+                    index % 2 === 0 ? styles.whiteBg : styles.lightGreyBg,
+                    { width: "25%" }, // Adjusted width for the sixth column
+                  ]}
+                >
+                  {(
+                    item.UnitPrice *
+                    item.Qty *
+                    (1 - parseFloat(item.Discount) / 100)
+                  ).toFixed(2)}
+                </Text>
+              </View>
+            ))}
+          </View>
 
-        {/* Total Amount in Words */}
-        <View style={styles.totalAmountInWords}>
-          <Text style={styles.totalText}>Total Amount in Words:</Text>
-          <Text style={styles.totalText}>
-            {convertAmountToWords(totalAmount)}
-          </Text>
-        </View>
+          {/* Total Amount */}
+          <View style={styles.totalAmount}>
+            <Text style={styles.totalText}>Total Amount:</Text>
+            <Text style={styles.totalValue}>{totalValue}</Text>
+          </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text>Thank you for your business!</Text>
+          {/* Total Amount in Words */}
+          <View style={styles.totalAmountInWords}>
+            <Text style={styles.totalText}>Total Amount in Words:</Text>
+            <Text style={styles.totalText}>
+              {convertAmountToWords(totalValue)}
+            </Text>
+          </View>
+
+          {/* Footer */}
+          <View style={styles.totalAmountInWords}>
+            <Text>Note:{details.Notes}</Text>
+          </View>
+          <View style={styles.footer}>
+            <Text>Thank you for your business!</Text>
+          </View>
+        </Page>
+        <View style={styles.buttonContainer}>
+          <Button onClick={() => alert("hello")}>Save</Button>
         </View>
-      </Page>
-    </Document>
+      </Document>
+    </>
   );
 };
 const styles = StyleSheet.create({
@@ -538,6 +559,11 @@ const styles = StyleSheet.create({
   detail_text: {
     fontSize: 12, // Reduced font size for other details
     marginBottom: 3, // Reduced margin below each detail
+  },
+  buttonContainer: {
+    position: "absolute",
+    top: 100,
+    right: 100,
   },
 });
 

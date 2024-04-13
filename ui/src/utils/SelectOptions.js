@@ -92,3 +92,10 @@ export const get_all_product_option = async () => {
   });
   return product_option;
 };
+
+export const get_all_invoices = async () => {
+  var res = await ipcRenderer.invoke("get-all-invoice");
+  return [res.data];
+};
+
+
