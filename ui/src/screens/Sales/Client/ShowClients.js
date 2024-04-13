@@ -167,7 +167,9 @@ export default function ShowClientPage() {
 
   const downloadSampleFile = async () => {
     try {
-      const response = await ipcRenderer.invoke("download-client-sample-import-file");
+      const response = await ipcRenderer.invoke(
+        "download-client-sample-import-file"
+      );
       if (response?.success) {
         // Handle successful response, e.g., prompt download
         const buffer = response.buffer;

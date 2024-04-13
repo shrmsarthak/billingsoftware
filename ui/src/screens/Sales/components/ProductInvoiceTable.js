@@ -1,4 +1,5 @@
 import { Card, Typography, Button } from "@material-tailwind/react";
+import { Icon } from '@material-tailwind/react';
 
 export function ProductInvoiceTable({
   TABLE_HEAD,

@@ -16,7 +16,9 @@ import {
   get_all_product_option,
   tax_type,
   uom_type,
+  get_all_invoices,
 } from "../../../utils/SelectOptions";
+const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -26,13 +28,13 @@ const TABLE_HEAD = [
   "Due Date",
   "Amount",
   "Tax",
+  "Shipping",
   "Total",
   "Status",
   "Private Notes",
   "Emailed",
-  "Ammount Paid",
+  "Amount Paid",
   "Balance",
-  "Dr/Cr",
   "Date of payemnt",
   "type",
   "Action",
@@ -42,13 +44,38 @@ const TABLE_ROWS = [];
 
 const select_option = [];
 
-let invoice = {};
+let invoices = await get_all_invoices();
+let filteredArray = invoices.flat().map((obj) => {
+  return {
+    "Client Name": obj.Client,
+    "Invoice No": obj.Document_No, // Assuming Document_No is the invoice number
+    "Issue Date": obj.Issue_Date,
+    "Due Date": obj.Due_Date,
+    Amount: obj.Total_BeforeTax, // Assuming there's only one item in rowData
+    Tax: obj.Total_Tax,
+    "Shipping Cost": obj.Shipping_Charges,
+    Total: (
+      Number(obj.Total_BeforeTax) +
+      Number(obj.Total_Tax) +
+      Number(obj.Shipping_Charges)
+    ).toFixed(2),
+    Status: "unpaid", // You need to define how status is determined
+    "Private Notes": obj.Private_Notes,
+    Emailed: "", // You need to define how this is determined
+    "Amount Paid": "", // You need to define this
+    Balance: "", // You need to define this
+    "Date of payment": "", // You need to define this
+    type: "", // You need to define this-----------------------------remove
+    Action: obj.rowData[0].Action, // Assuming Action is from rowData
+  };
+});
 let client_option = await get_all_client_option();
 client_option.shift();
 let shiping_option = [];
 let product_option = await get_all_product_option();
 let tax_option = tax_type();
 let uom_option = uom_type();
+
 export default function ShowInvoicePage() {
   useEffect(() => {
     document.title = "Show Invoice";
@@ -56,6 +83,24 @@ export default function ShowInvoicePage() {
   const handleSelect = (type, value) => {
     console.log(type, value);
   };
+  console.log(JSON.stringify(invoices));
+
+  function getDocumentNoAtIndex(index) {
+    if (index >= 0 && index < filteredArray.flat().length) {
+      return filteredArray.flat()[index]["Invoice No"];
+    } else {
+      return "Invalid index";
+    }
+  }
+  const handleDeleteInvoice = async (index) => {
+    if (getDocumentNoAtIndex(index) !== "Invalid index") {
+      const res = await ipcRenderer.invoke(
+        "delete-invoice-by-Document-no",
+        getDocumentNoAtIndex(index)
+      );
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
@@ -173,7 +218,11 @@ export default function ShowInvoicePage() {
       </div>
 
       <div className="flex flex-1 mb-2 h-full">
-        <ProductInvoiceTable TABLE_HEAD={TABLE_HEAD} TABLE_ROWS={TABLE_ROWS} />
+        <ProductInvoiceTable
+          TABLE_HEAD={TABLE_HEAD}
+          TABLE_ROWS={filteredArray}
+          handleDeleteRow={handleDeleteInvoice}
+        />
       </div>
     </div>
   );
