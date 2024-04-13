@@ -9,7 +9,6 @@ import {
 } from "@material-tailwind/react";
 import React, { useState, useEffect } from "react";
 import { ProductInvoiceTable } from "../components/ProductInvoiceTable";
-// import { Table } from "../components/Table";
 import SelectComp from "../components/SelectComp";
 import {
   get_all_client_option,
@@ -21,7 +20,6 @@ import {
 import { api_new_client, api_new_product } from "../../../utils/PageApi";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
-import ReactDOM from "react-dom"; // Add this import
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
@@ -73,11 +71,9 @@ const payemnt_options = [
   },
 ];
 
-let invoice = {};
 let client_option = await get_all_client_option();
 let shiping_option = [];
 let product_option = await get_all_product_option();
-let invoices = await get_all_invoices();
 let tax_option = tax_type();
 let uom_option = uom_type();
 export default function NewInvoicePage() {
@@ -105,6 +101,8 @@ export default function NewInvoicePage() {
     Private_Notes: "",
     Shipping_Charges: 0,
     Shipping_Tax: 0,
+    Total_BeforeTax: 0,
+    Total_Tax: 0,
   };
   const [formData, setFormData] = useState(initialValues);
   useEffect(() => {
@@ -321,63 +319,174 @@ export default function NewInvoicePage() {
     }
   }, [discountOnAll]);
 
-  const openInvoicePreviewWindow = async () => {
-    const invoiceData = {
-      rowData: rowData,
-      Client: formData.Client,
-      Document_No: formData.Document_No,
-      Issue_Date: formData.Issue_Date,
-      Ship_To: formData.Ship_To,
-      PO_Number: formData.PO_Number,
-      Payment_Term: formData.Payment_Term,
-      PO_Date: formData.PO_Date,
-      Due_Date: formData.Due_Date,
-      Place_Of_Supply: formData.Place_Of_Supply,
-      Notes: formData.Notes,
-      Private_Notes: formData.Private_Notes,
-      Shipping_Charges: formData.Shipping_Charges,
-      Shipping_Tax: formData.Shipping_Tax,
-      Discount_on_all: formData.Discount_on_all,
+  useEffect(() => {
+    handleFieldChange("Total_BeforeTax", totalValue);
+    handleFieldChange("Total_Tax", totalTax);
+  }, [totalValue]);
+
+  const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
+
+  const openInvoicePreviewWindow = () => {
+    setIsInvoicePreviewOpen(true);
+  };
+
+  const closeInvoicePreviewWindow = () => {
+    setIsInvoicePreviewOpen(false);
+  };
+
+  const renderInvoicePreview = () => {
+    const handleSave = async () => {
+      const invoiceData = {
+        rowData: rowData,
+        Client: formData.Client,
+        Document_No: formData.Document_No,
+        Issue_Date: formData.Issue_Date,
+        Ship_To: formData.Ship_To,
+        PO_Number: formData.PO_Number,
+        Payment_Term: formData.Payment_Term,
+        PO_Date: formData.PO_Date,
+        Due_Date: formData.Due_Date,
+        Place_Of_Supply: formData.Place_Of_Supply,
+        Notes: formData.Notes,
+        Private_Notes: formData.Private_Notes,
+        Shipping_Charges:
+          Number(formData.Shipping_Charges) +
+          Number((formData.Shipping_Charges / 100) * formData.Shipping_Tax),
+        Discount_on_all: formData.Discount_on_all,
+        Total_BeforeTax: formData.Total_BeforeTax,
+        Total_Tax: formData.Total_Tax,
+      };
+
+      const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
+      console.log(res); // Handle the response as needed
     };
-    const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
-    console.log(res);
-    const win = window.open("", "_blank");
-    win.document.title = "Invoice Preview";
-    win.document.body.style.margin = "0";
-    win.document.body.style.padding = "0";
-    win.document.body.style.overflow = "hidden";
-    win.document.body.innerHTML = `
-      <div id="root"></div>
-    `;
-    ReactDOM.render(
-      <React.StrictMode>
-        <PDFViewer
+
+    if (isInvoicePreviewOpen) {
+      return (
+        <div
           style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
             width: "100%",
-            height: "100vh",
-            position: "absolute",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)" /* Semi-transparent black */,
+            backdropFilter:
+              "blur(5px)" /* Apply blur effect to the background */,
+            zIndex: 999 /* Ensure the backdrop is above other content */,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          <Invoice
-            data={rowData.flat()}
-            details={{
-              Client: formData.Client,
-              Issue_Date: formData.Issue_Date,
-              Document_No: formData.Document_No,
-              Ship_To: formData.Ship_To,
-              PO_Number: formData.PO_Number,
-              PO_Date: formData.PO_Date,
-              Due_Date: formData.Due_Date,
-              Payment_Term: formData.Payment_Term,
-              Place_Of_Supply: formData.Place_Of_Supply,
-              Notes: formData.Notes,
+          <div
+            style={{
+              position: "relative",
+              width: "80%",
+              maxWidth: "800px" /* Set maximum width for the container */,
+              backgroundColor: "white",
+              borderRadius: "8px",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
+              padding: "20px",
             }}
-          />
-        </PDFViewer>
-      </React.StrictMode>,
-      win.document.getElementById("root")
-    );
+          >
+            <div style={{ textAlign: "right", marginBottom: "10px" }}>
+              <button
+                style={{
+                  background: "#7D73736C",
+                  border: "1px solid",
+                  cursor: "pointer",
+                  padding: "5px",
+                  borderRadius: "5px",
+                  display: "flex",
+                  alignItems: "center",
+                  position: "absolute",
+                }}
+                onClick={handleSave}
+              >
+                <svg
+                  class="w-6 h-6 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
+                  />
+                </svg>
+                Save
+              </button>
+              <button
+                style={{
+                  background: "orangered",
+                  border: "1px solid",
+                  cursor: "pointer",
+                  padding: "5px",
+                  borderRadius: "5px",
+                  marginLeft: 10,
+                }}
+                onClick={closeInvoicePreviewWindow}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <PDFViewer
+              style={{
+                width: "100%",
+                height: "90vh" /* Adjusted height */,
+              }}
+            >
+              <Invoice
+                data={rowData.flat()}
+                details={{
+                  Client: formData.Client,
+                  Issue_Date: formData.Issue_Date,
+                  Document_No: formData.Document_No,
+                  Ship_To: formData.Ship_To,
+                  PO_Number: formData.PO_Number,
+                  PO_Date: formData.PO_Date,
+                  Due_Date: formData.Due_Date,
+                  Payment_Term: formData.Payment_Term,
+                  Place_Of_Supply: formData.Place_Of_Supply,
+                  Notes: formData.Notes,
+                  Shipping_Charges:
+                    Number(formData.Shipping_Charges) +
+                    Number(
+                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                    ),
+                  Shipping_Tax: formData.Shipping_Tax,
+                  Discount_on_all: formData.Discount_on_all,
+                  Total_BeforeTax: formData.Total_BeforeTax,
+                  Total_Tax: formData.Total_Tax,
+                }}
+              />
+            </PDFViewer>
+          </div>
+        </div>
+      );
+    }
   };
+
   return (
     <div className="flex flex-col w-full h-full px-1">
       {" "}
@@ -741,7 +850,7 @@ export default function NewInvoicePage() {
                   gap: "10px",
                 }}
               >
-                <div>Shipping Tax @{formData.Shipping_Tax}:</div>
+                <div>Shipping Tax @{formData.Shipping_Tax}%:</div>
                 <div style={{ textAlign: "right" }}>
                   &#8377;
                   {(
@@ -766,13 +875,11 @@ export default function NewInvoicePage() {
                 &#8377;
                 {(
                   Number(totalValue) +
-                    Number(totalTax) +
-                    Number(formData.Shipping_Charges) ||
-                  0 +
-                    Number(
-                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax
-                    ) ||
-                  0
+                  Number(totalTax) +
+                  Number(formData.Shipping_Charges) +
+                  Number(
+                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                  )
                 ).toFixed(2)}
               </div>
             </div>
@@ -780,9 +887,11 @@ export default function NewInvoicePage() {
           <Button
             onClick={openInvoicePreviewWindow}
             disabled={rows.length === 0}
+            style={{ width: "-webkit-fill-available" }}
           >
-            Preview & Save Document
+            Preview
           </Button>
+          {renderInvoicePreview()}
         </div>
       </div>
     </div>

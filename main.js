@@ -1366,112 +1366,39 @@ ipcMain.handle("get-all-invoice", async (ev, args) => {
   }
 });
 
-// async function addNewInvoice(invoiceData) {
-//   try {
-//     const productRepo = DBManager.getRepository(Invoice);
-
-//     const invoiceDataObj = {
-//       rowData: invoiceData.rowData,
-//       Client: invoiceData.Client,
-//       Document_No: invoiceData.Document_No,
-//       Issue_Date: invoiceData.Issue_Date,
-//       Ship_To: invoiceData.Ship_To,
-//       PO_Number: invoiceData.PO_Number,
-//       Payment_Term: invoiceData.Payment_Term,
-//       PO_Date: invoiceData.PO_Date,
-//       Due_Date: invoiceData.Due_Date,
-//       Place_Of_Supply: invoiceData.Place_Of_Supply,
-//       Notes: invoiceData.Notes,
-//       Private_Notes: invoiceData.Private_Notes,
-//       Shipping_Charges: invoiceData.Shipping_Charges,
-//       Shipping_Tax: invoiceData.Shipping_Tax,
-//       Discount_on_all: invoiceData.Discount_on_all,
-//       shipping_cost: invoiceData.shipping_cost,
-//       shipping_tax: invoiceData.shipping_tax,
-//     };
-//     // Save the new invoice entity to the database
-//     const result = await productRepo
-//       .createQueryBuilder()
-//       .insert()
-//       .values(invoiceDataObj)
-//       .execute();
-//     if (result) {
-//       return { success: true, message: "New invoice added successfully!" };
-//     }
-//   } catch (error) {
-//     console.error("Error adding new invoice:", error);
-//   }
-// }
-
 async function addNewInvoice(invoiceData) {
   try {
     const productRepo = DBManager.getRepository(Invoice);
 
-    // Check if the document with the given Document_No already exists
-    const existingInvoice = await productRepo.findOne({
-      where: { Document_No: invoiceData.Document_No },
-    });
-
-    if (existingInvoice) {
-      // If the document exists, update it with new data
-      const result = await productRepo.update(existingInvoice.id, {
-        rowData: invoiceData.rowData,
-        Client: invoiceData.Client,
-        Issue_Date: invoiceData.Issue_Date,
-        Ship_To: invoiceData.Ship_To,
-        PO_Number: invoiceData.PO_Number,
-        Payment_Term: invoiceData.Payment_Term,
-        PO_Date: invoiceData.PO_Date,
-        Due_Date: invoiceData.Due_Date,
-        Place_Of_Supply: invoiceData.Place_Of_Supply,
-        Notes: invoiceData.Notes,
-        Private_Notes: invoiceData.Private_Notes,
-        Shipping_Charges: invoiceData.Shipping_Charges,
-        Shipping_Tax: invoiceData.Shipping_Tax,
-        Discount_on_all: invoiceData.Discount_on_all,
-        shipping_cost: invoiceData.shipping_cost,
-        shipping_tax: invoiceData.shipping_tax,
-      });
-
-      if (result) {
-        return { success: true, message: "Invoice updated successfully!" };
-      }
-    } else {
-      // If the document doesn't exist, create a new one
-      const invoiceDataObj = {
-        rowData: invoiceData.rowData,
-        Client: invoiceData.Client,
-        Document_No: invoiceData.Document_No,
-        Issue_Date: invoiceData.Issue_Date,
-        Ship_To: invoiceData.Ship_To,
-        PO_Number: invoiceData.PO_Number,
-        Payment_Term: invoiceData.Payment_Term,
-        PO_Date: invoiceData.PO_Date,
-        Due_Date: invoiceData.Due_Date,
-        Place_Of_Supply: invoiceData.Place_Of_Supply,
-        Notes: invoiceData.Notes,
-        Private_Notes: invoiceData.Private_Notes,
-        Shipping_Charges: invoiceData.Shipping_Charges,
-        Shipping_Tax: invoiceData.Shipping_Tax,
-        Discount_on_all: invoiceData.Discount_on_all,
-        shipping_cost: invoiceData.shipping_cost,
-        shipping_tax: invoiceData.shipping_tax,
-      };
-
-      // Save the new invoice entity to the database
-      const result = await productRepo
-        .createQueryBuilder()
-        .insert()
-        .values(invoiceDataObj)
-        .execute();
-
-      if (result) {
-        return { success: true, message: "New invoice added successfully!" };
-      }
+    const invoiceDataObj = {
+      rowData: invoiceData.rowData,
+      Client: invoiceData.Client,
+      Document_No: invoiceData.Document_No,
+      Issue_Date: invoiceData.Issue_Date,
+      Ship_To: invoiceData.Ship_To,
+      PO_Number: invoiceData.PO_Number,
+      Payment_Term: invoiceData.Payment_Term,
+      PO_Date: invoiceData.PO_Date,
+      Due_Date: invoiceData.Due_Date,
+      Place_Of_Supply: invoiceData.Place_Of_Supply,
+      Notes: invoiceData.Notes,
+      Private_Notes: invoiceData.Private_Notes,
+      Shipping_Charges: invoiceData.Shipping_Charges,
+      Discount_on_all: invoiceData.Discount_on_all,
+      Total_BeforeTax: invoiceData.Total_BeforeTax,
+      Total_Tax: invoiceData.Total_Tax,
+    };
+    // Save the new invoice entity to the database
+    const result = await productRepo
+      .createQueryBuilder()
+      .insert()
+      .values(invoiceDataObj)
+      .execute();
+    if (result) {
+      return { success: true, message: "New invoice added successfully!" };
     }
   } catch (error) {
-    console.error("Error adding/updating invoice:", error);
-    return { success: false, message: "Failed to add/update invoice" };
+    console.error("Error adding new invoice:", error);
   }
 }
 

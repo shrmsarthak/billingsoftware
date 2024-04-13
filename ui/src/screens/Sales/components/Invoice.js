@@ -1,6 +1,5 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
-import { Button } from "@material-tailwind/react";
 const { ipcRenderer } = window.require("electron");
 
 const Invoice = ({ data, details }) => {
@@ -120,17 +119,6 @@ const Invoice = ({ data, details }) => {
 
     return formattedDate;
   }
-  const totalValue = data
-    .reduce((accumulator, currentItem) => {
-      const value = parseFloat(currentItem.Value);
-      const cgst = parseFloat(currentItem.CGST);
-      const sgst = parseFloat(currentItem.SGST);
-      const igst = parseFloat(currentItem.IGST);
-
-      // Add Value, CGST, SGST, and IGST to the accumulator
-      return accumulator + value + cgst + sgst + igst;
-    }, 0)
-    .toFixed(2);
   return (
     <>
       <Document>
@@ -365,29 +353,62 @@ const Invoice = ({ data, details }) => {
 
           {/* Total Amount */}
           <View style={styles.totalAmount}>
-            <Text style={styles.totalText}>Total Amount:</Text>
-            <Text style={styles.totalValue}>{totalValue}</Text>
+            <View style={styles.row}>
+              <Text style={styles.totalText}>Total Before Tax:</Text>
+              <Text style={styles.totalValue}>{details.Total_BeforeTax}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.totalText}>Total Tax:</Text>
+              <Text style={styles.totalValue}>{details.Total_Tax}</Text>
+            </View>
+            {details.Shipping_Charges > 0 ? (
+              <View style={styles.row}>
+                <Text style={styles.totalText}>Shipping Charges:</Text>
+                <Text style={styles.totalValue}>
+                  {details.Shipping_Charges}
+                </Text>
+              </View>
+            ) : (
+              <></>
+            )}
+            <View style={styles.row}>
+              <Text style={styles.totalText}>Total Amount:</Text>
+              <Text style={styles.totalValue}>
+                {(
+                  Number(details.Total_BeforeTax) +
+                  Number(details.Total_Tax) +
+                  Number(details.Shipping_Charges)
+                ).toFixed(2)}
+              </Text>
+            </View>
           </View>
 
           {/* Total Amount in Words */}
           <View style={styles.totalAmountInWords}>
             <Text style={styles.totalText}>Total Amount in Words:</Text>
             <Text style={styles.totalText}>
-              {convertAmountToWords(totalValue)}
+              {convertAmountToWords(
+                parseInt(
+                  Number(details.Total_BeforeTax) +
+                    Number(details.Total_Tax) +
+                    Number(details.Shipping_Charges)
+                )
+              )}
             </Text>
           </View>
 
           {/* Footer */}
-          <View style={styles.totalAmountInWords}>
-            <Text>Note:{details.Notes}</Text>
-          </View>
+          {details.Notes.length > 0 ? (
+            <View style={styles.totalAmountInWords}>
+              <Text style={styles.totalText}>Note:{details.Notes}</Text>
+            </View>
+          ) : (
+            <></>
+          )}
           <View style={styles.footer}>
             <Text>Thank you for your business!</Text>
           </View>
         </Page>
-        <View style={styles.buttonContainer}>
-          <Button onClick={() => alert("hello")}>Save</Button>
-        </View>
       </Document>
     </>
   );
@@ -468,17 +489,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f3f3",
   },
   totalAmount: {
+    flexDirection: "column",
+    alignItems: "flex-end", // Align items to the end of the container
+    marginBottom: 8,
+    marginTop: 20,
+  },
+  row: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    marginBottom: 8, // Adjusted margin
+    justifyContent: "space-between",
+    width: 200, // Fixed width for the row container
+    marginBottom: 5,
   },
   totalText: {
-    fontSize: 10, // Decreased font size
+    fontSize: 10,
+    width: 150, // Fixed width for the text containing labels
     marginRight: 10,
   },
   totalValue: {
-    fontSize: 10, // Decreased font size
+    fontSize: 10,
     fontWeight: "bold",
+    width: 40, // Fixed width for the text containing values
+    textAlign: "right", // Align text to the right
   },
   totalAmountInWords: {
     flexDirection: "row",
@@ -564,6 +595,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 100,
     right: 100,
+  },
+  totalTextContainer: {
+    flex: 1,
+  },
+  totalValueContainer: {
+    flex: 1,
+    alignItems: "flex-end",
   },
 });
 

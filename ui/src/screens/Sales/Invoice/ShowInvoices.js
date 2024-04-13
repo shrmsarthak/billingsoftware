@@ -24,17 +24,17 @@ const TABLE_HEAD = [
   "No",
   "Client Name",
   "Invoice No",
-  "Issue Dateee",
+  "Issue Date",
   "Due Date",
   "Amount",
   "Tax",
+  "Shipping",
   "Total",
   "Status",
   "Private Notes",
   "Emailed",
-  "Ammount Paid",
+  "Amount Paid",
   "Balance",
-  "Dr/Cr",
   "Date of payemnt",
   "type",
   "Action",
@@ -51,23 +51,19 @@ let filteredArray = invoices.flat().map((obj) => {
     "Invoice No": obj.Document_No, // Assuming Document_No is the invoice number
     "Issue Date": obj.Issue_Date,
     "Due Date": obj.Due_Date,
-    Amount: obj.rowData[0].Value, // Assuming there's only one item in rowData
-    Tax:
-      parseFloat(obj.rowData[0].CGST) +
-      parseFloat(obj.rowData[0].SGST) +
-      parseFloat(obj.rowData[0].IGST), // Assuming CGST, SGST, IGST are tax amounts
+    Amount: obj.Total_BeforeTax, // Assuming there's only one item in rowData
+    Tax: obj.Total_Tax,
+    "Shipping Cost": obj.Shipping_Charges,
     Total: (
-      parseFloat(obj.rowData[0].Value) +
-      parseFloat(obj.rowData[0].CGST) +
-      parseFloat(obj.rowData[0].SGST) +
-      parseFloat(obj.rowData[0].IGST)
+      Number(obj.Total_BeforeTax) +
+      Number(obj.Total_Tax) +
+      Number(obj.Shipping_Charges)
     ).toFixed(2),
     Status: "unpaid", // You need to define how status is determined
     "Private Notes": obj.Private_Notes,
     Emailed: "", // You need to define how this is determined
     "Amount Paid": "", // You need to define this
     Balance: "", // You need to define this
-    "Dr/Cr": "", // You need to define this--------------------------remove
     "Date of payment": "", // You need to define this
     type: "", // You need to define this-----------------------------remove
     Action: obj.rowData[0].Action, // Assuming Action is from rowData

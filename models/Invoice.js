@@ -56,11 +56,15 @@ const Invoice = new EntitySchema({
       type: Number,
       nullable: true,
     },
-    Shipping_Tax: {
+    Discount_on_all: {
       type: Number,
       nullable: true,
     },
-    Discount_on_all: {
+    Total_BeforeTax: {
+      type: Number,
+      nullable: true,
+    },
+    Total_Tax: {
       type: Number,
       nullable: true,
     },
