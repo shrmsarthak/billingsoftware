@@ -19,9 +19,6 @@ import SelectComp from "../components/SelectComp";
 import { api_new_client, api_new_invoice } from "../../../utils/PageApi";
 import {
   get_all_client_option,
-  get_all_product_option,
-  tax_type,
-  uom_type,
   get_all_invoices,
 } from "../../../utils/SelectOptions";
 const { ipcRenderer } = window.require("electron");
@@ -38,16 +35,13 @@ const TABLE_HEAD = [
   "Total",
   "Status",
   "Private Notes",
-  "Emailed",
   "Amount Paid",
   "Balance",
   "Date of payemnt",
-  "type",
+  "Type",
   "Paid/Unpaid",
   "Action",
 ];
-
-const TABLE_ROWS = [];
 
 const select_option = [];
 const payemnt_options = [
@@ -62,6 +56,17 @@ const payemnt_options = [
   {
     text: "Bank Transfer",
     value: "Bank Transfer",
+  },
+];
+
+const status_options = [
+  {
+    text: "Unpaid",
+    value: "Unpaid",
+  },
+  {
+    text: "Paid",
+    value: "Paid",
   },
 ];
 
@@ -84,8 +89,27 @@ export default function ShowInvoicePage() {
     Amount_Paid: "",
     Date_of_payment: "",
   });
+  const [filterValues, setFilterValues] = useState({
+    Client: "",
+    Status: "",
+    Issue_From: "",
+    Issue_To: "",
+    Document_No: "",
+    Due_Date: "",
+    Transaction_type: "",
+  });
+
+  const resetFilterValues = () => {
+    window.location.reload();
+  };
   const handleInputChange = (fieldName, value) => {
     setFormValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+    }));
+  };
+  const handleFilterChange = (fieldName, value) => {
+    setFilterValues((prevValues) => ({
       ...prevValues,
       [fieldName]: value,
     }));
@@ -99,6 +123,7 @@ export default function ShowInvoicePage() {
   const handleDbUpdate = async () => {
     const res = await ipcRenderer.invoke("update-invoice", formValues);
   };
+
   let filteredArray = invoices.flat().map((obj) => {
     return {
       "Client Name": obj.Client,
@@ -124,7 +149,6 @@ export default function ShowInvoicePage() {
           <p style={{ color: "orangered" }}>Unpaid</p>
         ),
       "Private Notes": obj.Private_Notes,
-      Emailed: "",
       "Amount Paid": obj.Amount_Paid,
       Balance: (
         Number(obj.Total_BeforeTax) +
@@ -133,7 +157,7 @@ export default function ShowInvoicePage() {
         obj.Amount_Paid
       ).toFixed(2),
       "Date of payment": obj.Date_of_payment,
-      type: obj.Transaction_type,
+      Type: obj.Transaction_type,
       ActionButton: (
         <Button
           size="xs"
@@ -164,6 +188,119 @@ export default function ShowInvoicePage() {
     };
   });
 
+  const [filterData, setFilterData] = useState([]);
+  const nonEmptyValues = () => {
+    return Object.keys(filterValues).filter((key) => filterValues[key] !== "");
+  };
+
+  useEffect(() => {
+    let nonEmptyFields = nonEmptyValues();
+    let filteredData = invoices
+      .flat()
+      .filter((object) => {
+        return nonEmptyFields.every((field) => {
+          if (field === "Issue_From" || field === "Issue_To") {
+            // Check if Issue Date lies in the range between Issue_From and Issue_To
+            const fromDate = new Date(filterValues.Issue_From);
+            const toDate = new Date(filterValues.Issue_To);
+            const issueDate = new Date(object.Issue_Date);
+            return issueDate >= fromDate && issueDate <= toDate;
+          } else if (field === "Status") {
+            // Check if the invoice is paid or unpaid
+            if (filterValues.Status === "Paid") {
+              // Filter for paid invoices
+              return (
+                Number(object.Total_BeforeTax) +
+                  Number(object.Total_Tax) +
+                  Number(object.Shipping_Charges) -
+                  object.Amount_Paid <=
+                0
+              );
+            } else if (filterValues.Status === "Unpaid") {
+              // Filter for unpaid invoices
+              return (
+                Number(object.Total_BeforeTax) +
+                  Number(object.Total_Tax) +
+                  Number(object.Shipping_Charges) -
+                  object.Amount_Paid >
+                0
+              );
+            } else {
+              // If no value selected, don't filter based on Paid
+              return true;
+            }
+          } else {
+            return object[field] === filterValues[field];
+          }
+        });
+      })
+      .map((obj) => {
+        return {
+          "Client Name": obj.Client,
+          "Invoice No": obj.Document_No,
+          "Issue Date": obj.Issue_Date,
+          "Due Date": obj.Due_Date,
+          Amount: obj.Total_BeforeTax,
+          Tax: obj.Total_Tax,
+          "Shipping Cost": obj.Shipping_Charges,
+          Total: (
+            Number(obj.Total_BeforeTax) +
+            Number(obj.Total_Tax) +
+            Number(obj.Shipping_Charges)
+          ).toFixed(2),
+          Status:
+            Number(obj.Total_BeforeTax) +
+              Number(obj.Total_Tax) +
+              Number(obj.Shipping_Charges) -
+              obj.Amount_Paid <=
+            0 ? (
+              <p style={{ color: "green" }}>Paid</p>
+            ) : (
+              <p style={{ color: "orangered" }}>Unpaid</p>
+            ),
+          "Private Notes": obj.Private_Notes,
+          "Amount Paid": obj.Amount_Paid,
+          Balance: (
+            Number(obj.Total_BeforeTax) +
+            Number(obj.Total_Tax) +
+            Number(obj.Shipping_Charges) -
+            obj.Amount_Paid
+          ).toFixed(2),
+          "Date of payment": obj.Date_of_payment,
+          Type: obj.Transaction_type,
+          ActionButton: (
+            <Button
+              size="xs"
+              className="py-1 px-2"
+              style={{ background: "none" }}
+              onClick={() => handlePayNow(obj)}
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                />
+              </svg>
+            </Button>
+          ),
+          Action: obj.rowData[0].Action,
+        };
+      });
+    setFilterData(filteredData);
+  }, [filterValues]);
+
+  const nonEmptyFields = nonEmptyValues();
   function getDocumentNoAtIndex(index) {
     if (index >= 0 && index < filteredArray.flat().length) {
       return filteredArray.flat()[index]["Invoice No"];
@@ -183,8 +320,11 @@ export default function ShowInvoicePage() {
     handleInputChange("Amount_Paid", e.target.value);
     handleInputChange("Document_No", doc_no);
   };
-
-  console.log(invoices);
+  function getTextForValue(option, value) {
+    const clients = option;
+    const client = clients.find((client) => client.value === value);
+    return client ? client.text : "Unknown";
+  }
 
   return (
     <div className="flex flex-col w-full h-full px-5">
@@ -194,17 +334,16 @@ export default function ShowInvoicePage() {
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">
-          <div>Client Name</div>
           <div className="mr-12">
             <SelectComp
               label="Client"
               options={client_option}
               isinput={false}
-              handle={(value) => {
-                if (value.select === "*") {
-                  api_new_client();
-                  return;
-                }
+              handle={(values) => {
+                handleFilterChange(
+                  "Client",
+                  getTextForValue(client_option, values.select)
+                );
               }}
             />
           </div>
@@ -213,29 +352,26 @@ export default function ShowInvoicePage() {
             <Input
               variant="outlined"
               label="Issue From"
-              placeholder="Issue Date"
+              placeholder="Issue From"
               type="date"
+              onChange={(e) => handleFilterChange("Issue_From", e.target.value)}
             />
 
             <Input
               variant="outlined"
               label="Issue To "
-              placeholder="Issue Date"
+              placeholder="Issue To"
               type="date"
+              onChange={(e) => handleFilterChange("Issue_To", e.target.value)}
             />
           </div>
           <div className="flex mr-12 gap-x-2">
             <Input
               variant="outlined"
-              label="PO Date"
-              placeholder="Due from"
-              type="date"
-            />
-            <Input
-              variant="outlined"
               label="Due Date"
               placeholder="Due to"
               type="date"
+              onChange={(e) => handleFilterChange("Due_Date", e.target.value)}
             />
           </div>
         </div>
@@ -244,24 +380,34 @@ export default function ShowInvoicePage() {
           <div className="mr-12">
             <SelectComp
               label="Status"
-              options={select_option}
+              options={status_options}
               isinput={false}
-              handle={handleSelect}
+              handle={(values) => {
+                handleFilterChange("Status", values.select);
+              }}
             />
           </div>
           <div className=" mr-12">
             <Input
               variant="outlined"
               label="Invoice Number"
-              placeholder="PO Number"
+              placeholder="Invoice Number"
+              onChange={(e) =>
+                handleFilterChange("Document_No", e.target.value)
+              }
             />
           </div>
           <div className="mr-12">
             <SelectComp
               label="Type"
-              options={select_option}
+              options={payemnt_options}
               isinput={false}
-              handle={handleSelect}
+              handle={(values) => {
+                handleFilterChange(
+                  "Transaction_type",
+                  getTextForValue(payemnt_options, values.select)
+                );
+              }}
             />
           </div>
         </div>
@@ -285,10 +431,7 @@ export default function ShowInvoicePage() {
         </div>
         <div className="flex justify-center">
           <div className="mx-3">
-            <Button>Search</Button>
-          </div>
-          <div className="mx-3">
-            <Button>Reset</Button>
+            <Button onClick={resetFilterValues}>Reset</Button>
           </div>
         </div>
       </div>
@@ -305,7 +448,7 @@ export default function ShowInvoicePage() {
       <div className="flex flex-1 mb-2 h-full">
         <ProductInvoiceTable
           TABLE_HEAD={TABLE_HEAD}
-          TABLE_ROWS={filteredArray}
+          TABLE_ROWS={nonEmptyFields.length === 0 ? filteredArray : filterData}
           handleDeleteRow={handleDeleteInvoice}
         />
       </div>
