@@ -1,4 +1,4 @@
-const { EntitySchema } = require("typeorm");
+const { EntitySchema, Transaction } = require("typeorm");
 
 const Invoice = new EntitySchema({
   name: "invoice",
@@ -66,6 +66,18 @@ const Invoice = new EntitySchema({
     },
     Total_Tax: {
       type: Number,
+      nullable: true,
+    },
+    Amount_Paid: {
+      type: Number,
+      nullable: true,
+    },
+    Date_of_payment: {
+      type: "date",
+      nullable: true,
+    },
+    Transaction_type: {
+      type: String,
       nullable: true,
     },
   },

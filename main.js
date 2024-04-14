@@ -1431,3 +1431,62 @@ ipcMain.handle("delete-invoice-by-Document-no", async (ev, args) => {
     return { success: false, message: "Error while deleting invoice" };
   }
 });
+
+ipcMain.handle("update-invoice", async (ev, args) => {
+  try {
+    console.log(JSON.stringify(args));
+    const response = await updateInvoice(args);
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Failed to update invoice",
+    };
+  }
+});
+
+async function updateInvoice(invoiceData) {
+  try {
+    const { Document_No, Amount_Paid, Date_of_payment, Transaction_type } =
+      invoiceData;
+
+    // Ensure Document_No is provided
+    if (!Document_No) {
+      return {
+        success: false,
+        message: "Document_No is required to update the invoice",
+      };
+    }
+
+    // Set Date_of_payment to today's date if not provided
+    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    const updatedDateOfPayment = Date_of_payment || today;
+
+    // Update the invoice entity in the database
+    const invoiceRepo = DBManager.getRepository(Invoice);
+    const updateInvoiceResult = await invoiceRepo
+      .createQueryBuilder()
+      .update(Invoice)
+      .set({
+        Amount_Paid,
+        Date_of_payment: updatedDateOfPayment,
+        Transaction_type,
+      })
+      .where("Document_No = :Document_No", { Document_No })
+      .execute();
+
+    // Check if the update was successful
+    if (updateInvoiceResult.affected === 1) {
+      return { success: true, message: "Invoice updated successfully" };
+    } else {
+      return { success: false, message: "Invoice not found or not updated" };
+    }
+  } catch (error) {
+    console.error("Error updating invoice:", error);
+    return {
+      success: false,
+      message: "Failed to update invoice",
+    };
+  }
+}
