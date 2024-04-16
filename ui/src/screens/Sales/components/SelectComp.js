@@ -9,9 +9,6 @@ export default function SelectComp({
   label,
   disabled = "",
 }) {
-  // const [selectedOption, setSelectedOption] = useState(
-  //   defaultValue || (options.length ? options[0].value : "")
-  // );
   const [selectedOption, setSelectedOption] = useState(defaultValue);
   const [inputValue, setInputValue] = useState("");
 

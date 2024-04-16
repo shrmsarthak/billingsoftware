@@ -6,7 +6,6 @@ import {
   Option,
   Input,
 } from "@material-tailwind/react";
-
 import {
   Dialog,
   DialogHeader,
@@ -225,10 +224,9 @@ export default function ShowInvoicePage() {
                   object.Amount_Paid >
                 0
               );
-            } else {
-              // If no value selected, don't filter based on Paid
-              return true;
             }
+          } else if (field === "Document_No") {
+            return object[field].includes(filterValues[field]);
           } else {
             return object[field] === filterValues[field];
           }
@@ -325,6 +323,40 @@ export default function ShowInvoicePage() {
     const client = clients.find((client) => client.value === value);
     return client ? client.text : "Unknown";
   }
+  function removeStatusField(objectsArray) {
+    // Iterate through each object in the array
+    return objectsArray.map((obj) => {
+      // Destructure the object to remove the "Status" field
+      const { Status, ActionButton, ...rest } = obj;
+      // Return the object without the "Status" field
+      return rest;
+    });
+  }
+
+  console.log(removeStatusField(filteredArray));
+  const exportInvoicesToExcel = async () => {
+    try {
+      const response = await ipcRenderer.invoke(
+        "export-invoices-to-excel",
+        nonEmptyFields.length === 0
+          ? removeStatusField(filteredArray)
+          : removeStatusField(filterData)
+      );
+      if (response?.success) {
+        const buffer = response.buffer;
+        const blob = new Blob([buffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        saveAs(blob, "export_invoices.xlsx");
+        alert("yo");
+      } else {
+        console.error("Error:", response?.error);
+      }
+      console.log("Export response:", response);
+    } catch (error) {
+      console.error("Export error:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col w-full h-full px-5">
@@ -411,41 +443,28 @@ export default function ShowInvoicePage() {
             />
           </div>
         </div>
-
-        <div className="flex flex-row w-full justify-between my-2">
-          <div className="mr-12">
-            <SelectComp
-              label="City"
-              options={select_option}
-              isinput={false}
-              handle={handleSelect}
-            />
-          </div>
-          <div className="mr-12">
-            <Input
-              variant="outlined"
-              label="Quick Search"
-              placeholder="Due Date"
-            />
-          </div>
-        </div>
         <div className="flex justify-center">
           <div className="mx-3">
-            <Button onClick={resetFilterValues}>Reset</Button>
+            <Button
+              onClick={resetFilterValues}
+              style={{ margin: "30px 40px 0 0" }}
+            >
+              Reset
+            </Button>
           </div>
         </div>
       </div>
       <hr />
       <div className="flex my-2 flex-row-reverse">
         <div className="mx-3">
-          <Button>Export</Button>
+          <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
         <div className="mx-3">
           <Button onClick={api_new_invoice}>New Invoice</Button>
         </div>
       </div>
 
-      <div className="flex flex-1 mb-2 h-full">
+      <div className="flex flex-1 mb-2">
         <ProductInvoiceTable
           TABLE_HEAD={TABLE_HEAD}
           TABLE_ROWS={nonEmptyFields.length === 0 ? filteredArray : filterData}

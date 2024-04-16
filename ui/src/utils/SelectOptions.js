@@ -88,6 +88,7 @@ export const get_all_product_option = async () => {
       value: c.id,
       price: c.unit_price,
       uom: c.uom,
+      description: c.description,
     });
   });
   return product_option;
@@ -97,5 +98,3 @@ export const get_all_invoices = async () => {
   var res = await ipcRenderer.invoke("get-all-invoice");
   return [res.data];
 };
-
-
