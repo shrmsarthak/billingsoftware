@@ -17,7 +17,7 @@ import {
   uom_type,
   get_all_invoices,
 } from "../../../utils/SelectOptions";
-import { api_new_client, api_new_product } from "../../../utils/PageApi";
+import { api_show_client, api_show_product } from "../../../utils/PageApi";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 const { ipcRenderer } = window.require("electron");
@@ -281,6 +281,10 @@ export default function NewInvoicePage() {
     const client = clients.find((client) => client.value === value);
     return client ? client.text : "Unknown";
   }
+  const getProductDescription = (productText, data) => {
+    const product = data.find((item) => item.text === productText);
+    return product ? product.description : null;
+  };
   const getProductUOM = (productText, data) => {
     const product = data.find((item) => item.text === productText);
     return product ? product.uom : null;
@@ -333,6 +337,8 @@ export default function NewInvoicePage() {
   const closeInvoicePreviewWindow = () => {
     setIsInvoicePreviewOpen(false);
   };
+
+  console.log(product_option);
 
   const renderInvoicePreview = () => {
     const handleSave = async () => {
@@ -504,7 +510,7 @@ export default function NewInvoicePage() {
               isinput={false}
               handle={(values) => {
                 if (values.select == "*") {
-                  api_new_client();
+                  api_show_client();
                   return;
                 } else {
                   handleFieldChange(
@@ -618,7 +624,7 @@ export default function NewInvoicePage() {
               isinput={false}
               handle={(values) => {
                 if (values.select == "*") {
-                  api_new_product();
+                  api_show_product();
                   return;
                 } else {
                   handleFieldChange(
@@ -632,6 +638,20 @@ export default function NewInvoicePage() {
                       product_option
                     )
                   );
+                  handleFieldChange(
+                    "UoM",
+                    getProductUOM(
+                      getTextForValue(product_option, values.select),
+                      product_option
+                    )
+                  );
+                  handleFieldChange(
+                    "Description",
+                    getProductDescription(
+                      getTextForValue(product_option, values.select),
+                      product_option
+                    )
+                  );
                 }
               }}
             />
@@ -641,20 +661,23 @@ export default function NewInvoicePage() {
               variant="outlined"
               label="Description"
               placeholder="Description"
-              onChange={(e) => handleFieldChange("Description", e.target.value)}
+              value={
+                formData.Description !== ""
+                  ? getProductDescription(formData.Product, product_option)
+                  : ""
+              }
             />
           </div>
           <div className="mr-12">
-            <SelectComp
+            <Input
+              variant="outlined"
               label="UoM"
-              options={uom_option}
-              isinput={false}
-              handle={(values) => {
-                handleFieldChange(
-                  "UoM",
-                  getTextForValue(uom_option, values.select)
-                );
-              }}
+              placeholder="UoM"
+              value={
+                formData.UoM !== ""
+                  ? getProductUOM(formData.Product, product_option)
+                  : ""
+              }
             />
           </div>
           <div className="mr-12">
@@ -677,8 +700,6 @@ export default function NewInvoicePage() {
               }
             />
           </div>
-        </div>
-        <div className="flex">
           <div className=" mr-12">
             <Input
               variant="outlined"

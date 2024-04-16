@@ -6,7 +6,7 @@ export function ProductInvoiceTable({
   handleDeleteRow,
 }) {
   return (
-    <Card className="max-h-56 w-full overflow-scroll">
+    <Card className="max-h-96 w-full overflow-scroll">
       <table className="w-full table-auto text-left">
         <thead>
           <tr>

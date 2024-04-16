@@ -186,7 +186,7 @@ async function addNewClient(args) {
       );
       const shippingAddressId = shippingAddressInsertResult.identifiers[0].id;
 
-      client.shiping_address = shippingAddressId;
+      client.shipping_address = shippingAddressId;
     }
 
     // Insert client entity
@@ -430,7 +430,7 @@ ipcMain.handle("get-client-by-id", async (ev, args) => {
       });
       (client.shipping_address_id = fullAddress[0].id),
         (client.shipping_client_name = fullAddress[0].name);
-      client.shipping_address = fullAddress[0].address;
+      client.shiping_address = fullAddress[0].address;
       client.shipping_country = fullAddress[0].country;
       client.shipping_state = fullAddress[0].state;
       client.shipping_city = fullAddress[0].city;
@@ -1490,3 +1490,65 @@ async function updateInvoice(invoiceData) {
     };
   }
 }
+
+ipcMain.handle("export-invoices-to-excel", async (ev, args) => {
+  console.log("ev", ev);
+  console.log("args", args);
+  try {
+    // Call the API to get all products with pagination and search query
+    const invoices = args;
+
+    // Create a new workbook
+    const workbook = new ExcelJS.Workbook();
+
+    // Add a worksheet
+    const worksheet = workbook.addWorksheet("Invoices");
+
+    // Define the columns
+    worksheet.columns = [
+      { header: "Client Name", key: "client_name", width: 20 },
+      { header: "Invoice No", key: "invoice_no", width: 20 },
+      { header: "Issue Date", key: "issue_date", width: 20 },
+      { header: "Due Date", key: "due_date", width: 20 },
+      { header: "Amount", key: "amount", width: 20 },
+      { header: "Tax", key: "tax", width: 20 },
+      { header: "Shipping Cost", key: "shipping_cost", width: 20 },
+      { header: "Total", key: "total", width: 20 },
+      { header: "Amount Paid", key: "amount_paid", width: 20 },
+      { header: "Balance", key: "balance", width: 20 },
+      { header: "Date of Payment", key: "date_of_payment", width: 20 },
+      { header: "Type", key: "type", width: 20 },
+      { header: "Private Notes", key: "private_notes", width: 20 },
+    ];
+
+    for (const invoice of invoices) {
+      worksheet.addRow({
+        client_name: invoice["Client Name"],
+        invoice_no: invoice["Invoice No"],
+        issue_date: invoice["Issue Date"],
+        due_date: invoice["Due Date"],
+        amount: invoice["Amount"],
+        tax: invoice["Tax"],
+        shipping_cost: invoice["Shipping Cost"],
+        total: invoice["Total"],
+        amount_paid: invoice["Amount Paid"],
+        balance: invoice["Balance"],
+        date_of_payment: invoice["Date of payment"],
+        type: invoice["Type"],
+        private_notes: invoice["Private Notes"],
+      });
+    }
+    // Generate a buffer from the workbook
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    if (buffer) {
+      return { success: true, buffer: buffer };
+    } else {
+      console.error("Error: Buffer is null.");
+      return { success: false, error: "Buffer is null." };
+    }
+  } catch (error) {
+    console.error("Error exporting products:", error);
+    return null;
+  }
+});
