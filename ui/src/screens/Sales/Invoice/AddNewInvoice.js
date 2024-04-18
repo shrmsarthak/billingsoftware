@@ -16,6 +16,7 @@ import {
   tax_type,
   uom_type,
   get_all_invoices,
+  get_company_details,
 } from "../../../utils/SelectOptions";
 import { api_show_client, api_show_product } from "../../../utils/PageApi";
 import Invoice from "../components/Invoice";
@@ -74,12 +75,15 @@ const payemnt_options = [
 let client_option = await get_all_client_option();
 let shiping_option = [];
 let product_option = await get_all_product_option();
+let companyDetails = await get_company_details();
 let tax_option = tax_type();
 let uom_option = uom_type();
 export default function NewInvoicePage() {
   useEffect(() => {
     document.title = "New Invoice";
   });
+
+  console.log("com", companyDetails[0]);
   const initialValues = {
     Client: "",
     Document_No: "",
