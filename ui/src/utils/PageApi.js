@@ -48,3 +48,10 @@ export const api_edit_client = (options) => {
     "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
   );
 };
+export const api_add_company = (options) => {
+  window.open(
+    "/settings/company/new",
+    "_blank",
+    "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
+  );
+};
