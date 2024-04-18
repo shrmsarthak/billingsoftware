@@ -5,6 +5,7 @@ import {
   Typography,
   Option,
   Input,
+  Tooltip,
 } from "@material-tailwind/react";
 import {
   Dialog,
@@ -20,6 +21,9 @@ import {
   get_all_client_option,
   get_all_invoices,
 } from "../../../utils/SelectOptions";
+import { saveAs } from "file-saver";
+import Invoice from "../components/Invoice";
+import { PDFViewer } from "@react-pdf/renderer";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
@@ -38,8 +42,8 @@ const TABLE_HEAD = [
   "Balance",
   "Date of payemnt",
   "Type",
-  "Paid/Unpaid",
   "Action",
+  "Delete",
 ];
 
 const select_option = [];
@@ -97,6 +101,19 @@ export default function ShowInvoicePage() {
     Due_Date: "",
     Transaction_type: "",
   });
+  const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState({});
+
+  const openInvoicePreviewWindow = (obj) => {
+    setSelectedRow(obj);
+    setIsInvoicePreviewOpen(true);
+  };
+
+  console.log(selectedRow);
+
+  const closeInvoicePreviewWindow = () => {
+    setIsInvoicePreviewOpen(false);
+  };
 
   const resetFilterValues = () => {
     window.location.reload();
@@ -158,32 +175,88 @@ export default function ShowInvoicePage() {
       "Date of payment": obj.Date_of_payment,
       Type: obj.Transaction_type,
       ActionButton: (
-        <Button
-          size="xs"
-          className="py-1 px-2"
-          style={{ background: "none" }}
-          onClick={() => handlePayNow(obj)}
-        >
-          <svg
-            class="w-6 h-6 text-gray-800 dark:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-            />
-          </svg>
-        </Button>
+        <>
+          {" "}
+          <Tooltip content="Pay">
+            <Button
+              size="xs"
+              className="py-1 px-2"
+              style={{ background: "none" }}
+              onClick={() => handlePayNow(obj)}
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 11.917 9.724 16.5 19 7.5"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
+          <Tooltip content="Edit">
+            <Button
+              size="xs"
+              className="py-1 px-2"
+              style={{ background: "none" }}
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
+          <Tooltip content="Open">
+            <Button
+              size="xs"
+              className="py-1 px-2"
+              style={{ background: "none" }}
+              onClick={() => openInvoicePreviewWindow(obj)}
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-8.029-4.46a2 2 0 0 0-1.942 0L3 8m18 0-9 6.5L3 8"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
+        </>
       ),
-      Action: obj.rowData[0].Action, // Assuming Action is from rowData
+      Delete: "DELETE", // Assuming Action is from rowData
     };
   });
 
@@ -267,32 +340,88 @@ export default function ShowInvoicePage() {
           "Date of payment": obj.Date_of_payment,
           Type: obj.Transaction_type,
           ActionButton: (
-            <Button
-              size="xs"
-              className="py-1 px-2"
-              style={{ background: "none" }}
-              onClick={() => handlePayNow(obj)}
-            >
-              <svg
-                class="w-6 h-6 text-gray-800 dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-                />
-              </svg>
-            </Button>
+            <>
+              {" "}
+              <Tooltip content="Pay">
+                <Button
+                  size="xs"
+                  className="py-1 px-2"
+                  style={{ background: "none" }}
+                  onClick={() => handlePayNow(obj)}
+                >
+                  <svg
+                    class="w-6 h-6 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 11.917 9.724 16.5 19 7.5"
+                    />
+                  </svg>
+                </Button>
+              </Tooltip>
+              <Tooltip content="Edit">
+                <Button
+                  size="xs"
+                  className="py-1 px-2"
+                  style={{ background: "none" }}
+                >
+                  <svg
+                    class="w-6 h-6 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                    />
+                  </svg>
+                </Button>
+              </Tooltip>
+              <Tooltip content="Open">
+                <Button
+                  size="xs"
+                  className="py-1 px-2"
+                  style={{ background: "none" }}
+                  onClick={() => openInvoicePreviewWindow(obj)}
+                >
+                  <svg
+                    class="w-6 h-6 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-8.029-4.46a2 2 0 0 0-1.942 0L3 8m18 0-9 6.5L3 8"
+                    />
+                  </svg>
+                </Button>
+              </Tooltip>
+            </>
           ),
-          Action: obj.rowData[0].Action,
+          Delete: "DELETE",
         };
       });
     setFilterData(filteredData);
@@ -333,7 +462,7 @@ export default function ShowInvoicePage() {
     });
   }
 
-  console.log(removeStatusField(filteredArray));
+  // console.log(removeStatusField(filteredArray));
   const exportInvoicesToExcel = async () => {
     try {
       const response = await ipcRenderer.invoke(
@@ -355,6 +484,157 @@ export default function ShowInvoicePage() {
       console.log("Export response:", response);
     } catch (error) {
       console.error("Export error:", error);
+    }
+  };
+
+  const renderInvoicePreview = () => {
+    const handleSave = async () => {
+      const invoiceData = {
+        rowData: rowData,
+        Client: formData.Client,
+        Document_No: formData.Document_No,
+        Issue_Date: formData.Issue_Date,
+        Ship_To: formData.Ship_To,
+        PO_Number: formData.PO_Number,
+        Payment_Term: formData.Payment_Term,
+        PO_Date: formData.PO_Date,
+        Due_Date: formData.Due_Date,
+        Place_Of_Supply: formData.Place_Of_Supply,
+        Notes: formData.Notes,
+        Private_Notes: formData.Private_Notes,
+        Shipping_Charges:
+          Number(formData.Shipping_Charges) +
+          Number((formData.Shipping_Charges / 100) * formData.Shipping_Tax),
+        Discount_on_all: formData.Discount_on_all,
+        Total_BeforeTax: formData.Total_BeforeTax,
+        Total_Tax: formData.Total_Tax,
+      };
+
+      const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
+      console.log(res); // Handle the response as needed
+    };
+
+    if (isInvoicePreviewOpen) {
+      return (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)" /* Semi-transparent black */,
+            backdropFilter:
+              "blur(5px)" /* Apply blur effect to the background */,
+            zIndex: 999 /* Ensure the backdrop is above other content */,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: "80%",
+              maxWidth: "800px" /* Set maximum width for the container */,
+              backgroundColor: "white",
+              borderRadius: "8px",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
+              padding: "20px",
+            }}
+          >
+            <div style={{ textAlign: "right", marginBottom: "10px" }}>
+              <button
+                style={{
+                  background: "#7D73736C",
+                  border: "1px solid",
+                  cursor: "pointer",
+                  padding: "5px",
+                  borderRadius: "5px",
+                  display: "flex",
+                  alignItems: "center",
+                  position: "absolute",
+                }}
+                // onClick={handleSave}
+              >
+                <svg
+                  class="w-6 h-6 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
+                  />
+                </svg>
+                Save
+              </button>
+              <button
+                style={{
+                  background: "orangered",
+                  border: "1px solid",
+                  cursor: "pointer",
+                  padding: "5px",
+                  borderRadius: "5px",
+                  marginLeft: 10,
+                }}
+                onClick={closeInvoicePreviewWindow}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <PDFViewer
+              style={{
+                width: "100%",
+                height: "90vh" /* Adjusted height */,
+              }}
+            >
+              <Invoice
+                data={selectedRow.rowData.flat()}
+                details={{
+                  Client: selectedRow.Client,
+                  Issue_Date: selectedRow.Issue_Date,
+                  Document_No: selectedRow.Document_No,
+                  Ship_To: selectedRow.Ship_To,
+                  PO_Number: selectedRow.PO_Number,
+                  PO_Date: selectedRow.PO_Date,
+                  Due_Date: selectedRow.Due_Date,
+                  Payment_Term: selectedRow.Payment_Term,
+                  Place_Of_Supply: selectedRow.Place_Of_Supply,
+                  Notes: selectedRow.Notes,
+                  Shipping_Charges: Number(selectedRow.Shipping_Charges),
+                  Shipping_Tax: selectedRow.Shipping_Tax || 0,
+                  Discount_on_all: selectedRow.Discount_on_all,
+                  Total_BeforeTax: selectedRow.Total_BeforeTax,
+                  Total_Tax: selectedRow.Total_Tax,
+                }}
+              />
+            </PDFViewer>
+          </div>
+        </div>
+      );
+    } else {
+      return null;
     }
   };
 
@@ -528,6 +808,7 @@ export default function ShowInvoicePage() {
           </Button>
         </DialogFooter>
       </Dialog>
+      {renderInvoicePreview()}
     </div>
   );
 }

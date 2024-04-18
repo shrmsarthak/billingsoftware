@@ -1,4 +1,4 @@
-import { Card, Typography, Button } from "@material-tailwind/react";
+import { Card, Typography, Button, Tooltip } from "@material-tailwind/react";
 
 export function ProductInvoiceTable({
   TABLE_HEAD,
@@ -45,6 +45,7 @@ export function ProductInvoiceTable({
                 {Object.keys(values).map((v, idx) => (
                   <td className={classes} key={idx}>
                     {values[v] === "DELETE" ? (
+                      <Tooltip content="Delete">
                       <Button
                         color="white"
                         size="xs" // Adjusted button size to xs
@@ -69,6 +70,7 @@ export function ProductInvoiceTable({
                           />
                         </svg>
                       </Button>
+                      </Tooltip>
                     ) : (
                       <Typography
                         variant="small"

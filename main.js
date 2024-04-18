@@ -11,6 +11,7 @@ const electronReload = require("electron-reload");
 const ExcelJS = require("exceljs");
 const XLSX = require("xlsx");
 const { Invoice } = require("./models/Invoice");
+const { CompanyDetails } = require("./models/CompanyDetails");
 
 electronReload(__dirname);
 
@@ -1550,5 +1551,72 @@ ipcMain.handle("export-invoices-to-excel", async (ev, args) => {
   } catch (error) {
     console.error("Error exporting products:", error);
     return null;
+  }
+});
+
+
+ipcMain.handle("add-company-details", async (ev, args) => {
+  try {
+    const response = await addCompanyDetails(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add product",
+    };
+  }
+});
+
+async function addCompanyDetails(companyDetailsData) {
+  try {
+    const companyDetailsRepo = DBManager.getRepository(CompanyDetails);
+
+    // Prepare the company details object
+    const companyDetailsObj = {
+      companyName: companyDetailsData.CompanyName,
+      address: companyDetailsData.Address,
+      pincode: companyDetailsData.Pincode,
+      city: companyDetailsData.City,
+      state: companyDetailsData.State,
+      country: companyDetailsData.Country,
+      phone: companyDetailsData.Phone,
+      email: companyDetailsData.Email,
+      website: companyDetailsData.Website,
+      PAN: companyDetailsData.PAN,
+      GSTNO: companyDetailsData.GSTNO,
+      TIN: companyDetailsData.TIN,
+      created_at: new Date() // Assuming current timestamp
+    };
+
+    // Save the new company details entity to the database
+    const result = await companyDetailsRepo
+      .createQueryBuilder()
+      .insert()
+      .values(companyDetailsObj)
+      .execute();
+
+    if (result) {
+      return { success: true, message: "New company details added successfully!" };
+    }
+  } catch (error) {
+    console.error("Error adding new company details:", error);
+    return { success: false, message: "Error adding new company details" };
+  }
+}
+
+ipcMain.handle('get-company-details', async (event, args) => {
+  try {
+    // Get the repository for company details
+    const companyDetailsRepo = DBManager.getRepository(CompanyDetails);
+
+    // Fetch all company details from the database
+    const companyDetails = await companyDetailsRepo.find();
+
+    // Return the fetched company details
+    return companyDetails;
+  } catch (error) {
+    console.error("Error fetching company details:", error);
+    return { error: "Internal server error" };
   }
 });

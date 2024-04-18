@@ -6,6 +6,7 @@ import SignIn from "./screens/Login/SignIn";
 import ShowClientPage from "./screens/Sales/Client/ShowClients";
 import ShowProductsPage from "./screens/Sales/ProductService/ShowProducts";
 import ShowInvoicePage from "./screens/Sales/Invoice/ShowInvoices";
+import AddCompanyDetails from "./screens/Settings/CompanyDetails"
 function App() {
   
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/sales/invoice/show" element = {<ModuleSalePage page = "showinvoice" /> }/>
           <Route path="/sales/client/show" element = {<ShowClientPage />} />
           <Route path="/sales/product_service/show" element = {<ShowProductsPage />} />      
+          <Route path="/settings/company/new" element = {<AddCompanyDetails />} />    
       </Routes>
   )
 }

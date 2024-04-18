@@ -17,6 +17,7 @@ import {
   api_show_client,
   api_new_invoice,
   api_show_product,
+  api_add_company
 } from "../utils/PageApi";
 
 const options = {
@@ -42,7 +43,7 @@ const options = {
     { title: "Inventory & Sales Reports", onClick: api_show_invoice },
   ],
   settings: [
-    { title: "Compamy Details", onClick: api_show_invoice },
+    { title: "Company Details", onClick: api_add_company },
     { title: "Taxes", onClick: api_show_invoice },
     { title: "Email", onClick: api_show_invoice },
     { title: "Preferences", onClick: api_show_invoice },
