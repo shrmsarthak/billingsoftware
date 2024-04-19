@@ -63,15 +63,15 @@ export default function AddCompanyDetails() {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Button
               onClick={handleSubmit}
-              disabled={
-                formData.CompanyName === "" ||
-                formData.Address === "" ||
-                formData.Pincode === "" ||
-                formData.City === "" ||
-                formData.State === "" ||
-                formData.Country === "" ||
-                formData.Phone === ""
-              }
+              // disabled={
+              //   formData.CompanyName === "" ||
+              //   formData.Address === "" ||
+              //   formData.Pincode === "" ||
+              //   formData.City === "" ||
+              //   formData.State === "" ||
+              //   formData.Country === "" ||
+              //   formData.Phone === ""
+              // }
               style={{ width: "-webkit-fill-available" }}
             >
               Submit

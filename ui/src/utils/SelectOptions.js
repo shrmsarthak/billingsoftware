@@ -99,6 +99,11 @@ export const get_all_invoices = async () => {
   return [res.data];
 };
 
+export const get_all_quotation = async () => {
+  var res = await ipcRenderer.invoke("get-all-quotation");
+  return [res.data];
+};
+
 export const get_company_details = async () => {
   var res = await ipcRenderer.invoke("get-company-details");
   return res;

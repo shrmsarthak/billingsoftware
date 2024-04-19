@@ -83,7 +83,6 @@ export default function NewInvoicePage() {
     document.title = "New Invoice";
   });
 
-  console.log("com", companyDetails[0]);
   const initialValues = {
     Client: "",
     Document_No: "",
@@ -488,6 +487,8 @@ export default function NewInvoicePage() {
                   Discount_on_all: formData.Discount_on_all,
                   Total_BeforeTax: formData.Total_BeforeTax,
                   Total_Tax: formData.Total_Tax,
+                  Type: "INVOICE",
+                  companyDetails: companyDetails.data[0],
                 }}
               />
             </PDFViewer>

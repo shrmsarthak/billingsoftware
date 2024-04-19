@@ -132,16 +132,25 @@ const Invoice = ({ data, details }) => {
 
             {/* Company details on the top right corner */}
             <View style={styles.company_details}>
-              <Text style={styles.company_name}>Your Company</Text>
-              <Text style={styles.detail_text}>123 Street, City, Country</Text>
-              <Text style={styles.detail_text}>info@company.com</Text>
-              <Text style={styles.detail_text}>+1234567890</Text>
+              <Text style={styles.company_name}>
+                {details.companyDetails.companyName}
+              </Text>
+              <Text style={styles.detail_text}>
+                {details.companyDetails.address}, {details.companyDetails.city}{" "}
+                {details.companyDetails.pincode}
+              </Text>
+              <Text style={styles.detail_text}>
+                {details.companyDetails.email}
+              </Text>
+              <Text style={styles.detail_text}>
+                {details.companyDetails.phone}
+              </Text>
             </View>
           </View>
 
           <View style={styles.invoice_title_container}>
             <View style={styles.line}></View>
-            <Text style={styles.invoice_title}>INVOICE</Text>
+            <Text style={styles.invoice_title}>{details.Type}</Text>
             <View style={styles.line}></View>
           </View>
 

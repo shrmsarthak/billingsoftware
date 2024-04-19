@@ -1,4 +1,4 @@
-const { EntitySchema } = require("typeorm");
+const { EntitySchema, Transaction } = require("typeorm");
 
 const CompanyDetails = new EntitySchema({
     name: "company_details",
