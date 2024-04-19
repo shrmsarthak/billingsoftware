@@ -17,13 +17,14 @@ import {
   api_show_client,
   api_new_invoice,
   api_show_product,
-  api_add_company
+  api_add_company,
+  api_show_quotation
 } from "../utils/PageApi";
 
 const options = {
   sales: [
     { title: "Invoice", onClick: api_show_invoice },
-    { title: "Quotations, Proformas & Challans", onClick: api_show_client },
+    { title: "Quotations, Proformas & Challans", onClick: api_show_quotation },
     { title: "Credit Notes", onClick: api_show_client },
     { title: "Debit Notes", onClick: api_show_client },
     { title: "Payment Documents", onClick: api_show_client },

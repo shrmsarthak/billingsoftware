@@ -12,6 +12,20 @@ export const api_show_invoice = (options) => {
     "top=0,left=0,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
   );
 };
+export const api_new_quotation = (options) => {
+  window.open(
+    "/sales/quotation/new",
+    "_blank",
+    "top=0,left=0,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
+  );
+};
+export const api_show_quotation = (options) => {
+  window.open(
+    "/sales/quotation/show",
+    "_blank",
+    "top=0,left=0,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
+  );
+};
 export const api_new_client = (options) => {
   window.open(
     "/sales/client/new",

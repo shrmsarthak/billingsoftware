@@ -8,8 +8,8 @@ const { Category } = require("../models/Category");
 const { Tax } = require("../models/Tax");
 const { SubCategory } = require("../models/SubCategory");
 const { Invoice } = require("../models/Invoice");
-const { CompanyDetails } = require("../models/CompanyDetails");
-
+const { Quotation } = require("../models/Quotation");
+const { CompanyDetails} = require ("../models/CompanyDetails")
 const DBManager = new DataSource({
   name: "maindb",
   type: "sqlite",
@@ -24,7 +24,8 @@ const DBManager = new DataSource({
     Product,
     ReportData,
     Invoice,
-    CompanyDetails,
+    Quotation,
+    CompanyDetails
   ],
   synchronize: true,
 });
