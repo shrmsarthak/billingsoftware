@@ -18,16 +18,21 @@ import {
   api_new_invoice,
   api_show_product,
   api_add_company,
-  api_show_quotation
+  api_show_quotation,
+  api_add_debit,
+  api_show_debit,
+  api_add_credit,
+  api_show_credit,
+  api_show_payment,
 } from "../utils/PageApi";
 
 const options = {
   sales: [
     { title: "Invoice", onClick: api_show_invoice },
     { title: "Quotations, Proformas & Challans", onClick: api_show_quotation },
-    { title: "Credit Notes", onClick: api_show_client },
-    { title: "Debit Notes", onClick: api_show_client },
-    { title: "Payment Documents", onClick: api_show_client },
+    { title: "Credit Notes", onClick: api_show_credit },
+    { title: "Debit Notes", onClick: api_show_debit },
+    { title: "Payment Documents", onClick: api_show_payment },
     { title: "Clients", onClick: api_show_client },
     { title: "Products/Services", onClick: api_show_product },
   ],
@@ -199,13 +204,13 @@ export default function HomePage() {
           <div className="flex justify-evenly gap-3">
             <div>
               <div className="flex flex-col mr-1">
-                <ShortCutCard title="QUOTATION" />
+                <ShortCutCard title="QUOTATION" onClick={api_show_quotation} />
 
                 <ShortCutCard title="PROFORMA INVOICE" />
 
                 <ShortCutCard title="BILL OF SUPPLY" />
 
-                <ShortCutCard title="CREDIT NOTE" />
+                <ShortCutCard title="CREDIT NOTE" onClick={api_add_credit} />
               </div>
             </div>
             <div>
@@ -216,7 +221,7 @@ export default function HomePage() {
 
                 <ShortCutCard title="BILL" />
 
-                <ShortCutCard title="DEBIT NOTE" />
+                <ShortCutCard title="DEBIT NOTE" onClick={api_add_debit} />
               </div>
             </div>
           </div>

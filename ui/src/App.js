@@ -9,6 +9,11 @@ import ShowInvoicePage from "./screens/Sales/Invoice/ShowInvoices";
 import AddCompanyDetails from "./screens/Settings/CompanyDetails";
 import NewQuotationPage from "./screens/Sales/Quotation/NewQuotationPage";
 import ShowQuotationPage from "./screens/Sales/Quotation/ShowQuotationPage";
+import NewDebitNotePage from "./screens/Sales/DebitNote/NewDebitNotePage";
+import ShowDebitNotePage from "./screens/Sales/DebitNote/ShowDebitNotePage";
+import NewCreditNotePage from "./screens/Sales/CreditNote/NewCreditNotePage";
+import ShowCreditNotePage from "./screens/Sales/CreditNote/ShowCreditNotePage";
+import ShowPaymentDocScreen from "./screens/Sales/PaymentDocument/ShowPaymentDocScreen";
 function App() {
   return (
     <Routes>
@@ -31,7 +36,11 @@ function App() {
       <Route path="/settings/company/new" element={<AddCompanyDetails />} />
       <Route path="/sales/quotation/new" element={<NewQuotationPage />} />
       <Route path="/sales/quotation/show" element={<ShowQuotationPage />} />
-
+      <Route path="/sales/debit/new" element={<NewDebitNotePage />} />
+      <Route path="/sales/debit/show" element={<ShowDebitNotePage />} />
+      <Route path="/sales/credit/new" element={<NewCreditNotePage />} />
+      <Route path="/sales/credit/show" element={<ShowCreditNotePage />} />
+      <Route path="/sales/payment/show" element={<ShowPaymentDocScreen />} />
     </Routes>
   );
 }

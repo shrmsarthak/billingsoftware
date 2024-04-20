@@ -13,6 +13,7 @@ const XLSX = require("xlsx");
 const { Invoice } = require("./models/Invoice");
 const { CompanyDetails } = require("./models/CompanyDetails");
 const { Quotation } = require("./models/Quotation");
+const { Debit_Notes } = require("./models/DebitNotes");
 
 electronReload(__dirname);
 
@@ -1356,6 +1357,19 @@ ipcMain.handle("add-new-invoice", async (ev, args) => {
   }
 });
 
+ipcMain.handle("add-new-debit-note", async (ev, args) => {
+  try {
+    const response = await addNewDebitNote(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add product",
+    };
+  }
+});
+
 ipcMain.handle("add-new-quotation", async (ev, args) => {
   try {
     const response = await addNewQuotation(args);
@@ -1372,6 +1386,23 @@ ipcMain.handle("add-new-quotation", async (ev, args) => {
 ipcMain.handle("get-all-invoice", async (ev, args) => {
   try {
     const productRepo = DBManager.getRepository(Invoice);
+    const data = await productRepo.find();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: true,
+      data: [],
+    };
+  }
+});
+
+ipcMain.handle("get-all-debit-notes", async (ev, args) => {
+  try {
+    const productRepo = DBManager.getRepository(Debit_Notes);
     const data = await productRepo.find();
     return {
       success: true,
@@ -1406,6 +1437,42 @@ ipcMain.handle("get-all-quotation", async (ev, args) => {
 async function addNewInvoice(invoiceData) {
   try {
     const productRepo = DBManager.getRepository(Invoice);
+
+    const invoiceDataObj = {
+      rowData: invoiceData.rowData,
+      Client: invoiceData.Client,
+      Document_No: invoiceData.Document_No,
+      Issue_Date: invoiceData.Issue_Date,
+      Ship_To: invoiceData.Ship_To,
+      PO_Number: invoiceData.PO_Number,
+      Payment_Term: invoiceData.Payment_Term,
+      PO_Date: invoiceData.PO_Date,
+      Due_Date: invoiceData.Due_Date,
+      Place_Of_Supply: invoiceData.Place_Of_Supply,
+      Notes: invoiceData.Notes,
+      Private_Notes: invoiceData.Private_Notes,
+      Shipping_Charges: invoiceData.Shipping_Charges,
+      Discount_on_all: invoiceData.Discount_on_all,
+      Total_BeforeTax: invoiceData.Total_BeforeTax,
+      Total_Tax: invoiceData.Total_Tax,
+    };
+    // Save the new invoice entity to the database
+    const result = await productRepo
+      .createQueryBuilder()
+      .insert()
+      .values(invoiceDataObj)
+      .execute();
+    if (result) {
+      return { success: true, message: "New invoice added successfully!" };
+    }
+  } catch (error) {
+    console.error("Error adding new invoice:", error);
+  }
+}
+
+async function addNewDebitNote(invoiceData) {
+  try {
+    const productRepo = DBManager.getRepository(Debit_Notes);
 
     const invoiceDataObj = {
       rowData: invoiceData.rowData,
@@ -1547,6 +1614,20 @@ ipcMain.handle("update-invoice", async (ev, args) => {
   }
 });
 
+ipcMain.handle("update-debit-note", async (ev, args) => {
+  try {
+    console.log(JSON.stringify(args));
+    const response = await updateDebitNote(args);
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Failed to update invoice",
+    };
+  }
+});
+
 async function updateInvoice(invoiceData) {
   try {
     const { Document_No, Amount_Paid, Date_of_payment, Transaction_type } =
@@ -1569,6 +1650,51 @@ async function updateInvoice(invoiceData) {
     const updateInvoiceResult = await invoiceRepo
       .createQueryBuilder()
       .update(Invoice)
+      .set({
+        Amount_Paid,
+        Date_of_payment: updatedDateOfPayment,
+        Transaction_type,
+      })
+      .where("Document_No = :Document_No", { Document_No })
+      .execute();
+
+    // Check if the update was successful
+    if (updateInvoiceResult.affected === 1) {
+      return { success: true, message: "Invoice updated successfully" };
+    } else {
+      return { success: false, message: "Invoice not found or not updated" };
+    }
+  } catch (error) {
+    console.error("Error updating invoice:", error);
+    return {
+      success: false,
+      message: "Failed to update invoice",
+    };
+  }
+}
+
+async function updateDebitNote(invoiceData) {
+  try {
+    const { Document_No, Amount_Paid, Date_of_payment, Transaction_type } =
+      invoiceData;
+
+    // Ensure Document_No is provided
+    if (!Document_No) {
+      return {
+        success: false,
+        message: "Document_No is required to update the invoice",
+      };
+    }
+
+    // Set Date_of_payment to today's date if not provided
+    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    const updatedDateOfPayment = Date_of_payment || today;
+
+    // Update the invoice entity in the database
+    const invoiceRepo = DBManager.getRepository(Debit_Notes);
+    const updateInvoiceResult = await invoiceRepo
+      .createQueryBuilder()
+      .update(Debit_Notes)
       .set({
         Amount_Paid,
         Date_of_payment: updatedDateOfPayment,
@@ -1710,6 +1836,58 @@ ipcMain.handle("export-quotation-to-excel", async (ev, args) => {
   }
 });
 
+ipcMain.handle("export-payment_report-to-excel", async (ev, args) => {
+  console.log("ev", ev);
+  console.log("args", args);
+  try {
+    // Call the API to get all products with pagination and search query
+    const invoices = args;
+
+    // Create a new workbook
+    const workbook = new ExcelJS.Workbook();
+
+    // Add a worksheet
+    const worksheet = workbook.addWorksheet("Quotation");
+
+    // Define the columns
+    worksheet.columns = [
+      { header: "Client Name", key: "client_name", width: 20 },
+      { header: "Invoice No", key: "invoice_no", width: 20 },
+      { header: "Pay Date", key: "issue_date", width: 20 },
+      { header: "Type", key: "type", width: 20 },
+      { header: "Amount Payment", key: "amount_payment", width: 20 },
+      { header: "Amount Used", key: "amount_used", width: 20 },
+      { header: "Available Credit", key: "available_credit", width: 20 },
+      { header: "Payment Type", key: "payment_type", width: 20 },
+    ];
+
+    for (const invoice of invoices) {
+      worksheet.addRow({
+        client_name: invoice["Client Name"],
+        invoice_no: invoice["Invoice No"],
+        issue_date: invoice["Pay Date"],
+        type: invoice["Type"],
+        amount_payment: invoice["Amount Payment"],
+        amount_used: invoice["Amount Used"],
+        available_credit: invoice["Available Credit"],
+        payment_type: invoice["Payment Type"],
+      });
+    }
+    // Generate a buffer from the workbook
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    if (buffer) {
+      return { success: true, buffer: buffer };
+    } else {
+      console.error("Error: Buffer is null.");
+      return { success: false, error: "Buffer is null." };
+    }
+  } catch (error) {
+    console.error("Error exporting products:", error);
+    return null;
+  }
+});
+
 ipcMain.handle("add-company-details", async (ev, args) => {
   try {
     const response = await addCompanyDetails(args);
@@ -1722,43 +1900,6 @@ ipcMain.handle("add-company-details", async (ev, args) => {
     };
   }
 });
-
-// async function addCompanyDetails(companyDetailsData) {
-//   try {
-//     const companyDetailsRepo = DBManager.getRepository(CompanyDetails);
-
-//     // Prepare the company details object
-//     const companyDetailsObj = {
-//       companyName: companyDetailsData.CompanyName,
-//       address: companyDetailsData.Address,
-//       pincode: companyDetailsData.Pincode,
-//       city: companyDetailsData.City,
-//       state: companyDetailsData.State,
-//       country: companyDetailsData.Country,
-//       phone: companyDetailsData.Phone,
-//       email: companyDetailsData.Email,
-//       website: companyDetailsData.Website,
-//       PAN: companyDetailsData.PAN,
-//       GSTNO: companyDetailsData.GSTNO,
-//       TIN: companyDetailsData.TIN,
-//       created_at: new Date() // Assuming current timestamp
-//     };
-
-//     // Save the new company details entity to the database
-//     const result = await companyDetailsRepo
-//       .createQueryBuilder()
-//       .insert()
-//       .values(companyDetailsObj)
-//       .execute();
-
-//     if (result) {
-//       return { success: true, message: "New company details added successfully!" };
-//     }
-//   } catch (error) {
-//     console.error("Error adding new company details:", error);
-//     return { success: false, message: "Error adding new company details" };
-//   }
-// }
 
 async function addCompanyDetails(companyDetailsData) {
   try {
@@ -1821,35 +1962,7 @@ ipcMain.handle("get-company-details", async (event, args) => {
     };
   }
 });
-// ipcMain.handle('create-invoice-from-quotation', async (event, quotationNo) => {
-//   try {
-//     // Retrieve the quotation data based on the Quotation_No
-//     const quotationRepo = DBManager.getRepository(Quotation);
-//     const quotationData = await quotationRepo.findOne({ where: { Quotation_No: quotationNo } });
 
-//     if (!quotationData) {
-//       return { success: false, message: "Quotation not found" };
-//     }
-
-//     // Remove the Quotation_No from the quotation data and use it for Document_No
-//     const { Quotation_No, ...invoiceData } = quotationData;
-
-//     // Assign Quotation_No to Document_No for the invoice
-//     invoiceData.Document_No = quotationNo;
-
-//     // Save the invoice data into the Invoice table
-//     const invoiceRepo = DBManager.getRepository(Invoice);
-//     await invoiceRepo.save(invoiceData);
-
-//     // Update the Quotation entity to mark it as invoiced
-//     await quotationRepo.update({ Quotation_No: quotationNo }, { Invoiced: true });
-
-//     return { success: true, message: "Invoice created from quotation successfully" };
-//   } catch (error) {
-//     console.error("Error creating invoice from quotation:", error);
-//     return { success: false, message: "Error creating invoice from quotation" };
-//   }
-// });
 ipcMain.handle("create-invoice-from-quotation", async (event, quotationNo) => {
   try {
     // Retrieve the quotation data based on the Quotation_No

@@ -73,10 +73,8 @@ const payemnt_options = [
 ];
 
 let client_option = await get_all_client_option();
-let shiping_option = [];
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
-// let companyDetails = await get_company_details();
 let tax_option = tax_type();
 let uom_option = uom_type();
 export default function NewQuotationPage() {
@@ -160,6 +158,42 @@ export default function NewQuotationPage() {
     updateRowsWithDiscount(e.target.value);
   };
   const [shippingChecked, setShippingChecked] = useState(false);
+  const [allClient, setAllClient] = useState([]);
+  const [selectedClient, setSelectedClient] = useState([]);
+
+  useEffect(() => {
+    getAllClients();
+  }, []);
+
+  useEffect(() => {
+    setSelectedClient(
+      allClient.filter((x) => x.client_name === formData.Client)
+    );
+  }, [formData.Client]);
+
+  const getAllClients = async () => {
+    let page = 1;
+    let limit = 50;
+    let res = await ipcRenderer.invoke("get-all-clients-list", {
+      page,
+      limit,
+    });
+    setAllClient(res.data);
+  };
+
+  useEffect(() => {
+    if (formData.Client.length > 1) {
+      handleFieldChange(
+        "Ship_To",
+        selectedClient[0]?.address +
+          " " +
+          selectedClient[0]?.city +
+          "-" +
+          selectedClient[0]?.pincode
+      );
+      handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
+    }
+  }, [selectedClient]);
 
   const updateRowsWithDiscount = (discount) => {
     const updatedRows = rows.map((item) => {
@@ -242,19 +276,22 @@ export default function NewQuotationPage() {
         getIntegerFromPercentageString(item.Tax)) /
       2
     ).toFixed(2),
-    IGST: (
-      ((item.Discount === ""
-        ? item.Unit_Price * (item.Qty || 1)
-        : item.Unit_Price *
-          (item.Qty || 1) *
-          (1 - parseFloat(item.Discount) / 100)) /
-        100) *
-      9
-    ).toFixed(2),
+    IGST:
+      companyDetails.data[0].state === formData.Place_Of_Supply
+        ? 0
+        : (
+            ((item.Discount === ""
+              ? item.Unit_Price * (item.Qty || 1)
+              : item.Unit_Price *
+                (item.Qty || 1) *
+                (1 - parseFloat(item.Discount) / 100)) /
+              100) *
+            9
+          ).toFixed(2),
     Action: "DELETE",
   }));
 
-  console.log(JSON.stringify(formData));
+  console.log(JSON.stringify(companyDetails.data[0]));
 
   // Calculate total value
   const totalValue = rowData
@@ -547,16 +584,12 @@ export default function NewQuotationPage() {
 
         <div className="flex flex-row w-full justify-between my-2">
           <div className="mr-12">
-            <SelectComp
+            <Input
+              variant="outlined"
               label="Ship To"
-              options={select_option}
+              placeholder="Ship To"
               isinput={false}
-              handle={(values) => {
-                handleFieldChange(
-                  "Ship_To",
-                  getTextForValue(select_option, values.select)
-                );
-              }}
+              value={formData.Ship_To}
             />
           </div>
           <div className=" mr-12">
@@ -604,16 +637,10 @@ export default function NewQuotationPage() {
             />
           </div>
           <div className=" mr-12">
-            <SelectComp
+            <Input
               label="Place Of Supply"
-              options={select_option}
               isinput={false}
-              handle={(values) => {
-                handleFieldChange(
-                  "Place_Of_Supply",
-                  getTextForValue(select_option, values.select)
-                );
-              }}
+              value={formData.Place_Of_Supply}
             />
           </div>
         </div>
