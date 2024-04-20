@@ -108,6 +108,7 @@ export default function NewInvoicePage() {
     Total_Tax: 0,
   };
   const [formData, setFormData] = useState(initialValues);
+
   useEffect(() => {
     // Convert the issue date to a Date object
     const issueDate = new Date(formData.Issue_Date);
@@ -151,6 +152,16 @@ export default function NewInvoicePage() {
     }));
   }, [formData.Issue_Date, formData.Payment_Term]);
 
+  useEffect(() => {
+    getAllClients();
+  }, []);
+
+  useEffect(() => {
+    setSelectedClient(
+      allClient.filter((x) => x.client_name === formData.Client)
+    );
+  }, [formData.Client]);
+
   const [rows, setRows] = useState([]);
   const [discountOnAll, setDiscountOnAll] = useState(false);
   const [discountValue, setDiscountValue] = useState(-1);
@@ -159,6 +170,32 @@ export default function NewInvoicePage() {
     updateRowsWithDiscount(e.target.value);
   };
   const [shippingChecked, setShippingChecked] = useState(false);
+  const [allClient, setAllClient] = useState([]);
+  const [selectedClient, setSelectedClient] = useState([]);
+
+  const getAllClients = async () => {
+    let page = 1;
+    let limit = 50;
+    let res = await ipcRenderer.invoke("get-all-clients-list", {
+      page,
+      limit,
+    });
+    setAllClient(res.data);
+  };
+
+  console.log("all", allClient);
+  console.log("selectedClient", selectedClient);
+  useEffect(() => {
+    handleFieldChange(
+      "Ship_To",
+      selectedClient[0]?.address +
+        " " +
+        selectedClient[0]?.city +
+        " " +
+        selectedClient[0]?.pincode
+    );
+    handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
+  }, [selectedClient]);
 
   const updateRowsWithDiscount = (discount) => {
     const updatedRows = rows.map((item) => {
@@ -340,8 +377,6 @@ export default function NewInvoicePage() {
   const closeInvoicePreviewWindow = () => {
     setIsInvoicePreviewOpen(false);
   };
-
-  console.log(product_option);
 
   const renderInvoicePreview = () => {
     const handleSave = async () => {
@@ -548,16 +583,11 @@ export default function NewInvoicePage() {
 
         <div className="flex flex-row w-full justify-between my-2">
           <div className="mr-12">
-            <SelectComp
+            <Input
+              variant="outlined"
               label="Ship To"
-              options={select_option}
-              isinput={false}
-              handle={(values) => {
-                handleFieldChange(
-                  "Ship_To",
-                  getTextForValue(select_option, values.select)
-                );
-              }}
+              placeholder="Ship To"
+              value={formData.Ship_To}
             />
           </div>
           <div className=" mr-12">
@@ -605,16 +635,10 @@ export default function NewInvoicePage() {
             />
           </div>
           <div className=" mr-12">
-            <SelectComp
+            <Input
               label="Place Of Supply"
-              options={select_option}
               isinput={false}
-              handle={(values) => {
-                handleFieldChange(
-                  "Place_Of_Supply",
-                  getTextForValue(select_option, values.select)
-                );
-              }}
+              value={formData.Place_Of_Supply}
             />
           </div>
         </div>

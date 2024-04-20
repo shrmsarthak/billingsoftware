@@ -107,7 +107,6 @@ export default function ShowInvoicePage() {
     setSelectedRow(obj);
     setIsInvoicePreviewOpen(true);
   };
-
   const closeInvoicePreviewWindow = () => {
     setIsInvoicePreviewOpen(false);
   };
