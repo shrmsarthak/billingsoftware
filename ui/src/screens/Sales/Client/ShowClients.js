@@ -92,6 +92,8 @@ export default function ShowClientPage() {
 
   const [filterCitiesData, setFilterCitiesData] = useState(getFilterCities());
 
+  console.log("data",clientData)
+
   const fieldsToValidate = [
     "client_name",
     "phone",

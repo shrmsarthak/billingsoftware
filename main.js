@@ -112,6 +112,11 @@ async function getAllClientsList(args) {
       });
       client.billing_address = fullAddress[0].address;
       client.billing_address_id = fullAddress[0].id;
+      (client.address = fullAddress[0].address),
+        (client.city = fullAddress[0].city);
+      client.state = fullAddress[0].state;
+      client.pincode = fullAddress[0].pincode;
+      client.country = fullAddress[0].country;
     }
     console.log({
       data: paginatedClients,

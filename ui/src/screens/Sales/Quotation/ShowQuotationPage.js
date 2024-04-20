@@ -659,7 +659,7 @@ export default function ShowQuotationPage() {
 
   return (
     <div className="flex flex-col w-full h-full px-5">
-      <div className="flex flex-col border border-gray-400 p-3 mb-3">
+      <div className="flex flex-col border border-gray-400 p-3 mb-3" style={{overflow: "auto"}}>
         <div className="my-2 flex-1">
           <Typography variant="h6">Search Quotation</Typography>
           <hr />
@@ -758,7 +758,7 @@ export default function ShowQuotationPage() {
           </div>
         </div>
       </div>
-      <hr />
+      <hr /><div style={{display: "flex", alignItems: "center",justifyContent: "center", color: "orangered"}}>* In red color are either expired or will expire today</div>
       <div className="flex my-2 flex-row-reverse">
         <div className="mx-3">
           <Button onClick={exportInvoicesToExcel}>Export</Button>
