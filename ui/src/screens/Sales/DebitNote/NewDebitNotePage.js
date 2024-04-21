@@ -80,7 +80,7 @@ let tax_option = tax_type();
 let uom_option = uom_type();
 export default function NewInvoicePage() {
   useEffect(() => {
-    document.title = "New Invoice";
+    document.title = "New Debit Note";
   });
 
   const initialValues = {
@@ -402,8 +402,8 @@ export default function NewInvoicePage() {
         Total_Tax: formData.Total_Tax,
       };
 
-      const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
-      console.log(res); // Handle the response as needed
+      const res = await ipcRenderer.invoke("add-new-debit-note", invoiceData);
+      alert(res.message); // Handle the response as needed
     };
 
     if (isInvoicePreviewOpen) {
@@ -523,7 +523,7 @@ export default function NewInvoicePage() {
                   Discount_on_all: formData.Discount_on_all,
                   Total_BeforeTax: formData.Total_BeforeTax,
                   Total_Tax: formData.Total_Tax,
-                  Type: "INVOICE",
+                  Type: "DEBIT NOTE",
                   companyDetails: companyDetails.data[0],
                 }}
               />

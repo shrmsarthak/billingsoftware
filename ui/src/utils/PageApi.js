@@ -69,3 +69,38 @@ export const api_add_company = (options) => {
     "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
   );
 };
+export const api_add_debit = (options) => {
+  window.open(
+    "/sales/debit/new",
+    "_blank",
+    "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
+  );
+};
+export const api_show_debit = (options) => {
+  window.open(
+    "/sales/debit/show",
+    "_blank",
+    "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
+  );
+};
+export const api_add_credit = (options) => {
+  window.open(
+    "/sales/credit/new",
+    "_blank",
+    "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
+  );
+};
+export const api_show_credit = (options) => {
+  window.open(
+    "/sales/credit/show",
+    "_blank",
+    "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
+  );
+};
+export const api_show_payment = (options) => {
+  window.open(
+    "/sales/payment/show",
+    "_blank",
+    "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
+  );
+};
