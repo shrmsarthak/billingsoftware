@@ -1,7 +1,7 @@
 const { EntitySchema, Transaction } = require("typeorm");
 
-const Debit_Notes = new EntitySchema({
-  name: "debit_notes",
+const Credit_Notes = new EntitySchema({
+  name: "credit_notes",
   columns: {
     Document_No: {
       type: "uuid", // Use UUID as the type for the primary key
@@ -91,4 +91,4 @@ const Debit_Notes = new EntitySchema({
   },
 });
 
-module.exports = { Debit_Notes };
+module.exports = { Credit_Notes };

@@ -11,6 +11,8 @@ const { Invoice } = require("../models/Invoice");
 const { Quotation } = require("../models/Quotation");
 const { CompanyDetails } = require("../models/CompanyDetails");
 const { Debit_Notes } = require("../models/DebitNotes");
+const { Credit_Notes } = require("../models/CreditNotes");
+
 const DBManager = new DataSource({
   name: "maindb",
   type: "sqlite",
@@ -28,6 +30,7 @@ const DBManager = new DataSource({
     Quotation,
     CompanyDetails,
     Debit_Notes,
+    Credit_Notes,
   ],
   synchronize: true,
 });

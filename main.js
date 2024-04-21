@@ -14,6 +14,7 @@ const { Invoice } = require("./models/Invoice");
 const { CompanyDetails } = require("./models/CompanyDetails");
 const { Quotation } = require("./models/Quotation");
 const { Debit_Notes } = require("./models/DebitNotes");
+const { Credit_Notes } = require("./models/CreditNotes");
 
 electronReload(__dirname);
 
@@ -1365,7 +1366,20 @@ ipcMain.handle("add-new-debit-note", async (ev, args) => {
     console.log(error);
     return {
       success: false,
-      message: "Failed to add product",
+      message: "Failed to add debit note",
+    };
+  }
+});
+
+ipcMain.handle("add-new-credit-note", async (ev, args) => {
+  try {
+    const response = await addNewCreditNote(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add credit note",
     };
   }
 });
@@ -1403,6 +1417,23 @@ ipcMain.handle("get-all-invoice", async (ev, args) => {
 ipcMain.handle("get-all-debit-notes", async (ev, args) => {
   try {
     const productRepo = DBManager.getRepository(Debit_Notes);
+    const data = await productRepo.find();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: true,
+      data: [],
+    };
+  }
+});
+
+ipcMain.handle("get-all-credit-notes", async (ev, args) => {
+  try {
+    const productRepo = DBManager.getRepository(Credit_Notes);
     const data = await productRepo.find();
     return {
       success: true,
@@ -1478,6 +1509,8 @@ async function addNewDebitNote(invoiceData) {
       rowData: invoiceData.rowData,
       Client: invoiceData.Client,
       Document_No: invoiceData.Document_No,
+      Reason: invoiceData.Reason,
+      Invoice_No: invoiceData.Invoice_No,
       Issue_Date: invoiceData.Issue_Date,
       Ship_To: invoiceData.Ship_To,
       PO_Number: invoiceData.PO_Number,
@@ -1499,10 +1532,50 @@ async function addNewDebitNote(invoiceData) {
       .values(invoiceDataObj)
       .execute();
     if (result) {
-      return { success: true, message: "New invoice added successfully!" };
+      return { success: true, message: "New Debit Note added successfully!" };
     }
   } catch (error) {
-    console.error("Error adding new invoice:", error);
+    console.error("Error adding new Debit Note:", error);
+  }
+}
+
+async function addNewCreditNote(invoiceData) {
+  try {
+    const productRepo = DBManager.getRepository(Credit_Notes);
+
+    const invoiceDataObj = {
+      rowData: invoiceData.rowData,
+      Client: invoiceData.Client,
+      Document_No: invoiceData.Document_No,
+      Reason: invoiceData.Reason,
+      Invoice_No: invoiceData.Invoice_No,
+      Issue_Date: invoiceData.Issue_Date,
+      Ship_To: invoiceData.Ship_To,
+      PO_Number: invoiceData.PO_Number,
+      Payment_Term: invoiceData.Payment_Term,
+      PO_Date: invoiceData.PO_Date,
+      Due_Date: invoiceData.Due_Date,
+      Place_Of_Supply: invoiceData.Place_Of_Supply,
+      Notes: invoiceData.Notes,
+      Private_Notes: invoiceData.Private_Notes,
+      Shipping_Charges: invoiceData.Shipping_Charges,
+      Discount_on_all: invoiceData.Discount_on_all,
+      Total_BeforeTax: invoiceData.Total_BeforeTax,
+      Total_Tax: invoiceData.Total_Tax,
+    };
+
+    console.log("logggg", invoiceDataObj);
+    // Save the new invoice entity to the database
+    const result = await productRepo
+      .createQueryBuilder()
+      .insert()
+      .values(invoiceDataObj)
+      .execute();
+    if (result) {
+      return { success: true, message: "New Credit Note added successfully!" };
+    }
+  } catch (error) {
+    console.error("Error adding new Credit Note:", error);
   }
 }
 
@@ -1572,6 +1645,36 @@ ipcMain.handle("delete-invoice-by-Document-no", async (ev, args) => {
   }
 });
 
+ipcMain.handle("delete-debit-note-by-Document-no", async (ev, args) => {
+  try {
+    const documentNo = args;
+    const invoiceRepo = DBManager.getRepository(Debit_Notes);
+    console.log(`${ev}-${args}`);
+    console.log(`Deleting invoice with Document_No: ${documentNo}`);
+
+    const deleteResult = await invoiceRepo
+      .createQueryBuilder()
+      .delete()
+      .from(Debit_Notes)
+      .where("Document_No = :documentNo", { documentNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Debit Note deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "Debit Note  with provided Document_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting Debit Note :", error);
+    return { success: false, message: "Error while deleting Debit Note " };
+  }
+});
+
 ipcMain.handle("delete-quotation-by-quotation-no", async (ev, args) => {
   try {
     const documentNo = args;
@@ -1618,6 +1721,20 @@ ipcMain.handle("update-debit-note", async (ev, args) => {
   try {
     console.log(JSON.stringify(args));
     const response = await updateDebitNote(args);
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Failed to update invoice",
+    };
+  }
+});
+
+ipcMain.handle("update-credit-note", async (ev, args) => {
+  try {
+    console.log(JSON.stringify(args));
+    const response = await updateCreditNote(args);
     return response;
   } catch (error) {
     console.error(error);
@@ -1714,6 +1831,53 @@ async function updateDebitNote(invoiceData) {
     return {
       success: false,
       message: "Failed to update invoice",
+    };
+  }
+}
+async function updateCreditNote(invoiceData) {
+  try {
+    const { Document_No, Amount_Paid, Date_of_payment, Transaction_type } =
+      invoiceData;
+
+    // Ensure Document_No is provided
+    if (!Document_No) {
+      return {
+        success: false,
+        message: "Document_No is required to update the credit note",
+      };
+    }
+
+    // Set Date_of_payment to today's date if not provided
+    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    const updatedDateOfPayment = Date_of_payment || today;
+
+    // Update the invoice entity in the database
+    const invoiceRepo = DBManager.getRepository(Credit_Notes);
+    const updateInvoiceResult = await invoiceRepo
+      .createQueryBuilder()
+      .update(Credit_Notes)
+      .set({
+        Amount_Paid,
+        Date_of_payment: updatedDateOfPayment,
+        Transaction_type,
+      })
+      .where("Document_No = :Document_No", { Document_No })
+      .execute();
+
+    // Check if the update was successful
+    if (updateInvoiceResult.affected === 1) {
+      return { success: true, message: "Credit Note updated successfully" };
+    } else {
+      return {
+        success: false,
+        message: "Credit Note not found or not updated",
+      };
+    }
+  } catch (error) {
+    console.error("Error updating Credit Note:", error);
+    return {
+      success: false,
+      message: "Failed to update Credit Note",
     };
   }
 }
