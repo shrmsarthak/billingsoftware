@@ -31,6 +31,7 @@ const TABLE_HEAD = [
   "No",
   "Client Name",
   "Invoice No",
+  "Document No",
   "Issue Date",
   "Due Date",
   "Amount",
@@ -38,7 +39,7 @@ const TABLE_HEAD = [
   "Shipping",
   "Total",
   "Status",
-  "Private Notes",
+  "Reason",
   "Amount Paid",
   "Balance",
   "Date of payemnt",
@@ -99,7 +100,9 @@ export default function ShowDebitNotePage() {
     Document_No: "",
     Due_Date: "",
     Transaction_type: "",
+    Invoice_No: "",
   });
+
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState({});
 
@@ -143,7 +146,8 @@ export default function ShowDebitNotePage() {
     const today = new Date();
     return {
       "Client Name": obj.Client,
-      "Invoice No": obj.Document_No,
+      "Invoice No": obj.Invoice_No,
+      "Document No": obj.Document_No,
       "Issue Date": obj.Issue_Date,
       "Due Date": (
         <p style={{ color: dueDate <= today ? "red" : "inherit" }}>
@@ -168,7 +172,7 @@ export default function ShowDebitNotePage() {
         ) : (
           <p style={{ color: "orangered" }}>Unpaid</p>
         ),
-      "Private Notes": obj.Private_Notes,
+      Reason: obj.Reason,
       "Amount Paid": obj.Amount_Paid,
       Balance: (
         Number(obj.Total_BeforeTax) +
@@ -337,7 +341,8 @@ export default function ShowDebitNotePage() {
       .map((obj) => {
         return {
           "Client Name": obj.Client,
-          "Invoice No": obj.Document_No,
+          "Invoice No": obj.Invoice_No,
+          "Document No": obj.Document_No,
           "Issue Date": obj.Issue_Date,
           "Due Date": obj.Due_Date,
           Amount: obj.Total_BeforeTax,
@@ -358,7 +363,7 @@ export default function ShowDebitNotePage() {
             ) : (
               <p style={{ color: "orangered" }}>Unpaid</p>
             ),
-          "Private Notes": obj.Private_Notes,
+          Reason: obj.Reason,
           "Amount Paid": obj.Amount_Paid,
           Balance: (
             Number(obj.Total_BeforeTax) +
@@ -491,9 +496,10 @@ export default function ShowDebitNotePage() {
   }
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
-      "delete-invoice-by-Document-no",
+      "delete-debit-note-by-Document-no",
       obj.Document_No
     );
+    alert(res.message);
   };
   const AmountPaidHandler = async (e, doc_no) => {
     handleInputChange("Amount_Paid", e.target.value);
@@ -696,8 +702,8 @@ export default function ShowDebitNotePage() {
           <div className=" mr-12">
             <Input
               variant="outlined"
-              label="Invoice Number"
-              placeholder="Invoice Number"
+              label="Document Number"
+              placeholder="Document Number"
               onChange={(e) =>
                 handleFilterChange("Document_No", e.target.value)
               }

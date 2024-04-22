@@ -104,6 +104,11 @@ export const get_all_debit_notes = async () => {
   return [res.data];
 };
 
+export const get_all_credit_notes = async () => {
+  var res = await ipcRenderer.invoke("get-all-credit-notes");
+  return [res.data];
+};
+
 export const get_all_quotation = async () => {
   var res = await ipcRenderer.invoke("get-all-quotation");
   return [res.data];

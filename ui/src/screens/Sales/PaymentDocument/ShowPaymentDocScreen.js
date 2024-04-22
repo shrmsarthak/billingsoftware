@@ -107,111 +107,114 @@ export default function ShowPaymentDocScreen() {
     }));
   };
 
-  let filteredArray = invoices
-    .flat()
-    .map((obj) => {
-      return {
-        "Client Name": obj.Client,
-        "Invoice No": obj.Document_No,
-        "Pay Date": obj.Date_of_payment,
-        Type: "Received",
-        "Amount Payment": (
-          Number(obj.Total_BeforeTax) +
-          Number(obj.Total_Tax) +
-          Number(obj.Shipping_Charges)
-        ).toFixed(2),
-        "Amount Used": obj.Amount_Paid,
-        "Available Credit": (
-          Number(obj.Total_BeforeTax) +
-          Number(obj.Total_Tax) +
-          Number(obj.Shipping_Charges) -
-          obj.Amount_Paid
-        ).toFixed(2),
-        "Payment Type": obj.Transaction_type,
-        ActionButton: (
-          <>
-            <Tooltip content="Edit">
-              <Button
-                size="xs"
-                className="py-1 px-2"
-                style={{ background: "none" }}
-              >
-                <svg
-                  class="w-6 h-6 text-gray-800 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-                  />
-                </svg>
-              </Button>
-            </Tooltip>
-            <Tooltip content="Open">
-              <Button
-                size="xs"
-                className="py-1 px-2"
-                style={{ background: "none" }}
-                onClick={() => openInvoicePreviewWindow(obj)}
-              >
-                <svg
-                  class="w-6 h-6 text-gray-800 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-8.029-4.46a2 2 0 0 0-1.942 0L3 8m18 0-9 6.5L3 8"
-                  />
-                </svg>
-              </Button>
-            </Tooltip>
-            <Tooltip content="Delete">
-              <Button
-                color="white"
-                size="xs" // Adjusted button size to xs
-                onClick={() => handleDeleteInvoice(obj)}
-                className="py-1 px-2" // Adjusted padding
-              >
-                <svg
-                  class="w-6 h-6 text-gray-800 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
-                  />
-                </svg>
-              </Button>
-            </Tooltip>
-          </>
+  let filteredArray = invoices.flat().map((obj) => {
+    return {
+      "Client Name": obj.Client,
+      "Invoice No": obj.Document_No,
+      "Pay Date": obj.Date_of_payment,
+      Type:
+        obj.Transaction_type?.length > 1 ? (
+          <p style={{ color: "green" }}>Received</p>
+        ) : (
+          <p style={{ color: "red" }}>Not Paid</p>
         ),
-      };
-    })
-    .filter((obj) => obj["Amount Used"]);
+      "Amount Payment": (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges)
+      ).toFixed(2),
+      "Amount Used": obj.Amount_Paid,
+      "Available Credit": (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges) -
+        obj.Amount_Paid
+      ).toFixed(2),
+      "Payment Type": obj.Transaction_type,
+      ActionButton: (
+        <>
+          <Tooltip content="Edit">
+            <Button
+              size="xs"
+              className="py-1 px-2"
+              style={{ background: "none" }}
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
+          <Tooltip content="Open">
+            <Button
+              size="xs"
+              className="py-1 px-2"
+              style={{ background: "none" }}
+              onClick={() => openInvoicePreviewWindow(obj)}
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-8.029-4.46a2 2 0 0 0-1.942 0L3 8m18 0-9 6.5L3 8"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
+          <Tooltip content="Delete">
+            <Button
+              color="white"
+              size="xs" // Adjusted button size to xs
+              onClick={() => handleDeleteInvoice(obj)}
+              className="py-1 px-2" // Adjusted padding
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
+        </>
+      ),
+    };
+  });
+  // .filter((obj) => obj["Amount Used"]);
 
   const [filterData, setFilterData] = useState([]);
   const nonEmptyValues = () => {
@@ -242,7 +245,12 @@ export default function ShowPaymentDocScreen() {
           "Client Name": obj.Client,
           "Invoice No": obj.Document_No,
           "Pay Date": obj.Date_of_payment,
-          Type: "Received",
+          Type:
+            obj.Transaction_type?.length > 1 ? (
+              <p style={{ color: "green" }}>Received</p>
+            ) : (
+              <p style={{ color: "red" }}>Not Paid</p>
+            ),
           "Amount Payment": (
             Number(obj.Total_BeforeTax) +
             Number(obj.Total_Tax) +
@@ -338,8 +346,7 @@ export default function ShowPaymentDocScreen() {
             </>
           ),
         };
-      })
-      .filter((obj) => obj["Amount Used"]);
+      });
     setFilterData(filteredData);
   }, [filterValues]);
 
