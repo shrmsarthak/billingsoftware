@@ -132,16 +132,25 @@ const Invoice = ({ data, details }) => {
 
             {/* Company details on the top right corner */}
             <View style={styles.company_details}>
-              <Text style={styles.company_name}>Your Company</Text>
-              <Text style={styles.detail_text}>123 Street, City, Country</Text>
-              <Text style={styles.detail_text}>info@company.com</Text>
-              <Text style={styles.detail_text}>+1234567890</Text>
+              <Text style={styles.company_name}>
+                {details.companyDetails.companyName}
+              </Text>
+              <Text style={styles.detail_text}>
+                {details.companyDetails.address}, {details.companyDetails.city}{" "}
+                {details.companyDetails.pincode}
+              </Text>
+              <Text style={styles.detail_text}>
+                {details.companyDetails.email}
+              </Text>
+              <Text style={styles.detail_text}>
+                {details.companyDetails.phone}
+              </Text>
             </View>
           </View>
 
           <View style={styles.invoice_title_container}>
             <View style={styles.line}></View>
-            <Text style={styles.invoice_title}>INVOICE</Text>
+            <Text style={styles.invoice_title}>{details.Type}</Text>
             <View style={styles.line}></View>
           </View>
 
@@ -150,12 +159,16 @@ const Invoice = ({ data, details }) => {
             <View style={styles.bill_to}>
               <Text style={styles.sub_header}>Bill To:</Text>
               {/* Your bill to details here */}
+              <Text style={styles.detail_text}>{details.Ship_To}</Text>
+              <Text style={styles.detail_text}>{details.Place_Of_Supply}</Text>
             </View>
 
             {/* Ship To section on the right */}
             <View style={styles.ship_to}>
               <Text style={styles.sub_header}>Ship To:</Text>
               {/* Your ship to details here */}
+              <Text style={styles.detail_text}>{details.Ship_To}</Text>
+              <Text style={styles.detail_text}>{details.Place_Of_Supply}</Text>
             </View>
           </View>
 
@@ -385,8 +398,10 @@ const Invoice = ({ data, details }) => {
 
           {/* Total Amount in Words */}
           <View style={styles.totalAmountInWords}>
-            <Text style={styles.totalText}>Total Amount in Words:</Text>
-            <Text style={styles.totalText}>
+            <Text style={styles.totalTextDuplicate}>
+              Total Amount in Words:
+            </Text>
+            <Text style={styles.totalAmountText}>
               {convertAmountToWords(
                 parseInt(
                   Number(details.Total_BeforeTax) +
@@ -502,8 +517,15 @@ const styles = StyleSheet.create({
   },
   totalText: {
     fontSize: 10,
-    width: 150, // Fixed width for the text containing labels
     marginRight: 10,
+  },
+  totalTextDuplicate: {
+    fontSize: 10,
+    width: 150, // Fixed width for the text containing labels
+    marginRight: 5,
+  },
+  totalAmountText: {
+    fontSize: 10,
   },
   totalValue: {
     fontSize: 10,

@@ -17,16 +17,23 @@ import {
   api_show_client,
   api_new_invoice,
   api_show_product,
-  api_add_company
+  api_add_company,
+  api_show_quotation,
+  api_add_debit,
+  api_show_debit,
+  api_add_credit,
+  api_show_credit,
+  api_show_payment,
 } from "../utils/PageApi";
+import { Link } from "react-router-dom";
 
 const options = {
   sales: [
     { title: "Invoice", onClick: api_show_invoice },
-    { title: "Quotations, Proformas & Challans", onClick: api_show_client },
-    { title: "Credit Notes", onClick: api_show_client },
-    { title: "Debit Notes", onClick: api_show_client },
-    { title: "Payment Documents", onClick: api_show_client },
+    { title: "Quotations, Proformas & Challans", onClick: api_show_quotation },
+    { title: "Credit Notes", onClick: api_show_credit },
+    { title: "Debit Notes", onClick: api_show_debit },
+    { title: "Payment Documents", onClick: api_show_payment },
     { title: "Clients", onClick: api_show_client },
     { title: "Products/Services", onClick: api_show_product },
   ],
@@ -96,31 +103,25 @@ const MyAccordion = ({ title, options, defaultOpen }) => {
   );
 };
 
-function NewVoiceCard({ onClick }) {
+function ShortCutCard({ title, to, color }) {
   return (
-    <Card className="border border-gray-300 my-4">
-      <CardBody onClick={onClick}>
-        <div className="flex flex-col w-full justify-center items-center hover:cursor-pointer ">
-          <div className="text-xl">New Invoice</div>
+    <Link to={to}>
+      <div
+        className="flex flex-col mb-3 bg-clip-border rounded border-2 border-primary p-6 bg-gray-100 text-xs font-medium uppercase leading-normal text-primary transition duration-150 ease-in-out hover:border-primary-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-primary-600 focus:border-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:border-primary-700 active:text-primary-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+        style={{
+          minWidth: "250px",
+          maxWidth: "250px",
+          alignItems: "center",
+          padding: 50,
+        }}
+      >
+        <div className="">
+          <h3 className="text-sm font-bold text-gray-600 dark:text-white">
+            {title}
+          </h3>
         </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-function ShortCutCard({ title, onClick, color }) {
-  return (
-    <div
-      onClick={onClick}
-      className="flex flex-col mb-3
-      bg-clip-border rounded border-2 border-primary p-6 bg-gray-100 text-xs font-medium uppercase leading-normal text-primary transition duration-150 ease-in-out hover:border-primary-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-primary-600 focus:border-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:border-primary-700 active:text-primary-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-    >
-      <div className="">
-        <h3 className="text-sm font-bold text-gray-600 dark:text-white">
-          + {title}
-        </h3>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -167,63 +168,74 @@ export default function HomePage() {
       </div>
 
       <div className="flex flex-col items-center p-4 h-screen  justify-center w-full m-4">
-        <div className=" flex  static  justify-center w-full gap-x-4">
-          <div className="">
-            <Button color="blue" className=" border-none px-4 py-2">
-              Unpaid Invoices{" "}
-            </Button>
+        <div
+          className=" flex  static  justify-center w-full gap-x-16"
+          style={{ marginBottom: 100 }}
+        >
+          <div
+            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#23d2d8b0,-0.5rem_-0.5rem_#003899c9] hover:scale-105 transition-transform w-200 h-150 border border-gray-300 rounded-md shadow-[0.5rem_0.5rem_#23d2d8b0,-0.5rem_-0.5rem_#003899c9]"
+            style={{ height: 150 }}
+          >
+            <div className="text-center">
+              <span className="text-lg text-gray-600">Today's Sale</span> <br />
+              <span className="font-bold text-black text-2xl mt-10">
+                &#8377;10,000
+              </span>
+            </div>
           </div>
-          <div>
-            {" "}
-            <Button color="blue" className=" border-none px-4 py-2">
-              Overdue Quotes{" "}
-            </Button>
+
+          <div
+            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0] hover:scale-105 transition-transform w-200 h-150 border border-gray-300 rounded-md shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0]"
+            style={{ height: 150 }}
+          >
+            <div className="text-center">
+              <span className="text-lg text-gray-600">Total Orders</span> <br />
+              <span className="font-bold text-black text-2xl mt-10">22</span>
+            </div>
           </div>
-          <div>
-            <Button color="blue" className=" border-none px-4 py-2">
-              Low Stock Items{" "}
-            </Button>
+          <div
+            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#23d2d8b0,-0.5rem_-0.5rem_#003899c9] hover:scale-105 transition-transform w-200 h-150 border border-gray-300 rounded-md shadow-[0.5rem_0.5rem_#23d2d8b0,-0.5rem_-0.5rem_#003899c9]"
+            style={{ height: 150 }}
+          >
+            <div className="text-center">
+              <span className="text-lg text-gray-600">Pending Orders</span>{" "}
+              <br />
+              <span className="font-bold text-black text-2xl mt-10">5</span>
+            </div>
           </div>
-          <div>
-            {" "}
-            <Button color="blue" className=" border-none px-4 py-2">
-              Unpaid Bills{" "}
-            </Button>
+          <div
+            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0] hover:scale-105 transition-transform w-200 h-150 border border-gray-300 rounded-md shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0]"
+            style={{ height: 150 }}
+          >
+            <div className="text-center">
+              <span className="text-lg text-gray-600">Sales Done</span> <br />
+              <span className="font-bold text-black text-2xl mt-10">14</span>
+            </div>
           </div>
         </div>
-        <div className=" mt-1 flex flex-col items-center">
-          <div className="w-full">
-            <NewVoiceCard onClick={api_new_invoice} />
-          </div>
-          <div className="flex justify-evenly gap-3">
+        <div className=" mt-3 flex flex-col items-center">
+          <div className="flex justify-evenly gap-32">
             <div>
-              <div className="flex flex-col mr-1">
-                <ShortCutCard title="QUOTATION" />
+              <div className="flex flex-col mr-4">
+                <ShortCutCard title="SALES" to="/sales/invoice/show" />
 
-                <ShortCutCard title="PROFORMA INVOICE" />
+                <ShortCutCard title="PAYMENT" to="/sales/payment/show" />
 
-                <ShortCutCard title="BILL OF SUPPLY" />
+                <ShortCutCard title="LEDGER" />
 
-                <ShortCutCard title="CREDIT NOTE" />
+                <ShortCutCard title="EXPENSES" />
               </div>
             </div>
             <div>
               <div className="flex flex-col">
-                <ShortCutCard title="DELIVERY NOTE/CHALLAN" />
+                <ShortCutCard title="PURCHASE" />
 
-                <ShortCutCard title="PURCHASE ORDER" />
+                <ShortCutCard title="REPORTS" />
 
-                <ShortCutCard title="BILL" />
+                <ShortCutCard title="INVENTORY" />
 
-                <ShortCutCard title="DEBIT NOTE" />
+                <ShortCutCard title="EMPLOYEE MANAGEMENT" />
               </div>
-            </div>
-          </div>
-
-          <div>
-            <div className="flex gap-6">
-              <Button color="blue">+ EXPENSE</Button>
-              <Button color="blue">+ PAYMENT</Button>
             </div>
           </div>
         </div>

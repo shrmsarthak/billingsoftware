@@ -39,7 +39,13 @@ const TABLE_HEAD = [
   "Action",
 ];
 
-const select_option = [];
+const reason_options = [
+  "Correction In Invoice",
+  "Change In POS",
+  "Change In Provisional Assessment",
+  "Purchase Return",
+  "Others",
+];
 
 const payemnt_options = [
   {
@@ -78,14 +84,17 @@ let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
 let tax_option = tax_type();
 let uom_option = uom_type();
+let invoices = await get_all_invoices();
 export default function NewInvoicePage() {
   useEffect(() => {
-    document.title = "New Invoice";
+    document.title = "New Debit Note";
   });
 
   const initialValues = {
     Client: "",
     Document_No: "",
+    Invoice_No: "",
+    Reason: "",
     Issue_Date: new Date().toISOString().split("T")[0],
     Ship_To: "",
     PO_Number: "",
@@ -108,6 +117,8 @@ export default function NewInvoicePage() {
     Total_Tax: 0,
   };
   const [formData, setFormData] = useState(initialValues);
+
+  console.log(formData);
 
   useEffect(() => {
     // Convert the issue date to a Date object
@@ -162,6 +173,7 @@ export default function NewInvoicePage() {
   const [shippingChecked, setShippingChecked] = useState(false);
   const [allClient, setAllClient] = useState([]);
   const [selectedClient, setSelectedClient] = useState([]);
+  const [selectedClientData, setSelectedClientData] = useState([]);
 
   useEffect(() => {
     getAllClients();
@@ -195,6 +207,12 @@ export default function NewInvoicePage() {
       );
       handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
     }
+    setSelectedClientData(
+      invoices
+        .flat()
+        .filter((x) => formData.Client === x.Client)
+        .map((y) => y.Document_No)
+    );
   }, [selectedClient]);
 
   const updateRowsWithDiscount = (discount) => {
@@ -311,6 +329,13 @@ export default function NewInvoicePage() {
     }, 0)
     .toFixed(2);
 
+  function convertDropdownData(data) {
+    return data.map((item) => ({
+      text: item,
+      value: item,
+    }));
+  }
+
   const handleFieldChange = (fieldName, value) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -334,23 +359,7 @@ export default function NewInvoicePage() {
     const product = data.find((item) => item.text === productText);
     return product ? product.price : null;
   };
-  const generateFieldValue = () => {
-    const today = new Date();
-    const day = ("0" + today.getDate()).slice(-2); // Get day with leading zero if needed
-    const hours = ("0" + today.getHours()).slice(-2); // Get hours with leading zero if needed
-    const minutes = ("0" + today.getMinutes()).slice(-2); // Get minutes with leading zero if needed
-    const monthAbbreviation = today
-      .toLocaleString("default", { month: "short" })
-      .toUpperCase(); // Get month abbreviation
-
-    const generatedValue = `${day}${monthAbbreviation}-${hours}${minutes}`;
-
-    handleFieldChange("Document_No", generatedValue);
-  };
-
-  useEffect(() => {
-    generateFieldValue();
-  }, []);
+  console.log(selectedClientData);
   useEffect(() => {
     if (!shippingChecked) {
       handleFieldChange("Shipping_Charges", 0);
@@ -385,6 +394,8 @@ export default function NewInvoicePage() {
         rowData: rowData,
         Client: formData.Client,
         Document_No: formData.Document_No,
+        Reason: formData.Reason,
+        Invoice_No: formData.Invoice_No,
         Issue_Date: formData.Issue_Date,
         Ship_To: formData.Ship_To,
         PO_Number: formData.PO_Number,
@@ -402,8 +413,8 @@ export default function NewInvoicePage() {
         Total_Tax: formData.Total_Tax,
       };
 
-      const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
-      console.log(res); // Handle the response as needed
+      const res = await ipcRenderer.invoke("add-new-debit-note", invoiceData);
+      alert(res.message); // Handle the response as needed
     };
 
     if (isInvoicePreviewOpen) {
@@ -523,7 +534,7 @@ export default function NewInvoicePage() {
                   Discount_on_all: formData.Discount_on_all,
                   Total_BeforeTax: formData.Total_BeforeTax,
                   Total_Tax: formData.Total_Tax,
-                  Type: "INVOICE",
+                  Type: "DEBIT NOTE",
                   companyDetails: companyDetails.data[0],
                 }}
               />
@@ -533,6 +544,24 @@ export default function NewInvoicePage() {
       );
     }
   };
+
+  const generateFieldValue = () => {
+    const today = new Date();
+    const day = ("0" + today.getDate()).slice(-2); // Get day with leading zero if needed
+    const hours = ("0" + today.getHours()).slice(-2); // Get hours with leading zero if needed
+    const minutes = ("0" + today.getMinutes()).slice(-2); // Get minutes with leading zero if needed
+    const monthAbbreviation = today
+      .toLocaleString("default", { month: "short" })
+      .toUpperCase(); // Get month abbreviation
+
+    const generatedValue = `D${day}${monthAbbreviation}-${hours}${minutes}`;
+
+    handleFieldChange("Document_No", generatedValue);
+  };
+
+  useEffect(() => {
+    generateFieldValue();
+  }, []);
 
   return (
     <div className="flex flex-col w-full h-full px-1">
@@ -563,11 +592,21 @@ export default function NewInvoicePage() {
             />
           </div>
           <div className=" mr-12">
-            <Input
+            <SelectComp
               variant="outlined"
-              label="Document No"
-              placeholder="Document No"
-              value={formData.Document_No}
+              label="Invoice No"
+              placeholder="Invoice No"
+              options={convertDropdownData(selectedClientData)}
+              handle={(values) => {
+                handleFieldChange("Invoice_No", values.select);
+                handleFieldChange(
+                  "Issue_Date",
+                  invoices
+                    .flat()
+                    .filter((x) => x.Document_No === values.select)[0]
+                    .Issue_Date
+                );
+              }}
             />
           </div>
           <div className=" mr-12">
@@ -577,7 +616,6 @@ export default function NewInvoicePage() {
               placeholder="Issue Date"
               type="date"
               value={formData.Issue_Date}
-              onChange={(e) => handleFieldChange("Issue_Date", e.target.value)}
             />
           </div>
         </div>
@@ -586,18 +624,18 @@ export default function NewInvoicePage() {
           <div className="mr-12">
             <Input
               variant="outlined"
-              label="Ship To"
-              placeholder="Ship To"
-              isinput={false}
-              value={formData.Ship_To}
+              label="Document No"
+              placeholder="Document No"
+              value={formData.Document_No}
             />
           </div>
           <div className=" mr-12">
-            <Input
+            <SelectComp
               variant="outlined"
-              label="PO Number"
-              placeholder="PO Number"
-              onChange={(e) => handleFieldChange("PO_Number", e.target.value)}
+              label="Reason"
+              placeholder="Invoice No"
+              options={convertDropdownData(reason_options)}
+              handle={(values) => handleFieldChange("Reason", values.select)}
             />
           </div>
           <div className=" mr-12">

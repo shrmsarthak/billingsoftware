@@ -16,10 +16,10 @@ import {
 import React, { useEffect, useState } from "react";
 import { ProductInvoiceTable } from "../components/ProductInvoiceTable";
 import SelectComp from "../components/SelectComp";
-import { api_new_quotation } from "../../../utils/PageApi";
+import { api_add_debit } from "../../../utils/PageApi";
 import {
   get_all_client_option,
-  get_all_quotation,
+  get_all_debit_notes,
   get_company_details,
 } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
@@ -30,15 +30,19 @@ const { ipcRenderer } = window.require("electron");
 const TABLE_HEAD = [
   "No",
   "Client Name",
-  "Quotation No",
+  "Invoice No",
+  "Document No",
   "Issue Date",
-  "Valid Until",
+  "Due Date",
   "Amount",
   "Tax",
   "Shipping",
   "Total",
-  "Private Notes",
-  "Invoiced",
+  "Status",
+  "Reason",
+  "Amount Paid",
+  "Balance",
+  "Date of payemnt",
   "Type",
   "Action",
 ];
@@ -70,20 +74,20 @@ const status_options = [
   },
 ];
 
-let invoices = await get_all_quotation();
+let invoices = await get_all_debit_notes();
 let companyDetails = await get_company_details();
 let client_option = await get_all_client_option();
 client_option.shift();
 
-console.log(invoices);
-
-export default function ShowQuotationPage() {
+export default function ShowDebitNotePage() {
   useEffect(() => {
-    document.title = "Show Quotation";
+    document.title = "Debit Notes Report";
   });
 
+  const [open, setOpen] = React.useState(false);
+  const [modalData, setModalData] = useState(null);
   const [formValues, setFormValues] = useState({
-    Quotation_No: "",
+    Document_No: "",
     Transaction_type: "",
     Amount_Paid: "",
     Date_of_payment: "",
@@ -93,10 +97,12 @@ export default function ShowQuotationPage() {
     Status: "",
     Issue_From: "",
     Issue_To: "",
-    Quotation_No: "",
+    Document_No: "",
     Due_Date: "",
     Transaction_type: "",
+    Invoice_No: "",
   });
+
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState({});
 
@@ -104,7 +110,6 @@ export default function ShowQuotationPage() {
     setSelectedRow(obj);
     setIsInvoicePreviewOpen(true);
   };
-
   const closeInvoicePreviewWindow = () => {
     setIsInvoicePreviewOpen(false);
   };
@@ -125,54 +130,67 @@ export default function ShowQuotationPage() {
     }));
   };
 
-  const handleQuotationChange = async (rowData) => {
-    const res = await ipcRenderer.invoke(
-      "create-invoice-from-quotation",
-      rowData.Quotation_No
-    );
+  const handlePayNow = (rowData) => {
+    setModalData(rowData);
+    setOpen(!open);
+  };
+
+  const handleDbUpdate = async () => {
+    const res = await ipcRenderer.invoke("update-debit-note", formValues);
   };
 
   let filteredArray = invoices.flat().map((obj) => {
     const dueDate = new Date(obj.Due_Date);
+
     // Get today's date
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set hours to 0 for accurate comparison
-    const colorStyle = dueDate < today ? { color: "red" } : {};
     return {
-      "Client Name": <p style={colorStyle}>{obj.Client}</p>,
-      "Quotation No": <p style={colorStyle}>{obj.Quotation_No}</p>,
-      "Issue Date": <p style={colorStyle}>{obj.Issue_Date}</p>,
-      "Valid Until": <p style={colorStyle}>{obj.Due_Date}</p>,
-      Amount: <p style={colorStyle}>{obj.Total_BeforeTax}</p>,
-      Tax: <p style={colorStyle}>{obj.Total_Tax}</p>,
-      "Shipping Cost": <p style={colorStyle}>{obj.Shipping_Charges}</p>,
-      Total: (
-        <p style={colorStyle}>
-          {(
-            Number(obj.Total_BeforeTax) +
-            Number(obj.Total_Tax) +
-            Number(obj.Shipping_Charges)
-          ).toFixed(2)}
+      "Client Name": obj.Client,
+      "Invoice No": obj.Invoice_No,
+      "Document No": obj.Document_No,
+      "Issue Date": obj.Issue_Date,
+      "Due Date": (
+        <p style={{ color: dueDate <= today ? "red" : "inherit" }}>
+          {obj.Due_Date}
         </p>
       ),
-      "Private Notes": <p style={colorStyle}>{obj.Private_Notes}</p>,
-      Invoiced:
-        obj.Invoiced === "1" ? (
-          <p style={{ color: "green" }}>Yes</p>
+      Amount: obj.Total_BeforeTax,
+      Tax: obj.Total_Tax,
+      "Shipping Cost": obj.Shipping_Charges,
+      Total: (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges)
+      ).toFixed(2),
+      Status:
+        Number(obj.Total_BeforeTax) +
+          Number(obj.Total_Tax) +
+          Number(obj.Shipping_Charges) -
+          obj.Amount_Paid <=
+        0 ? (
+          <p style={{ color: "green" }}>Paid</p>
         ) : (
-          <p style={{ color: "orangered" }}>No</p>
+          <p style={{ color: "orangered" }}>Unpaid</p>
         ),
-
-      Type: <p style={colorStyle}>{"Quotation"}</p>,
+      Reason: obj.Reason,
+      "Amount Paid": obj.Amount_Paid,
+      Balance: (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges) -
+        obj.Amount_Paid
+      ).toFixed(2),
+      "Date of payment": obj.Date_of_payment,
+      Type: obj.Transaction_type,
       ActionButton: (
         <>
           {" "}
-          <Tooltip content="Convert Quotation to Invoice">
+          <Tooltip content="Pay">
             <Button
               size="xs"
               className="py-1 px-2"
               style={{ background: "none" }}
-              onClick={() => handleQuotationChange(obj)}
+              onClick={() => handlePayNow(obj)}
             >
               <svg
                 class="w-6 h-6 text-gray-800 dark:text-white"
@@ -188,7 +206,7 @@ export default function ShowQuotationPage() {
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M7 11c.889-.086 1.416-.543 2.156-1.057a22.323 22.323 0 0 0 3.958-5.084 1.6 1.6 0 0 1 .582-.628 1.549 1.549 0 0 1 1.466-.087c.205.095.388.233.537.406a1.64 1.64 0 0 1 .384 1.279l-1.388 4.114M7 11H4v6.5A1.5 1.5 0 0 0 5.5 19v0A1.5 1.5 0 0 0 7 17.5V11Zm6.5-1h4.915c.286 0 .372.014.626.15.254.135.472.332.637.572a1.874 1.874 0 0 1 .215 1.673l-2.098 6.4C17.538 19.52 17.368 20 16.12 20c-2.303 0-4.79-.943-6.67-1.475"
+                  d="M5 11.917 9.724 16.5 19 7.5"
                 />
               </svg>
             </Button>
@@ -248,7 +266,7 @@ export default function ShowQuotationPage() {
             <Button
               color="white"
               size="xs" // Adjusted button size to xs
-              onClick={() => handleDeleteQuotation(obj)}
+              onClick={() => handleDeleteInvoice(obj)}
               className="py-1 px-2" // Adjusted padding
             >
               <svg
@@ -292,7 +310,28 @@ export default function ShowQuotationPage() {
             const toDate = new Date(filterValues.Issue_To);
             const issueDate = new Date(object.Issue_Date);
             return issueDate >= fromDate && issueDate <= toDate;
-          } else if (field === "Quotation_No") {
+          } else if (field === "Status") {
+            // Check if the invoice is paid or unpaid
+            if (filterValues.Status === "Paid") {
+              // Filter for paid invoices
+              return (
+                Number(object.Total_BeforeTax) +
+                  Number(object.Total_Tax) +
+                  Number(object.Shipping_Charges) -
+                  object.Amount_Paid <=
+                0
+              );
+            } else if (filterValues.Status === "Unpaid") {
+              // Filter for unpaid invoices
+              return (
+                Number(object.Total_BeforeTax) +
+                  Number(object.Total_Tax) +
+                  Number(object.Shipping_Charges) -
+                  object.Amount_Paid >
+                0
+              );
+            }
+          } else if (field === "Document_No") {
             return object[field].includes(filterValues[field]);
           } else {
             return object[field] === filterValues[field];
@@ -300,45 +339,49 @@ export default function ShowQuotationPage() {
         });
       })
       .map((obj) => {
-        const dueDate = new Date(obj.Due_Date);
-        // Get today's date
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set hours to 0 for accurate comparison
-        const colorStyle = dueDate < today ? { color: "red" } : {};
         return {
-          "Client Name": <p style={colorStyle}>{obj.Client}</p>,
-          "Quotation No": <p style={colorStyle}>{obj.Quotation_No}</p>,
-          "Issue Date": <p style={colorStyle}>{obj.Issue_Date}</p>,
-          "Valid Until": <p style={colorStyle}>{obj.Due_Date}</p>,
-          Amount: <p style={colorStyle}>{obj.Total_BeforeTax}</p>,
-          Tax: <p style={colorStyle}>{obj.Total_Tax}</p>,
-          "Shipping Cost": <p style={colorStyle}>{obj.Shipping_Charges}</p>,
+          "Client Name": obj.Client,
+          "Invoice No": obj.Invoice_No,
+          "Document No": obj.Document_No,
+          "Issue Date": obj.Issue_Date,
+          "Due Date": obj.Due_Date,
+          Amount: obj.Total_BeforeTax,
+          Tax: obj.Total_Tax,
+          "Shipping Cost": obj.Shipping_Charges,
           Total: (
-            <p style={colorStyle}>
-              {(
-                Number(obj.Total_BeforeTax) +
-                Number(obj.Total_Tax) +
-                Number(obj.Shipping_Charges)
-              ).toFixed(2)}
-            </p>
-          ),
-          "Private Notes": <p style={colorStyle}>{obj.Private_Notes}</p>,
-          Invoiced:
-            obj.Invoiced === "1" ? (
-              <p style={{ color: "green" }}>Yes</p>
+            Number(obj.Total_BeforeTax) +
+            Number(obj.Total_Tax) +
+            Number(obj.Shipping_Charges)
+          ).toFixed(2),
+          Status:
+            Number(obj.Total_BeforeTax) +
+              Number(obj.Total_Tax) +
+              Number(obj.Shipping_Charges) -
+              obj.Amount_Paid <=
+            0 ? (
+              <p style={{ color: "green" }}>Paid</p>
             ) : (
-              <p style={{ color: "orangered" }}>No</p>
+              <p style={{ color: "orangered" }}>Unpaid</p>
             ),
-
-          Type: <p style={colorStyle}>{"Quotation"}</p>,
+          Reason: obj.Reason,
+          "Amount Paid": obj.Amount_Paid,
+          Balance: (
+            Number(obj.Total_BeforeTax) +
+            Number(obj.Total_Tax) +
+            Number(obj.Shipping_Charges) -
+            obj.Amount_Paid
+          ).toFixed(2),
+          "Date of payment": obj.Date_of_payment,
+          Type: obj.Transaction_type,
           ActionButton: (
             <>
-              <Tooltip content="Convert Quotation to Invoice">
+              {" "}
+              <Tooltip content="Pay">
                 <Button
                   size="xs"
                   className="py-1 px-2"
                   style={{ background: "none" }}
-                  onClick={() => handleQuotationChange(obj)}
+                  onClick={() => handlePayNow(obj)}
                 >
                   <svg
                     class="w-6 h-6 text-gray-800 dark:text-white"
@@ -354,7 +397,7 @@ export default function ShowQuotationPage() {
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M7 11c.889-.086 1.416-.543 2.156-1.057a22.323 22.323 0 0 0 3.958-5.084 1.6 1.6 0 0 1 .582-.628 1.549 1.549 0 0 1 1.466-.087c.205.095.388.233.537.406a1.64 1.64 0 0 1 .384 1.279l-1.388 4.114M7 11H4v6.5A1.5 1.5 0 0 0 5.5 19v0A1.5 1.5 0 0 0 7 17.5V11Zm6.5-1h4.915c.286 0 .372.014.626.15.254.135.472.332.637.572a1.874 1.874 0 0 1 .215 1.673l-2.098 6.4C17.538 19.52 17.368 20 16.12 20c-2.303 0-4.79-.943-6.67-1.475"
+                      d="M5 11.917 9.724 16.5 19 7.5"
                     />
                   </svg>
                 </Button>
@@ -414,7 +457,7 @@ export default function ShowQuotationPage() {
                 <Button
                   color="white"
                   size="xs" // Adjusted button size to xs
-                  onClick={() => handleDeleteQuotation(obj)}
+                  onClick={() => handleDeleteInvoice(obj)}
                   className="py-1 px-2" // Adjusted padding
                 >
                   <svg
@@ -446,20 +489,21 @@ export default function ShowQuotationPage() {
   const nonEmptyFields = nonEmptyValues();
   function getDocumentNoAtIndex(index) {
     if (index >= 0 && index < filteredArray.flat().length) {
-      return filteredArray.flat()[index]["Quotation No"];
+      return filteredArray.flat()[index]["Invoice No"];
     } else {
       return "Invalid index";
     }
   }
-  const handleDeleteQuotation = async (obj) => {
+  const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
-      "delete-quotation-by-quotation-no",
-      obj.Quotation_No
+      "delete-debit-note-by-Document-no",
+      obj.Document_No
     );
+    alert(res.message);
   };
   const AmountPaidHandler = async (e, doc_no) => {
     handleInputChange("Amount_Paid", e.target.value);
-    handleInputChange("Quotation_No", doc_no);
+    handleInputChange("Document_No", doc_no);
   };
   function getTextForValue(option, value) {
     const clients = option;
@@ -476,11 +520,10 @@ export default function ShowQuotationPage() {
     });
   }
 
-  // console.log(removeStatusField(filteredArray));
   const exportInvoicesToExcel = async () => {
     try {
       const response = await ipcRenderer.invoke(
-        "export-quotation-to-excel",
+        "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
           : removeStatusField(filterData)
@@ -490,7 +533,8 @@ export default function ShowQuotationPage() {
         const blob = new Blob([buffer], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
-        saveAs(blob, "export_quotations.xlsx");
+        saveAs(blob, "export_invoices.xlsx");
+        alert("yo");
       } else {
         console.error("Error:", response?.error);
       }
@@ -499,7 +543,6 @@ export default function ShowQuotationPage() {
       console.error("Export error:", error);
     }
   };
-
   const renderInvoicePreview = () => {
     if (isInvoicePreviewOpen) {
       return (
@@ -569,7 +612,7 @@ export default function ShowQuotationPage() {
                 details={{
                   Client: selectedRow.Client,
                   Issue_Date: selectedRow.Issue_Date,
-                  Quotation_No: selectedRow.Quotation_No,
+                  Document_No: selectedRow.Document_No,
                   Ship_To: selectedRow.Ship_To,
                   PO_Number: selectedRow.PO_Number,
                   PO_Date: selectedRow.PO_Date,
@@ -582,7 +625,7 @@ export default function ShowQuotationPage() {
                   Discount_on_all: selectedRow.Discount_on_all,
                   Total_BeforeTax: selectedRow.Total_BeforeTax,
                   Total_Tax: selectedRow.Total_Tax,
-                  Type: "QUOTATION",
+                  Type: "INVOICE",
                   companyDetails: companyDetails.data[0],
                 }}
               />
@@ -597,18 +640,12 @@ export default function ShowQuotationPage() {
 
   return (
     <div className="flex flex-col w-full h-full px-5">
-      <div
-        className="flex flex-col border border-gray-400 p-3 mb-3"
-        style={{ overflow: "auto" }}
-      >
+      <div className="flex flex-col border border-gray-400 p-3 mb-3">
         <div className="my-2 flex-1">
-          <Typography variant="h6">Search Quotation</Typography>
+          <Typography variant="h6">Search Debit Notes</Typography>
           <hr />
         </div>
-        <div
-          className="flex flex-row w-full my-2"
-          style={{ justifyContent: "center" }}
-        >
+        <div className="flex flex-row w-full justify-between my-2">
           <div className="mr-12">
             <SelectComp
               label="Client"
@@ -620,16 +657,6 @@ export default function ShowQuotationPage() {
                   getTextForValue(client_option, values.select)
                 );
               }}
-            />
-          </div>
-          <div className=" mr-12">
-            <Input
-              variant="outlined"
-              label="Quotation Number"
-              placeholder="Quotation Number"
-              onChange={(e) =>
-                handleFilterChange("Quotation_No", e.target.value)
-              }
             />
           </div>
 
@@ -650,7 +677,7 @@ export default function ShowQuotationPage() {
               onChange={(e) => handleFilterChange("Issue_To", e.target.value)}
             />
           </div>
-          {/* <div className="flex mr-12 gap-x-2">
+          <div className="flex mr-12 gap-x-2">
             <Input
               variant="outlined"
               label="Due Date"
@@ -658,11 +685,11 @@ export default function ShowQuotationPage() {
               type="date"
               onChange={(e) => handleFilterChange("Due_Date", e.target.value)}
             />
-          </div> */}
+          </div>
         </div>
 
         <div className="flex flex-row w-full justify-between my-2">
-          {/* <div className="mr-12">
+          <div className="mr-12">
             <SelectComp
               label="Status"
               options={status_options}
@@ -671,9 +698,18 @@ export default function ShowQuotationPage() {
                 handleFilterChange("Status", values.select);
               }}
             />
-          </div> */}
-
-          {/* <div className="mr-12">
+          </div>
+          <div className=" mr-12">
+            <Input
+              variant="outlined"
+              label="Document Number"
+              placeholder="Document Number"
+              onChange={(e) =>
+                handleFilterChange("Document_No", e.target.value)
+              }
+            />
+          </div>
+          <div className="mr-12">
             <SelectComp
               label="Type"
               options={payemnt_options}
@@ -685,9 +721,8 @@ export default function ShowQuotationPage() {
                 );
               }}
             />
-          </div> */}
+          </div>
         </div>
-
         <div className="flex justify-center">
           <div className="mx-3">
             <Button
@@ -700,22 +735,12 @@ export default function ShowQuotationPage() {
         </div>
       </div>
       <hr />
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "orangered",
-        }}
-      >
-        *Quotation in red have expired or will expire today.
-      </div>
       <div className="flex my-2 flex-row-reverse">
         <div className="mx-3">
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
         <div className="mx-3">
-          <Button onClick={api_new_quotation}>New Quotation</Button>
+          <Button onClick={api_add_debit}>New Debit Note</Button>
         </div>
       </div>
 
@@ -725,6 +750,63 @@ export default function ShowQuotationPage() {
           TABLE_ROWS={nonEmptyFields.length === 0 ? filteredArray : filterData}
         />
       </div>
+      {/* Modal */}
+      <Dialog open={open} handler={handlePayNow}>
+        <DialogHeader>Payment Details</DialogHeader>
+        <DialogBody>
+          {modalData && (
+            <div className="flex flex-col space-y-4">
+              <div className="flex flex-col">
+                <p>Client Name: {modalData.Client}</p>
+                <p>Invoice No: {modalData.Document_No}</p>
+              </div>
+              <div className="flex flex-row items-center">
+                <SelectComp
+                  label="Payment Type"
+                  options={payemnt_options}
+                  isinput={false}
+                  handle={(values) => {
+                    handleInputChange("Transaction_type", values.select);
+                  }}
+                />
+              </div>
+              <div className="flex flex-row items-center">
+                <Input
+                  variant="outlined"
+                  label="Amount Paid"
+                  placeholder="Amount Paid"
+                  onChange={(e) => AmountPaidHandler(e, modalData.Document_No)}
+                />
+              </div>
+              <div className="flex flex-row items-center">
+                <Input
+                  variant="outlined"
+                  label="Pay Date"
+                  placeholder="Pay to"
+                  type="date"
+                  onChange={(e) =>
+                    handleInputChange("Date_of_payment", e.target.value)
+                  }
+                />
+              </div>
+              {/* Add any other components here */}
+            </div>
+          )}
+        </DialogBody>
+
+        <DialogFooter>
+          <Button
+            color="blue"
+            onClick={handleDbUpdate}
+            style={{ marginRight: 25 }}
+          >
+            Pay
+          </Button>
+          <Button color="red" onClick={() => setOpen(false)}>
+            Close
+          </Button>
+        </DialogFooter>
+      </Dialog>
       {renderInvoicePreview()}
     </div>
   );

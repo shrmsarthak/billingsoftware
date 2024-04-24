@@ -20,6 +20,7 @@ import { api_new_client, api_new_invoice } from "../../../utils/PageApi";
 import {
   get_all_client_option,
   get_all_invoices,
+  get_company_details,
 } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
 import Invoice from "../components/Invoice";
@@ -43,7 +44,6 @@ const TABLE_HEAD = [
   "Date of payemnt",
   "Type",
   "Action",
-  "Delete",
 ];
 
 const select_option = [];
@@ -74,7 +74,7 @@ const status_options = [
 ];
 
 let invoices = await get_all_invoices();
-
+let companyDetails = await get_company_details();
 let client_option = await get_all_client_option();
 client_option.shift();
 
@@ -83,7 +83,6 @@ export default function ShowInvoicePage() {
     document.title = "Show Invoice";
   });
 
-  const handleSelect = (type, value) => {};
   const [open, setOpen] = React.useState(false);
   const [modalData, setModalData] = useState(null);
   const [formValues, setFormValues] = useState({
@@ -108,9 +107,6 @@ export default function ShowInvoicePage() {
     setSelectedRow(obj);
     setIsInvoicePreviewOpen(true);
   };
-
-  console.log(selectedRow);
-
   const closeInvoicePreviewWindow = () => {
     setIsInvoicePreviewOpen(false);
   };
@@ -141,11 +137,19 @@ export default function ShowInvoicePage() {
   };
 
   let filteredArray = invoices.flat().map((obj) => {
+    const dueDate = new Date(obj.Due_Date);
+
+    // Get today's date
+    const today = new Date();
     return {
       "Client Name": obj.Client,
       "Invoice No": obj.Document_No,
       "Issue Date": obj.Issue_Date,
-      "Due Date": obj.Due_Date,
+      "Due Date": (
+        <p style={{ color: dueDate <= today ? "red" : "inherit" }}>
+          {obj.Due_Date}
+        </p>
+      ),
       Amount: obj.Total_BeforeTax,
       Tax: obj.Total_Tax,
       "Shipping Cost": obj.Shipping_Charges,
@@ -254,9 +258,34 @@ export default function ShowInvoicePage() {
               </svg>
             </Button>
           </Tooltip>
+          <Tooltip content="Delete">
+            <Button
+              color="white"
+              size="xs" // Adjusted button size to xs
+              onClick={() => handleDeleteInvoice(obj)}
+              className="py-1 px-2" // Adjusted padding
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
         </>
       ),
-      Delete: "DELETE", // Assuming Action is from rowData
     };
   });
 
@@ -419,9 +448,34 @@ export default function ShowInvoicePage() {
                   </svg>
                 </Button>
               </Tooltip>
+              <Tooltip content="Delete">
+                <Button
+                  color="white"
+                  size="xs" // Adjusted button size to xs
+                  onClick={() => handleDeleteInvoice(obj)}
+                  className="py-1 px-2" // Adjusted padding
+                >
+                  <svg
+                    class="w-6 h-6 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                    />
+                  </svg>
+                </Button>
+              </Tooltip>
             </>
           ),
-          Delete: "DELETE",
         };
       });
     setFilterData(filteredData);
@@ -435,13 +489,11 @@ export default function ShowInvoicePage() {
       return "Invalid index";
     }
   }
-  const handleDeleteInvoice = async (index) => {
-    if (getDocumentNoAtIndex(index) !== "Invalid index") {
-      const res = await ipcRenderer.invoke(
-        "delete-invoice-by-Document-no",
-        getDocumentNoAtIndex(index)
-      );
-    }
+  const handleDeleteInvoice = async (obj) => {
+    const res = await ipcRenderer.invoke(
+      "delete-invoice-by-Document-no",
+      obj.Document_No
+    );
   };
   const AmountPaidHandler = async (e, doc_no) => {
     handleInputChange("Amount_Paid", e.target.value);
@@ -462,7 +514,6 @@ export default function ShowInvoicePage() {
     });
   }
 
-  // console.log(removeStatusField(filteredArray));
   const exportInvoicesToExcel = async () => {
     try {
       const response = await ipcRenderer.invoke(
@@ -486,34 +537,8 @@ export default function ShowInvoicePage() {
       console.error("Export error:", error);
     }
   };
-
+  console.log(invoices);
   const renderInvoicePreview = () => {
-    const handleSave = async () => {
-      const invoiceData = {
-        rowData: rowData,
-        Client: formData.Client,
-        Document_No: formData.Document_No,
-        Issue_Date: formData.Issue_Date,
-        Ship_To: formData.Ship_To,
-        PO_Number: formData.PO_Number,
-        Payment_Term: formData.Payment_Term,
-        PO_Date: formData.PO_Date,
-        Due_Date: formData.Due_Date,
-        Place_Of_Supply: formData.Place_Of_Supply,
-        Notes: formData.Notes,
-        Private_Notes: formData.Private_Notes,
-        Shipping_Charges:
-          Number(formData.Shipping_Charges) +
-          Number((formData.Shipping_Charges / 100) * formData.Shipping_Tax),
-        Discount_on_all: formData.Discount_on_all,
-        Total_BeforeTax: formData.Total_BeforeTax,
-        Total_Tax: formData.Total_Tax,
-      };
-
-      const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
-      console.log(res); // Handle the response as needed
-    };
-
     if (isInvoicePreviewOpen) {
       return (
         <div
@@ -544,38 +569,6 @@ export default function ShowInvoicePage() {
             }}
           >
             <div style={{ textAlign: "right", marginBottom: "10px" }}>
-              <button
-                style={{
-                  background: "#7D73736C",
-                  border: "1px solid",
-                  cursor: "pointer",
-                  padding: "5px",
-                  borderRadius: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  position: "absolute",
-                }}
-                // onClick={handleSave}
-              >
-                <svg
-                  class="w-6 h-6 text-gray-800 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
-                  />
-                </svg>
-                Save
-              </button>
               <button
                 style={{
                   background: "orangered",
@@ -627,6 +620,8 @@ export default function ShowInvoicePage() {
                   Discount_on_all: selectedRow.Discount_on_all,
                   Total_BeforeTax: selectedRow.Total_BeforeTax,
                   Total_Tax: selectedRow.Total_Tax,
+                  Type: "INVOICE",
+                  companyDetails: companyDetails.data[0],
                 }}
               />
             </PDFViewer>
@@ -748,7 +743,6 @@ export default function ShowInvoicePage() {
         <ProductInvoiceTable
           TABLE_HEAD={TABLE_HEAD}
           TABLE_ROWS={nonEmptyFields.length === 0 ? filteredArray : filterData}
-          handleDeleteRow={handleDeleteInvoice}
         />
       </div>
       {/* Modal */}

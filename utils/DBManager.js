@@ -8,7 +8,10 @@ const { Category } = require("../models/Category");
 const { Tax } = require("../models/Tax");
 const { SubCategory } = require("../models/SubCategory");
 const { Invoice } = require("../models/Invoice");
+const { Quotation } = require("../models/Quotation");
 const { CompanyDetails } = require("../models/CompanyDetails");
+const { Debit_Notes } = require("../models/DebitNotes");
+const { Credit_Notes } = require("../models/CreditNotes");
 
 const DBManager = new DataSource({
   name: "maindb",
@@ -24,7 +27,10 @@ const DBManager = new DataSource({
     Product,
     ReportData,
     Invoice,
+    Quotation,
     CompanyDetails,
+    Debit_Notes,
+    Credit_Notes,
   ],
   synchronize: true,
 });
