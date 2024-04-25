@@ -10,6 +10,9 @@ export const api_new_quotation = (options) => {
 export const api_show_quotation = (options) => {
   window.location.href = "/sales/quotation/show";
 };
+export const api_show_ledger = (options) => {
+  window.location.href = "/sales/ledger/show";
+};
 export const api_new_client = (options) => {
   window.open(
     "/sales/client/new",
@@ -60,6 +63,9 @@ export const api_add_credit = (options) => {
 };
 export const api_show_credit = (options) => {
   window.location.href = "/sales/credit/show";
+};
+export const api_new_payment = (options) => {
+  window.location.href = "/sales/payment/new";
 };
 export const api_show_payment = (options) => {
   window.location.href = "/sales/payment/show";

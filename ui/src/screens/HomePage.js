@@ -109,10 +109,12 @@ function ShortCutCard({ title, to, color }) {
       <div
         className="flex flex-col mb-3 bg-clip-border rounded border-2 border-primary p-6 bg-gray-100 text-xs font-medium uppercase leading-normal text-primary transition duration-150 ease-in-out hover:border-primary-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-primary-600 focus:border-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:border-primary-700 active:text-primary-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
         style={{
-          minWidth: "250px",
-          maxWidth: "250px",
+          minWidth: "300px",
+          maxWidth: "300px",
           alignItems: "center",
-          padding: 50,
+          padding: 60,
+          maxHeight: "144px",
+          background: "radial-gradient(circle, rgba(255,255,255,1) 0%, rgb(202 203 216 / 53%) 46%, rgb(33 150 243 / 0.5) 100%)"
         }}
       >
         <div className="">
@@ -221,7 +223,7 @@ export default function HomePage() {
 
                 <ShortCutCard title="PAYMENT" to="/sales/payment/show" />
 
-                <ShortCutCard title="LEDGER" />
+                <ShortCutCard title="LEDGER" to="/sales/ledger/show" />
 
                 <ShortCutCard title="EXPENSES" />
               </div>

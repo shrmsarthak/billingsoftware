@@ -16,7 +16,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { ProductInvoiceTable } from "../components/ProductInvoiceTable";
 import SelectComp from "../components/SelectComp";
-import { api_new_client, api_new_invoice } from "../../../utils/PageApi";
+import { api_new_client, api_new_payment } from "../../../utils/PageApi";
 import {
   get_all_client_option,
   get_all_invoices,
@@ -573,7 +573,7 @@ export default function ShowPaymentDocScreen() {
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
         <div className="mx-3">
-          <Button onClick={api_new_invoice}>New Payment Document</Button>
+          <Button onClick={api_new_payment}>New Payment Document</Button>
         </div>
       </div>
 
