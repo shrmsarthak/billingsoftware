@@ -25,7 +25,7 @@ import {
   get_company_details,
 } from "../../../utils/SelectOptions";
 import { api_show_client, api_show_product } from "../../../utils/PageApi";
-import Invoice from "../components/Invoice";
+import PaymentReceipt from "../components/Receipts/PaymentReceipt";
 import { PDFViewer } from "@react-pdf/renderer";
 const { ipcRenderer } = window.require("electron");
 
@@ -61,24 +61,11 @@ export default function NewPaymentPage() {
     Amount_Received: 0,
   };
   const [formData, setFormData] = useState(initialValues);
-  const [rows, setRows] = useState([]);
   const [allClient, setAllClient] = useState([]);
-  const [selectedClient, setSelectedClient] = useState([]);
-  const [selectedClientData, setSelectedClientData] = useState([]);
-
-  console.log(formData);
-  console.log(invoices);
-  console.log(formData.Client);
 
   useEffect(() => {
     getAllClients();
   }, []);
-
-  useEffect(() => {
-    setSelectedClient(
-      allClient.filter((x) => x.client_name === formData.Client)
-    );
-  }, [formData.Client]);
 
   function getTextForValue(option, value) {
     const clients = option;
@@ -122,13 +109,22 @@ export default function NewPaymentPage() {
 
   const renderInvoicePreview = () => {
     const handleSave = async () => {
-      const invoiceData = {
+      const paymentReceiptData = {
         rowData: filteredArray,
         Client: formData.Client,
+        Document_Date: new Date().toISOString().split("T")[0],
         Document_No: formData.Document_No,
+        Pay_Date: formData.Pay_Date,
+        Bank_Charges: formData.Bank_Charges,
+        Payment_Type: formData.Payment_Type,
+        Payment_Mode: formData.Payment_Mode,
+        Amount_Received: formData.Amount_Received,
       };
 
-      const res = await ipcRenderer.invoke("add-new-credit-note", invoiceData);
+      const res = await ipcRenderer.invoke(
+        "add-new-payment-data",
+        paymentReceiptData
+      );
       alert(res.message); // Handle the response as needed
     };
 
@@ -227,13 +223,17 @@ export default function NewPaymentPage() {
                 height: "90vh" /* Adjusted height */,
               }}
             >
-              <Invoice
-                data={filteredArray.flat()}
+              <PaymentReceipt
+                tableData={filteredArray}
                 details={{
                   Client: formData.Client,
                   Issue_Date: formData.Issue_Date,
                   Document_No: formData.Document_No,
-
+                  Pay_Date: formData.Pay_Date,
+                  Bank_Charges: formData.Bank_Charges,
+                  Payment_Type: formData.Payment_Type,
+                  Payment_Mode: formData.Payment_Mode,
+                  Amount_Received: formData.Amount_Received,
                   Type: "PAYMENT NOTE",
                   companyDetails: companyDetails.data[0],
                 }}
@@ -267,21 +267,38 @@ export default function NewPaymentPage() {
     .flat()
     .filter((x) => x.Client === formData.Client)
     .map((obj) => {
+      // Calculate the document amount
+      const documentAmount = (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges)
+      ).toFixed(2);
+
+      // Calculate the amount due
+      let amountDue = (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges) -
+        obj.Amount_Paid
+      ).toFixed(2);
+
+      // Check if amount due is NaN or null
+      if (isNaN(amountDue) || amountDue === null) {
+        amountDue = "0.00";
+      }
+
+      // Check if payment amount is NaN or null
+      const paymentAmount =
+        isNaN(obj.Amount_Paid) || obj.Amount_Paid === null
+          ? "0.00"
+          : obj.Amount_Paid;
+
       return {
         "Document Number": obj.Document_No,
         "Document Date": obj.Issue_Date,
-        "Document Amount": (
-          Number(obj.Total_BeforeTax) +
-          Number(obj.Total_Tax) +
-          Number(obj.Shipping_Charges)
-        ).toFixed(2),
-        "Amount Due": (
-          Number(obj.Total_BeforeTax) +
-          Number(obj.Total_Tax) +
-          Number(obj.Shipping_Charges) -
-          obj.Amount_Paid
-        ).toFixed(2),
-        "Payment Amount": obj.Amount_Paid,
+        "Document Amount": documentAmount,
+        "Amount Due": amountDue,
+        "Payment Amount": paymentAmount,
       };
     });
 
@@ -290,6 +307,11 @@ export default function NewPaymentPage() {
       ? 0
       : Number(obj["Payment Amount"]);
     return total + paymentAmount;
+  }, 0);
+
+  let combinedBill = filteredArray.reduce((total, item) => {
+    // Convert 'Amount Due' to a number and add it to the total
+    return total + parseFloat(item["Amount Due"]);
   }, 0);
 
   return (
@@ -352,6 +374,7 @@ export default function NewPaymentPage() {
               variant="outlined"
               label="Amount"
               placeholder="Amount"
+              type="number"
               onChange={(e) =>
                 handleFieldChange("Amount_Received", e.target.value)
               }
@@ -385,14 +408,18 @@ export default function NewPaymentPage() {
             <div style={{ textAlign: "right" }}>{totalAmountPaid}</div>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end" }}>
+            <div style={{ width: "250px" }}>Amount Pending:</div>
+            <div style={{ textAlign: "right" }}>{combinedBill}</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end" }}>
             <div style={{ width: "250px" }}>Amount Used For Payment:</div>
             <div style={{ textAlign: "right" }}>{formData.Amount_Received}</div>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end" }}>
             <div style={{ width: "250px" }}>Amount in excess:</div>
             <div style={{ textAlign: "right" }}>
-              {formData.Amount_Received > totalAmountPaid
-                ? formData.Amount_Received - totalAmountPaid
+              {formData.Amount_Received > combinedBill
+                ? formData.Amount_Received - combinedBill
                 : 0}
             </div>
           </div>
@@ -400,14 +427,15 @@ export default function NewPaymentPage() {
         <Button
           onClick={openInvoicePreviewWindow}
           disabled={
-            formData.Amount_Received === "" || formData.Amount_Received === 0 || formData.Client === ""
+            formData.Amount_Received === "" ||
+            formData.Amount_Received === 0 ||
+            formData.Client === ""
           }
           style={{ width: "200px", marginTop: 40 }}
         >
           Preview Document{" "}
         </Button>
       </div>
-
       {renderInvoicePreview()}
     </div>
   );

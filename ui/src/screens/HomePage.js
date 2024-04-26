@@ -114,13 +114,14 @@ function ShortCutCard({ title, to, color }) {
           alignItems: "center",
           padding: 60,
           maxHeight: "144px",
-          background: "radial-gradient(circle, rgba(255,255,255,1) 0%, rgb(202 203 216 / 53%) 46%, rgb(33 150 243 / 0.5) 100%)"
+          background:
+            "radial-gradient(circle, rgba(255,255,255,1) 0%, rgb(202 203 216 / 53%) 46%, rgb(33 150 243 / 0.5) 100%)",
         }}
       >
         <div className="">
-          <h3 className="text-sm font-bold text-gray-600 dark:text-white">
+          <h1 className="text-sm font-bold text-gray-600 dark:text-white">
             {title}
-          </h3>
+          </h1>
         </div>
       </div>
     </Link>

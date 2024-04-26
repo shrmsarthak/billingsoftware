@@ -7,30 +7,24 @@ import {
   Input,
   Tooltip,
 } from "@material-tailwind/react";
-import {
-  Dialog,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-} from "@material-tailwind/react";
 import React, { useEffect, useState } from "react";
 import { ProductInvoiceTable } from "../components/ProductInvoiceTable";
 import SelectComp from "../components/SelectComp";
 import { api_new_client, api_new_payment } from "../../../utils/PageApi";
 import {
   get_all_client_option,
-  get_all_invoices,
+  get_all_payment_details,
   get_company_details,
 } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
-import Invoice from "../components/Invoice";
+import PaymentReceipt from "../components/Receipts/PaymentReceipt";
 import { PDFViewer } from "@react-pdf/renderer";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
   "Client Name",
-  "Invoice No",
+  "Document No",
   "Pay Date",
   "Type",
   "Amount Payment",
@@ -40,34 +34,15 @@ const TABLE_HEAD = [
   "Action",
 ];
 
-const select_option = [];
-const payemnt_options = [
-  {
-    text: "Cash",
-    value: "Cash",
-  },
-  {
-    text: "Cheque",
-    value: "Cheque",
-  },
-  {
-    text: "Bank Transfer",
-    value: "Bank Transfer",
-  },
-];
+const payment_type = ["Received", "Made", "Advance Payment"];
+function convertDropdownData(data) {
+  return data.map((item) => ({
+    text: item,
+    value: item,
+  }));
+}
 
-const status_options = [
-  {
-    text: "Unpaid",
-    value: "Unpaid",
-  },
-  {
-    text: "Paid",
-    value: "Paid",
-  },
-];
-
-let invoices = await get_all_invoices();
+let invoices = await get_all_payment_details();
 let companyDetails = await get_company_details();
 let client_option = await get_all_client_option();
 client_option.shift();
@@ -106,31 +81,23 @@ export default function ShowPaymentDocScreen() {
       [fieldName]: value,
     }));
   };
-
   let filteredArray = invoices.flat().map((obj) => {
+    let combinedBill = obj.rowData.reduce((total, item) => {
+      // Convert 'Amount Due' to a number and add it to the total
+      return total + parseFloat(item["Amount Due"]);
+    }, 0);
     return {
       "Client Name": obj.Client,
       "Invoice No": obj.Document_No,
-      "Pay Date": obj.Date_of_payment,
-      Type:
-        obj.Transaction_type?.length > 1 ? (
-          <p style={{ color: "green" }}>Received</p>
-        ) : (
-          <p style={{ color: "red" }}>Not Paid</p>
-        ),
-      "Amount Payment": (
-        Number(obj.Total_BeforeTax) +
-        Number(obj.Total_Tax) +
-        Number(obj.Shipping_Charges)
+      "Pay Date": obj.Pay_Date,
+      Type: obj.Payment_Type,
+      "Amount Payment": combinedBill.toFixed(2),
+      "Amount Used": obj.Amount_Received,
+      "Available Credit": (obj.Amount_Received > combinedBill
+        ? Number(obj.Amount_Received) - Number(combinedBill)
+        : 0.0
       ).toFixed(2),
-      "Amount Used": obj.Amount_Paid,
-      "Available Credit": (
-        Number(obj.Total_BeforeTax) +
-        Number(obj.Total_Tax) +
-        Number(obj.Shipping_Charges) -
-        obj.Amount_Paid
-      ).toFixed(2),
-      "Payment Type": obj.Transaction_type,
+      "Payment Type": obj.Payment_Mode,
       ActionButton: (
         <>
           <Tooltip content="Edit">
@@ -228,42 +195,36 @@ export default function ShowPaymentDocScreen() {
       .filter((object) => {
         return nonEmptyFields.every((field) => {
           if (field === "Issue_From" || field === "Issue_To") {
-            // Check if Issue Date lies in the range between Issue_From and Issue_To
             const fromDate = new Date(filterValues.Issue_From);
             const toDate = new Date(filterValues.Issue_To);
-            const issueDate = new Date(object.Date_of_payment);
+            const issueDate = new Date(object.Pay_Date);
             return issueDate >= fromDate && issueDate <= toDate;
           } else if (field === "Document_No") {
             return object[field].includes(filterValues[field]);
+          } else if (field === "Transaction_type") {
+            return object.Payment_Type === filterValues[field];
           } else {
             return object[field] === filterValues[field];
           }
         });
       })
       .map((obj) => {
+        let combinedBill = obj.rowData.reduce((total, item) => {
+          // Convert 'Amount Due' to a number and add it to the total
+          return total + parseFloat(item["Amount Due"]);
+        }, 0);
         return {
           "Client Name": obj.Client,
           "Invoice No": obj.Document_No,
-          "Pay Date": obj.Date_of_payment,
-          Type:
-            obj.Transaction_type?.length > 1 ? (
-              <p style={{ color: "green" }}>Received</p>
-            ) : (
-              <p style={{ color: "red" }}>Not Paid</p>
-            ),
-          "Amount Payment": (
-            Number(obj.Total_BeforeTax) +
-            Number(obj.Total_Tax) +
-            Number(obj.Shipping_Charges)
+          "Pay Date": obj.Pay_Date,
+          Type: obj.Payment_Type,
+          "Amount Payment": combinedBill.toFixed(2),
+          "Amount Used": obj.Amount_Received,
+          "Available Credit": (obj.Amount_Received > combinedBill
+            ? Number(obj.Amount_Received) - Number(combinedBill)
+            : 0.0
           ).toFixed(2),
-          "Amount Used": obj.Amount_Paid,
-          "Available Credit": (
-            Number(obj.Total_BeforeTax) +
-            Number(obj.Total_Tax) +
-            Number(obj.Shipping_Charges) -
-            obj.Amount_Paid
-          ).toFixed(2),
-          "Payment Type": obj.Transaction_type,
+          "Payment Type": obj.Payment_Mode,
           ActionButton: (
             <>
               <Tooltip content="Edit">
@@ -353,9 +314,10 @@ export default function ShowPaymentDocScreen() {
   const nonEmptyFields = nonEmptyValues();
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
-      "delete-invoice-by-Document-no",
+      "delete-payment-by-Document-no",
       obj.Document_No
     );
+    alert(res.message)
   };
   function getTextForValue(option, value) {
     const clients = option;
@@ -459,24 +421,17 @@ export default function ShowPaymentDocScreen() {
                 height: "90vh" /* Adjusted height */,
               }}
             >
-              <Invoice
-                data={selectedRow.rowData.flat()}
+             <PaymentReceipt
+                tableData={selectedRow.rowData}
                 details={{
                   Client: selectedRow.Client,
                   Issue_Date: selectedRow.Issue_Date,
                   Document_No: selectedRow.Document_No,
-                  Ship_To: selectedRow.Ship_To,
-                  PO_Number: selectedRow.PO_Number,
-                  PO_Date: selectedRow.PO_Date,
-                  Due_Date: selectedRow.Due_Date,
-                  Payment_Term: selectedRow.Payment_Term,
-                  Place_Of_Supply: selectedRow.Place_Of_Supply,
-                  Notes: selectedRow.Notes,
-                  Shipping_Charges: Number(selectedRow.Shipping_Charges),
-                  Shipping_Tax: selectedRow.Shipping_Tax || 0,
-                  Discount_on_all: selectedRow.Discount_on_all,
-                  Total_BeforeTax: selectedRow.Total_BeforeTax,
-                  Total_Tax: selectedRow.Total_Tax,
+                  Pay_Date: selectedRow.Pay_Date,
+                  Bank_Charges: selectedRow.Bank_Charges,
+                  Payment_Type: selectedRow.Payment_Type,
+                  Payment_Mode: selectedRow.Payment_Mode,
+                  Amount_Received: selectedRow.Amount_Received,
                   Type: "PAYMENT NOTE",
                   companyDetails: companyDetails.data[0],
                 }}
@@ -545,13 +500,10 @@ export default function ShowPaymentDocScreen() {
           <div className="mr-12">
             <SelectComp
               label="Payment Type"
-              options={payemnt_options}
+              options={convertDropdownData(payment_type)}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Transaction_type",
-                  getTextForValue(payemnt_options, values.select)
-                );
+                handleFilterChange("Transaction_type", values.select);
               }}
             />
           </div>
