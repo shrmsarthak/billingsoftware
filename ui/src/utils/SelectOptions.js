@@ -99,6 +99,11 @@ export const get_all_invoices = async () => {
   return [res.data];
 };
 
+export const get_all_payment_details = async () => {
+  var res = await ipcRenderer.invoke("get-all-payment-receipts");
+  return [res.data];
+};
+
 export const get_all_debit_notes = async () => {
   var res = await ipcRenderer.invoke("get-all-debit-notes");
   return [res.data];

@@ -15,6 +15,7 @@ const { CompanyDetails } = require("./models/CompanyDetails");
 const { Quotation } = require("./models/Quotation");
 const { Debit_Notes } = require("./models/DebitNotes");
 const { Credit_Notes } = require("./models/CreditNotes");
+const { PaymentDetails } = require("./models/PaymentDetails");
 
 electronReload(__dirname);
 
@@ -1384,6 +1385,19 @@ ipcMain.handle("add-new-credit-note", async (ev, args) => {
   }
 });
 
+ipcMain.handle("add-new-payment-data", async (ev, args) => {
+  try {
+    const response = await addNewPaymentData(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add credit note",
+    };
+  }
+});
+
 ipcMain.handle("add-new-quotation", async (ev, args) => {
   try {
     const response = await addNewQuotation(args);
@@ -1400,6 +1414,23 @@ ipcMain.handle("add-new-quotation", async (ev, args) => {
 ipcMain.handle("get-all-invoice", async (ev, args) => {
   try {
     const productRepo = DBManager.getRepository(Invoice);
+    const data = await productRepo.find();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: true,
+      data: [],
+    };
+  }
+});
+
+ipcMain.handle("get-all-payment-receipts", async (ev, args) => {
+  try {
+    const productRepo = DBManager.getRepository(PaymentDetails);
     const data = await productRepo.find();
     return {
       success: true,
@@ -1579,6 +1610,41 @@ async function addNewCreditNote(invoiceData) {
   }
 }
 
+async function addNewPaymentData(paymentData) {
+  try {
+    const paymentRepo = DBManager.getRepository(PaymentDetails);
+
+    const paymentDataObj = {
+      rowData: paymentData.rowData,
+      Client: paymentData.Client,
+      Document_Date: paymentData.Document_Date,
+      Document_No: paymentData.Document_No,
+      Pay_Date: paymentData.Pay_Date,
+      Bank_Charges: paymentData.Bank_Charges,
+      Payment_Type: paymentData.Payment_Type,
+      Payment_Mode: paymentData.Payment_Mode,
+      Amount_Received: paymentData.Amount_Received,
+    };
+
+    // Save the new payment details entity to the database
+    const result = await paymentRepo
+      .createQueryBuilder()
+      .insert()
+      .values(paymentDataObj)
+      .execute();
+
+    if (result) {
+      return {
+        success: true,
+        message: "New payment details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new payment details:", error);
+    return { success: false, message: "Failed to add new payment details" };
+  }
+}
+
 async function addNewQuotation(invoiceData) {
   try {
     const productRepo = DBManager.getRepository(Quotation);
@@ -1645,12 +1711,45 @@ ipcMain.handle("delete-invoice-by-Document-no", async (ev, args) => {
   }
 });
 
+ipcMain.handle("delete-payment-by-Document-no", async (ev, args) => {
+  try {
+    const documentNo = args;
+    const invoiceRepo = DBManager.getRepository(PaymentDetails);
+    console.log(`${ev}-${args}`);
+    console.log(`Deleting payment document with Document_No: ${documentNo}`);
+
+    const deleteResult = await invoiceRepo
+      .createQueryBuilder()
+      .delete()
+      .from(PaymentDetails)
+      .where("Document_No = :documentNo", { documentNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return {
+        success: true,
+        message: "Payment Details deleted successfully.",
+      };
+    } else {
+      return {
+        success: false,
+        message: "Payment Details with provided Document_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting Payment Details:", error);
+    return { success: false, message: "Error while deleting Payment Details" };
+  }
+});
+
 ipcMain.handle("delete-debit-note-by-Document-no", async (ev, args) => {
   try {
     const documentNo = args;
     const invoiceRepo = DBManager.getRepository(Debit_Notes);
     console.log(`${ev}-${args}`);
-    console.log(`Deleting invoice with Document_No: ${documentNo}`);
+    console.log(`Deleting debit-note with Document_No: ${documentNo}`);
 
     const deleteResult = await invoiceRepo
       .createQueryBuilder()

@@ -10,18 +10,33 @@ import {
 import React, { useEffect, useState } from "react";
 import { ProductInvoiceTable } from "../components/ProductInvoiceTable";
 import SelectComp from "../components/SelectComp";
-import { api_new_client, api_new_payment } from "../../../utils/PageApi";
 import {
   get_all_client_option,
-  get_all_payment_details,
+  get_all_invoices,
   get_company_details,
+  get_all_payment_details,
 } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
-import PaymentReceipt from "../components/Receipts/PaymentReceipt";
+import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
+  "No",
+  "Client Name",
+  "Invoice No",
+  "Issue Date",
+  "Due Date",
+  "Total",
+  "Status",
+  "Amount Paid",
+  "Balance",
+  "Date of payemnt",
+  "Type",
+  "Action",
+];
+
+const TABLE_HEAD_SECOND = [
   "No",
   "Client Name",
   "Document No",
@@ -31,25 +46,44 @@ const TABLE_HEAD = [
   "Amount Used",
   "Available Credit",
   "Payment Type",
-  "Action",
 ];
 
-const payment_type = ["Received", "Made", "Advance Payment"];
-function convertDropdownData(data) {
-  return data.map((item) => ({
-    text: item,
-    value: item,
-  }));
-}
+const payemnt_options = [
+  {
+    text: "Cash",
+    value: "Cash",
+  },
+  {
+    text: "Cheque",
+    value: "Cheque",
+  },
+  {
+    text: "Bank Transfer",
+    value: "Bank Transfer",
+  },
+];
 
-let invoices = await get_all_payment_details();
+const status_options = [
+  {
+    text: "Unpaid",
+    value: "Unpaid",
+  },
+  {
+    text: "Paid",
+    value: "Paid",
+  },
+];
+
+let invoices = await get_all_invoices();
 let companyDetails = await get_company_details();
 let client_option = await get_all_client_option();
 client_option.shift();
+let paymentDetails = await get_all_payment_details();
+console.log(paymentDetails);
 
-export default function ShowPaymentDocScreen() {
+export default function ShowLedgerPage() {
   useEffect(() => {
-    document.title = "Payment Documents Report";
+    document.title = "Show Ledger";
   });
 
   const [filterValues, setFilterValues] = useState({
@@ -63,7 +97,7 @@ export default function ShowPaymentDocScreen() {
   });
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState({});
-
+  const [paymentRows, setPaymentRows] = useState([]);
   const openInvoicePreviewWindow = (obj) => {
     setSelectedRow(obj);
     setIsInvoicePreviewOpen(true);
@@ -75,31 +109,70 @@ export default function ShowPaymentDocScreen() {
   const resetFilterValues = () => {
     window.location.reload();
   };
+
   const handleFilterChange = (fieldName, value) => {
     setFilterValues((prevValues) => ({
       ...prevValues,
       [fieldName]: value,
     }));
   };
+
+  useEffect(() => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const defaultDateFormatted = `${currentYear}-04-01`;
+    handleFilterChange("Issue_From", defaultDateFormatted);
+    const today = new Date();
+    // Format the date
+    const formattedDate =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1).toString().padStart(2, "0") +
+      "-" +
+      today.getDate().toString().padStart(2, "0");
+    handleFilterChange("Issue_To", formattedDate);
+  }, []);
+
   let filteredArray = invoices.flat().map((obj) => {
-    let combinedBill = obj.rowData.reduce((total, item) => {
-      // Convert 'Amount Due' to a number and add it to the total
-      return total + parseFloat(item["Amount Due"]);
-    }, 0);
+    const dueDate = new Date(obj.Due_Date);
+    // Get today's date
+    const today = new Date();
     return {
       "Client Name": obj.Client,
       "Invoice No": obj.Document_No,
-      "Pay Date": obj.Pay_Date,
-      Type: obj.Payment_Type,
-      "Amount Payment": combinedBill.toFixed(2),
-      "Amount Used": obj.Amount_Received,
-      "Available Credit": (obj.Amount_Received > combinedBill
-        ? Number(obj.Amount_Received) - Number(combinedBill)
-        : 0.0
+      "Issue Date": obj.Issue_Date,
+      "Due Date": (
+        <p style={{ color: dueDate <= today ? "red" : "inherit" }}>
+          {obj.Due_Date}
+        </p>
+      ),
+      Total: (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges)
       ).toFixed(2),
-      "Payment Type": obj.Payment_Mode,
+      Status:
+        Number(obj.Total_BeforeTax) +
+          Number(obj.Total_Tax) +
+          Number(obj.Shipping_Charges) -
+          obj.Amount_Paid <=
+        0 ? (
+          <p style={{ color: "green" }}>Paid</p>
+        ) : (
+          <p style={{ color: "orangered" }}>Unpaid</p>
+        ),
+      "Amount Paid": obj.Amount_Paid,
+      Balance: (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges) -
+        obj.Amount_Paid
+      ).toFixed(2),
+      "Date of payment": obj.Date_of_payment,
+      Type: obj.Transaction_type,
       ActionButton: (
         <>
+          {" "}
           <Tooltip content="Edit">
             <Button
               size="xs"
@@ -181,7 +254,6 @@ export default function ShowPaymentDocScreen() {
       ),
     };
   });
-  // .filter((obj) => obj["Amount Used"]);
 
   const [filterData, setFilterData] = useState([]);
   const nonEmptyValues = () => {
@@ -195,36 +267,69 @@ export default function ShowPaymentDocScreen() {
       .filter((object) => {
         return nonEmptyFields.every((field) => {
           if (field === "Issue_From" || field === "Issue_To") {
+            // Check if Issue Date lies in the range between Issue_From and Issue_To
             const fromDate = new Date(filterValues.Issue_From);
             const toDate = new Date(filterValues.Issue_To);
-            const issueDate = new Date(object.Pay_Date);
+            const issueDate = new Date(object.Issue_Date);
             return issueDate >= fromDate && issueDate <= toDate;
+          } else if (field === "Status") {
+            // Check if the invoice is paid or unpaid
+            if (filterValues.Status === "Paid") {
+              // Filter for paid invoices
+              return (
+                Number(object.Total_BeforeTax) +
+                  Number(object.Total_Tax) +
+                  Number(object.Shipping_Charges) -
+                  object.Amount_Paid <=
+                0
+              );
+            } else if (filterValues.Status === "Unpaid") {
+              // Filter for unpaid invoices
+              return (
+                Number(object.Total_BeforeTax) +
+                  Number(object.Total_Tax) +
+                  Number(object.Shipping_Charges) -
+                  object.Amount_Paid >
+                0
+              );
+            }
           } else if (field === "Document_No") {
             return object[field].includes(filterValues[field]);
-          } else if (field === "Transaction_type") {
-            return object.Payment_Type === filterValues[field];
           } else {
             return object[field] === filterValues[field];
           }
         });
       })
       .map((obj) => {
-        let combinedBill = obj.rowData.reduce((total, item) => {
-          // Convert 'Amount Due' to a number and add it to the total
-          return total + parseFloat(item["Amount Due"]);
-        }, 0);
         return {
           "Client Name": obj.Client,
           "Invoice No": obj.Document_No,
-          "Pay Date": obj.Pay_Date,
-          Type: obj.Payment_Type,
-          "Amount Payment": combinedBill.toFixed(2),
-          "Amount Used": obj.Amount_Received,
-          "Available Credit": (obj.Amount_Received > combinedBill
-            ? Number(obj.Amount_Received) - Number(combinedBill)
-            : 0.0
+          "Issue Date": obj.Issue_Date,
+          "Due Date": obj.Due_Date,
+          Total: (
+            Number(obj.Total_BeforeTax) +
+            Number(obj.Total_Tax) +
+            Number(obj.Shipping_Charges)
           ).toFixed(2),
-          "Payment Type": obj.Payment_Mode,
+          Status:
+            Number(obj.Total_BeforeTax) +
+              Number(obj.Total_Tax) +
+              Number(obj.Shipping_Charges) -
+              obj.Amount_Paid <=
+            0 ? (
+              <p style={{ color: "green" }}>Paid</p>
+            ) : (
+              <p style={{ color: "orangered" }}>Unpaid</p>
+            ),
+          "Amount Paid": obj.Amount_Paid,
+          Balance: (
+            Number(obj.Total_BeforeTax) +
+            Number(obj.Total_Tax) +
+            Number(obj.Shipping_Charges) -
+            obj.Amount_Paid
+          ).toFixed(2),
+          "Date of payment": obj.Date_of_payment,
+          Type: obj.Transaction_type,
           ActionButton: (
             <>
               <Tooltip content="Edit">
@@ -311,14 +416,40 @@ export default function ShowPaymentDocScreen() {
     setFilterData(filteredData);
   }, [filterValues]);
 
+  useEffect(() => {
+    let rowData = paymentDetails
+      .flat()
+      .filter((object) => object.Client === filterValues.Client)
+      .map((obj) => {
+        let combinedBill = obj.rowData.reduce((total, item) => {
+          return total + parseFloat(item["Amount Due"]);
+        }, 0);
+        return {
+          "Client Name": obj.Client,
+          "Invoice No": obj.Document_No,
+          "Pay Date": obj.Pay_Date,
+          Type: obj.Payment_Type,
+          "Amount Payment": combinedBill.toFixed(2),
+          "Amount Used": obj.Amount_Received,
+          "Available Credit": (obj.Amount_Received > combinedBill
+            ? Number(obj.Amount_Received) - Number(combinedBill)
+            : 0.0
+          ).toFixed(2),
+          "Payment Type": obj.Payment_Mode,
+        };
+      });
+    setPaymentRows(rowData);
+  }, [filterValues.Client]);
+
   const nonEmptyFields = nonEmptyValues();
+
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
-      "delete-payment-by-Document-no",
+      "delete-invoice-by-Document-no",
       obj.Document_No
     );
-    alert(res.message)
   };
+
   function getTextForValue(option, value) {
     const clients = option;
     const client = clients.find((client) => client.value === value);
@@ -337,7 +468,7 @@ export default function ShowPaymentDocScreen() {
   const exportInvoicesToExcel = async () => {
     try {
       const response = await ipcRenderer.invoke(
-        "export-payment_report-to-excel",
+        "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
           : removeStatusField(filterData)
@@ -347,7 +478,8 @@ export default function ShowPaymentDocScreen() {
         const blob = new Blob([buffer], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
-        saveAs(blob, "export_payment_report.xlsx");
+        saveAs(blob, "export_invoices.xlsx");
+        alert("yo");
       } else {
         console.error("Error:", response?.error);
       }
@@ -356,7 +488,6 @@ export default function ShowPaymentDocScreen() {
       console.error("Export error:", error);
     }
   };
-
   const renderInvoicePreview = () => {
     if (isInvoicePreviewOpen) {
       return (
@@ -421,18 +552,25 @@ export default function ShowPaymentDocScreen() {
                 height: "90vh" /* Adjusted height */,
               }}
             >
-             <PaymentReceipt
-                tableData={selectedRow.rowData}
+              <Invoice
+                data={selectedRow.rowData.flat()}
                 details={{
                   Client: selectedRow.Client,
                   Issue_Date: selectedRow.Issue_Date,
                   Document_No: selectedRow.Document_No,
-                  Pay_Date: selectedRow.Pay_Date,
-                  Bank_Charges: selectedRow.Bank_Charges,
-                  Payment_Type: selectedRow.Payment_Type,
-                  Payment_Mode: selectedRow.Payment_Mode,
-                  Amount_Received: selectedRow.Amount_Received,
-                  Type: "PAYMENT NOTE",
+                  Ship_To: selectedRow.Ship_To,
+                  PO_Number: selectedRow.PO_Number,
+                  PO_Date: selectedRow.PO_Date,
+                  Due_Date: selectedRow.Due_Date,
+                  Payment_Term: selectedRow.Payment_Term,
+                  Place_Of_Supply: selectedRow.Place_Of_Supply,
+                  Notes: selectedRow.Notes,
+                  Shipping_Charges: Number(selectedRow.Shipping_Charges),
+                  Shipping_Tax: selectedRow.Shipping_Tax || 0,
+                  Discount_on_all: selectedRow.Discount_on_all,
+                  Total_BeforeTax: selectedRow.Total_BeforeTax,
+                  Total_Tax: selectedRow.Total_Tax,
+                  Type: "INVOICE",
                   companyDetails: companyDetails.data[0],
                 }}
               />
@@ -445,11 +583,28 @@ export default function ShowPaymentDocScreen() {
     }
   };
 
+  let totalAmountPaid = paymentRows.reduce((total, obj) => {
+    console.log(obj);
+    let paymentAmount = isNaN(obj["Amount Used"])
+      ? 0
+      : Number(obj["Amount Used"]);
+    return total + paymentAmount;
+  }, 0);
+
+  console.log(totalAmountPaid);
+
+  let combinedBill = paymentRows.reduce((total, item) => {
+    // Convert 'Amount Due' to a number and add it to the total
+    return total + parseFloat(item["Amount Payment"]);
+  }, 0);
+
+  console.log(combinedBill);
+
   return (
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
         <div className="my-2 flex-1">
-          <Typography variant="h6">Search Payment</Typography>
+          <Typography variant="h6">Search Data</Typography>
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">
@@ -470,23 +625,44 @@ export default function ShowPaymentDocScreen() {
           <div className="flex mr-12 gap-x-2">
             <Input
               variant="outlined"
-              label="Paid From"
-              placeholder="Paid From"
+              label="Issue From"
+              placeholder="Issue From"
               type="date"
+              value={filterValues.Issue_From}
               onChange={(e) => handleFilterChange("Issue_From", e.target.value)}
             />
 
             <Input
               variant="outlined"
-              label="Paid To "
-              placeholder="Paid To"
+              label="Issue To "
+              placeholder="Issue To"
               type="date"
+              value={filterValues.Issue_To}
               onChange={(e) => handleFilterChange("Issue_To", e.target.value)}
+            />
+          </div>
+          <div className="flex mr-12 gap-x-2">
+            <Input
+              variant="outlined"
+              label="Due Date"
+              placeholder="Due to"
+              type="date"
+              onChange={(e) => handleFilterChange("Due_Date", e.target.value)}
             />
           </div>
         </div>
 
         <div className="flex flex-row w-full justify-between my-2">
+          <div className="mr-12">
+            <SelectComp
+              label="Status"
+              options={status_options}
+              isinput={false}
+              handle={(values) => {
+                handleFilterChange("Status", values.select);
+              }}
+            />
+          </div>
           <div className=" mr-12">
             <Input
               variant="outlined"
@@ -499,11 +675,14 @@ export default function ShowPaymentDocScreen() {
           </div>
           <div className="mr-12">
             <SelectComp
-              label="Payment Type"
-              options={convertDropdownData(payment_type)}
+              label="Type"
+              options={payemnt_options}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Transaction_type", values.select);
+                handleFilterChange(
+                  "Transaction_type",
+                  getTextForValue(payemnt_options, values.select)
+                );
               }}
             />
           </div>
@@ -524,19 +703,52 @@ export default function ShowPaymentDocScreen() {
         <div className="mx-3">
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
-        <div className="mx-3">
-          <Button onClick={api_new_payment}>New Payment Document</Button>
-        </div>
       </div>
-
       <div className="flex flex-1 mb-2">
         <ProductInvoiceTable
           TABLE_HEAD={TABLE_HEAD}
           TABLE_ROWS={nonEmptyFields.length === 0 ? filteredArray : filterData}
         />
       </div>
-      {/* Modal */}
       {renderInvoicePreview()}
+      {paymentRows.length > 0 ? (
+        <>
+          <div className="my-2 flex-1">
+            <Typography variant="h6">Payment Details</Typography>
+            <hr />
+          </div>
+          <div className="flex flex-1 mb-2">
+            <ProductInvoiceTable
+              TABLE_HEAD={TABLE_HEAD_SECOND}
+              TABLE_ROWS={paymentRows}
+            />
+          </div>
+
+          <div className="py-2 self-end" style={{ marginRight: 40 }}>
+            <div style={{ textAlign: "left", marginRight: "auto" }}>
+              <div style={{ display: "flex", alignItems: "flex-end" }}>
+                <div style={{ width: "250px" }}>Total Pending:</div>
+                <div style={{ textAlign: "right" }}>{combinedBill}</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "flex-end" }}>
+                <div style={{ width: "250px" }}>Amount Received:</div>
+                <div style={{ textAlign: "right" }}>{totalAmountPaid}</div>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "flex-end" }}>
+                <div style={{ width: "250px" }}>Amount in excess:</div>
+                <div style={{ textAlign: "right" }}>
+                  {totalAmountPaid > combinedBill
+                    ? totalAmountPaid - combinedBill
+                    : 0}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

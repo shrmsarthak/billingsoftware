@@ -103,29 +103,25 @@ const MyAccordion = ({ title, options, defaultOpen }) => {
   );
 };
 
-function NewVoiceCard({ onClick }) {
-  return (
-    <Card className="border border-gray-300 my-4">
-      <CardBody onClick={onClick}>
-        <div className="flex flex-col w-full justify-center items-center hover:cursor-pointer ">
-          <div className="text-xl">New Invoice</div>
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
-
 function ShortCutCard({ title, to, color }) {
   return (
     <Link to={to}>
       <div
         className="flex flex-col mb-3 bg-clip-border rounded border-2 border-primary p-6 bg-gray-100 text-xs font-medium uppercase leading-normal text-primary transition duration-150 ease-in-out hover:border-primary-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-primary-600 focus:border-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:border-primary-700 active:text-primary-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-        style={{ minWidth: "250px", maxWidth: "250px" }}
+        style={{
+          minWidth: "300px",
+          maxWidth: "300px",
+          alignItems: "center",
+          padding: 60,
+          maxHeight: "144px",
+          background:
+            "radial-gradient(circle, rgba(255,255,255,1) 0%, rgb(202 203 216 / 53%) 46%, rgb(33 150 243 / 0.5) 100%)",
+        }}
       >
         <div className="">
-          <h3 className="text-sm font-bold text-gray-600 dark:text-white">
+          <h1 className="text-sm font-bold text-gray-600 dark:text-white">
             {title}
-          </h3>
+          </h1>
         </div>
       </div>
     </Link>
@@ -175,9 +171,12 @@ export default function HomePage() {
       </div>
 
       <div className="flex flex-col items-center p-4 h-screen  justify-center w-full m-4">
-        <div className=" flex  static  justify-center w-full gap-x-6">
+        <div
+          className=" flex  static  justify-center w-full gap-x-16"
+          style={{ marginBottom: 100 }}
+        >
           <div
-            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0] transition w-200 h-150 border border-gray-300 rounded-md"
+            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#23d2d8b0,-0.5rem_-0.5rem_#003899c9] hover:scale-105 transition-transform w-200 h-150 border border-gray-300 rounded-md shadow-[0.5rem_0.5rem_#23d2d8b0,-0.5rem_-0.5rem_#003899c9]"
             style={{ height: 150 }}
           >
             <div className="text-center">
@@ -189,7 +188,7 @@ export default function HomePage() {
           </div>
 
           <div
-            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0] transition w-200 h-150 border border-gray-300 rounded-md"
+            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0] hover:scale-105 transition-transform w-200 h-150 border border-gray-300 rounded-md shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0]"
             style={{ height: 150 }}
           >
             <div className="text-center">
@@ -198,7 +197,7 @@ export default function HomePage() {
             </div>
           </div>
           <div
-            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0] transition w-200 h-150 border border-gray-300 rounded-md"
+            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#23d2d8b0,-0.5rem_-0.5rem_#003899c9] hover:scale-105 transition-transform w-200 h-150 border border-gray-300 rounded-md shadow-[0.5rem_0.5rem_#23d2d8b0,-0.5rem_-0.5rem_#003899c9]"
             style={{ height: 150 }}
           >
             <div className="text-center">
@@ -208,7 +207,7 @@ export default function HomePage() {
             </div>
           </div>
           <div
-            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0] transition w-200 h-150 border border-gray-300 rounded-md"
+            className="cursor-pointer flex items-center justify-center uppercase bg-white px-4 py-2 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0] hover:scale-105 transition-transform w-200 h-150 border border-gray-300 rounded-md shadow-[0.5rem_0.5rem_#003899c9,-0.5rem_-0.5rem_#23d2d8b0]"
             style={{ height: 150 }}
           >
             <div className="text-center">
@@ -217,18 +216,15 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <div
-          className=" mt-3 flex flex-col items-center"
-          style={{ marginTop: 20 }}
-        >
-          <div className="flex justify-evenly gap-4">
+        <div className=" mt-3 flex flex-col items-center">
+          <div className="flex justify-evenly gap-32">
             <div>
-              <div className="flex flex-col mr-1">
+              <div className="flex flex-col mr-4">
                 <ShortCutCard title="SALES" to="/sales/invoice/show" />
 
                 <ShortCutCard title="PAYMENT" to="/sales/payment/show" />
 
-                <ShortCutCard title="LEDGER" />
+                <ShortCutCard title="LEDGER" to="/sales/ledger/show" />
 
                 <ShortCutCard title="EXPENSES" />
               </div>
