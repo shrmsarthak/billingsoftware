@@ -70,3 +70,9 @@ export const api_new_payment = (options) => {
 export const api_show_payment = (options) => {
   window.location.href = "/sales/payment/show";
 };
+export const api_new_purchase = (options) => {
+  window.location.href = "/sales/purchase/new";
+};
+export const api_show_purchase = (options) => {
+  window.location.href = "/sales/purchase/show";
+};
