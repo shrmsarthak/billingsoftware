@@ -7,32 +7,30 @@ import {
   AccordionBody,
   List,
   ListItem,
-  Card,
-  CardBody,
-  Button,
 } from "@material-tailwind/react";
 
 import {
   api_show_invoice,
   api_show_client,
-  api_new_invoice,
   api_show_product,
   api_add_company,
   api_show_quotation,
-  api_add_debit,
   api_show_debit,
-  api_add_credit,
   api_show_credit,
   api_show_payment,
+  api_new_invoice,
+  api_new_quotation,
+  api_add_credit,
+  api_add_debit,
 } from "../utils/PageApi";
 import { Link } from "react-router-dom";
 
 const options = {
   sales: [
-    { title: "Invoice", onClick: api_show_invoice },
-    { title: "Quotations, Proformas & Challans", onClick: api_show_quotation },
-    { title: "Credit Notes", onClick: api_show_credit },
-    { title: "Debit Notes", onClick: api_show_debit },
+    { title: "Invoice", onClick: api_new_invoice },
+    { title: "Quotations, Proformas & Challans", onClick: api_new_quotation },
+    { title: "Credit Notes", onClick: api_add_credit },
+    { title: "Debit Notes", onClick: api_add_debit },
     { title: "Payment Documents", onClick: api_show_payment },
     { title: "Clients", onClick: api_show_client },
     { title: "Products/Services", onClick: api_show_product },
@@ -231,7 +229,7 @@ export default function HomePage() {
             </div>
             <div>
               <div className="flex flex-col">
-                <ShortCutCard title="PURCHASE" />
+                <ShortCutCard title="PURCHASE" to="/sales/purchase/show" />
 
                 <ShortCutCard title="REPORTS" />
 

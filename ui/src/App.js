@@ -1,4 +1,4 @@
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import HomePage from "./screens/HomePage";
 import ModuleSalePage from "./screens/Sales/moduleSalePage";
 import Signup from "./screens/Login/Signup";
@@ -13,120 +13,14 @@ import NewDebitNotePage from "./screens/Sales/DebitNote/NewDebitNotePage";
 import ShowDebitNotePage from "./screens/Sales/DebitNote/ShowDebitNotePage";
 import NewCreditNotePage from "./screens/Sales/CreditNote/NewCreditNotePage";
 import ShowCreditNotePage from "./screens/Sales/CreditNote/ShowCreditNotePage";
-import NewPaymentPage from "./screens/Sales/PaymentDocument/NewPaymentDocScreen"
+import NewPaymentPage from "./screens/Sales/PaymentDocument/NewPaymentDocScreen";
 import ShowPaymentDocScreen from "./screens/Sales/PaymentDocument/ShowPaymentDocScreen";
-import SelectComp from "./screens/Sales/components/SelectComp";
 import ShowLedgerPage from "./screens/Sales/Ledger/ShowLedger";
-
-function convertDropdownData(data) {
-  return data.map((item) => ({
-    text: item,
-    value: item,
-  }));
-}
-
-function extractMiddleTitleCase(path) {
-  const parts = path.split("/");
-  const middlePart = parts.slice(2, -1).join(" ");
-  const titleCaseMiddlePart = middlePart.replace(/\b\w/g, function (char) {
-    return char.toUpperCase();
-  });
-  return titleCaseMiddlePart;
-}
-
-const navigateOptions = ["Invoice", "Quotation", "Debit", "Credit"];
+import ShowPurchase from "./screens/Sales/Purchase/ShowPurchase";
 
 function App() {
-  const location = useLocation();
   return (
     <>
-      {location.pathname !== "/" ? (
-        <>
-          {location.pathname === "/sales/invoice/show" ||
-          location.pathname === "/sales/quotation/show" ||
-          location.pathname === "/sales/debit/show" ||
-          location.pathname === "/sales/credit/show" ? (
-            <div className="flex" style={{ alignItems: "center" }}>
-              <Link to="/">
-                <button
-                  className="cursor-pointer duration-200 hover:scale-110 active:scale-100"
-                  title="Go Back"
-                  style={{ border: "1px solid", marginLeft: 20, padding: 8 }}
-                >
-                  <svg
-                    class="w-6 h-6 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"
-                    />
-                  </svg>
-                </button>
-              </Link>
-              <div style={{ width: "300px", margin: "5px 0px 10px 20px" }}>
-                <SelectComp
-                  options={convertDropdownData(navigateOptions)}
-                  handle={(value) => {
-                    if (value.select === "Invoice") {
-                      window.location.href = "/sales/invoice/show";
-                    } else if (value.select === "Quotation") {
-                      window.location.href = "/sales/quotation/show";
-                    } else if (value.select === "Debit") {
-                      window.location.href = "/sales/debit/show";
-                    } else {
-                      window.location.href = "/sales/credit/show";
-                    }
-                  }}
-                  label="Module"
-                  isinput={false}
-                  defaultValue={extractMiddleTitleCase(location.pathname)}
-                />
-              </div>
-            </div>
-          ) : (
-            <Link to="/">
-              <button
-                className="cursor-pointer duration-200 hover:scale-110 active:scale-100"
-                title="Go Back"
-                style={{
-                  border: "1px solid",
-                  marginLeft: 10,
-                  padding: 8,
-                  marginBottom: 2,
-                }}
-              >
-                <svg
-                  class="w-6 h-6 text-gray-800 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"
-                  />
-                </svg>
-              </button>
-            </Link>
-          )}
-        </>
-      ) : null}
-
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<Signup />} />
@@ -151,6 +45,7 @@ function App() {
         <Route path="/sales/payment/new" element={<NewPaymentPage />} />
         <Route path="/sales/payment/show" element={<ShowPaymentDocScreen />} />
         <Route path="/sales/ledger/show" element={<ShowLedgerPage />} />
+        <Route path="/sales/purchase/show" element={<ShowPurchase />} />
       </Routes>
     </>
   );
