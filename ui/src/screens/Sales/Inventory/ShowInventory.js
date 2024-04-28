@@ -370,7 +370,7 @@ export default function Inventory() {
       </div>
       <>
         <Dialog size="md" open={isModalOpen} handleOpen={openModal}>
-          <DialogHeader toggler={closeModal}>Modal Title</DialogHeader>
+          <DialogHeader toggler={closeModal}>Product Stock Details</DialogHeader>
           <DialogBody>
             <div className="flex flex-1 mb-2">
               <ProductInvoiceTable
