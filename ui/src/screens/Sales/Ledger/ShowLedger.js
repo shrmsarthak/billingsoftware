@@ -49,6 +49,15 @@ const TABLE_HEAD_SECOND = [
   "Payment Type",
 ];
 
+const TABLE_HEAD_THREE = [
+  "No",
+  "Document No",
+  "Date",
+  "Type",
+  "Credit (+)",
+  "Debit (-)",
+];
+
 const payemnt_options = [
   {
     text: "Cash",
@@ -80,7 +89,7 @@ let companyDetails = await get_company_details();
 let client_option = await get_all_client_option();
 client_option.shift();
 let paymentDetails = await get_all_payment_details();
-console.log(paymentDetails);
+console.log(JSON.stringify(paymentDetails));
 
 export default function ShowLedgerPage() {
   useEffect(() => {
@@ -753,6 +762,12 @@ export default function ShowLedgerPage() {
       ) : (
         <></>
       )}
+       <div className="flex flex-1 mb-2">
+            <ProductInvoiceTable
+              TABLE_HEAD={TABLE_HEAD_THREE}
+              TABLE_ROWS={[]}
+            />
+          </div>
     </div>
   );
 }

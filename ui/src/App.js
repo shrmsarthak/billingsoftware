@@ -17,6 +17,8 @@ import NewPaymentPage from "./screens/Sales/PaymentDocument/NewPaymentDocScreen"
 import ShowPaymentDocScreen from "./screens/Sales/PaymentDocument/ShowPaymentDocScreen";
 import ShowLedgerPage from "./screens/Sales/Ledger/ShowLedger";
 import ShowPurchase from "./screens/Sales/Purchase/ShowPurchase";
+import NewPurchasePage from "./screens/Sales/Purchase/AddNewPurchase";
+import Inventory from "./screens/Sales/Inventory/ShowInventory";
 
 function App() {
   return (
@@ -46,6 +48,8 @@ function App() {
         <Route path="/sales/payment/show" element={<ShowPaymentDocScreen />} />
         <Route path="/sales/ledger/show" element={<ShowLedgerPage />} />
         <Route path="/sales/purchase/show" element={<ShowPurchase />} />
+        <Route path="/sales/purchase/new" element={<NewPurchasePage />} />
+        <Route path="/sales/inventory/show" element={<Inventory />} />
       </Routes>
     </>
   );

@@ -218,9 +218,9 @@ export default function HomePage() {
           <div className="flex justify-evenly gap-32">
             <div>
               <div className="flex flex-col mr-4">
-                <ShortCutCard title="SALES" to="/sales/invoice/show" />
+                <ShortCutCard title="SALES" to="/sales/invoice/new" />
 
-                <ShortCutCard title="PAYMENT" to="/sales/payment/show" />
+                <ShortCutCard title="PAYMENT" to="/sales/payment/new" />
 
                 <ShortCutCard title="LEDGER" to="/sales/ledger/show" />
 
@@ -231,9 +231,9 @@ export default function HomePage() {
               <div className="flex flex-col">
                 <ShortCutCard title="PURCHASE" to="/sales/purchase/show" />
 
-                <ShortCutCard title="REPORTS" />
+                <ShortCutCard title="REPORTS" to="/sales/invoice/show"/>
 
-                <ShortCutCard title="INVENTORY" />
+                <ShortCutCard title="INVENTORY" to="/sales/inventory/show" />
 
                 <ShortCutCard title="EMPLOYEE MANAGEMENT" />
               </div>
