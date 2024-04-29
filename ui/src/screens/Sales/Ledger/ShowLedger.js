@@ -89,6 +89,7 @@ let companyDetails = await get_company_details();
 let client_option = await get_all_client_option();
 client_option.shift();
 let paymentDetails = await get_all_payment_details();
+console.log(JSON.stringify(invoices));
 console.log(JSON.stringify(paymentDetails));
 
 export default function ShowLedgerPage() {
@@ -264,6 +265,33 @@ export default function ShowLedgerPage() {
       ),
     };
   });
+
+  function extractInvoiceData(invoices) {
+    return invoices.map((item) => ({
+      "Document No": item.Document_No,
+      Date: item.Issue_Date,
+      Type: "Invoice",
+      "Credit (+)": 0,
+      "Debit (-)":
+        item.Shipping_Charges + item.Total_BeforeTax + item.Total_Tax,
+    }));
+  }
+
+  function extractPaymentData(payments) {
+    return payments.map((item) => ({
+      "Document No": item.Document_No,
+      Date: item.Pay_Date ? item.Pay_Date : item.Document_Date,
+      Type: "Payment",
+      "Credit (+)": item.Amount_Received,
+      "Debit (-)": 0,
+    }));
+  }
+
+  let mergedArray = [
+    ...extractInvoiceData(invoices.flat()),
+    ...extractPaymentData(paymentDetails.flat()),
+  ];
+  console.log(mergedArray);
 
   const [filterData, setFilterData] = useState([]);
   const nonEmptyValues = () => {
@@ -489,7 +517,6 @@ export default function ShowLedgerPage() {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
         saveAs(blob, "export_invoices.xlsx");
-        alert("yo");
       } else {
         console.error("Error:", response?.error);
       }
@@ -613,7 +640,7 @@ export default function ShowLedgerPage() {
   return (
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
-      <div className="my-2 flex-1">
+        <div className="my-2 flex-1">
           <div className="flex items-center">
             <Typography variant="h6">Search Data</Typography>
             <HomeButton />
@@ -717,7 +744,7 @@ export default function ShowLedgerPage() {
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
       </div>
-      <div className="flex flex-1 mb-2">
+      {/* <div className="flex flex-1 mb-2">
         <ProductInvoiceTable
           TABLE_HEAD={TABLE_HEAD}
           TABLE_ROWS={nonEmptyFields.length === 0 ? filteredArray : filterData}
@@ -761,13 +788,13 @@ export default function ShowLedgerPage() {
         </>
       ) : (
         <></>
-      )}
-       <div className="flex flex-1 mb-2">
-            <ProductInvoiceTable
-              TABLE_HEAD={TABLE_HEAD_THREE}
-              TABLE_ROWS={[]}
-            />
-          </div>
+      )} */}
+      <div className="flex flex-1 mb-2">
+        <ProductInvoiceTable
+          TABLE_HEAD={TABLE_HEAD_THREE}
+          TABLE_ROWS={mergedArray}
+        />
+      </div>
     </div>
   );
 }
