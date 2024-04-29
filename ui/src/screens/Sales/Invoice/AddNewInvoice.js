@@ -406,7 +406,7 @@ export default function NewInvoicePage() {
       };
 
       const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
-      console.log(res); // Handle the response as needed
+      alert(res.message); // Handle the response as needed
     };
 
     if (isInvoicePreviewOpen) {

@@ -13,6 +13,7 @@ const { CompanyDetails } = require("../models/CompanyDetails");
 const { Debit_Notes } = require("../models/DebitNotes");
 const { Credit_Notes } = require("../models/CreditNotes");
 const { PaymentDetails } = require("../models/PaymentDetails");
+const { PurchaseOrder } = require("../models/PurchaseOrder");
 
 const DBManager = new DataSource({
   name: "maindb",
@@ -33,6 +34,7 @@ const DBManager = new DataSource({
     Debit_Notes,
     Credit_Notes,
     PaymentDetails,
+    PurchaseOrder,
   ],
   synchronize: true,
 });

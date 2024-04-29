@@ -16,6 +16,7 @@ const { Quotation } = require("./models/Quotation");
 const { Debit_Notes } = require("./models/DebitNotes");
 const { Credit_Notes } = require("./models/CreditNotes");
 const { PaymentDetails } = require("./models/PaymentDetails");
+const { PurchaseOrder } = require("./models/PurchaseOrder");
 
 electronReload(__dirname);
 
@@ -1354,7 +1355,20 @@ ipcMain.handle("add-new-invoice", async (ev, args) => {
     console.log(error);
     return {
       success: false,
-      message: "Failed to add product",
+      message: "Failed to add invoice",
+    };
+  }
+});
+
+ipcMain.handle("add-new-purchase-order", async (ev, args) => {
+  try {
+    const response = await addNewPurchaseOrder(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add purchase order",
     };
   }
 });
@@ -1414,6 +1428,23 @@ ipcMain.handle("add-new-quotation", async (ev, args) => {
 ipcMain.handle("get-all-invoice", async (ev, args) => {
   try {
     const productRepo = DBManager.getRepository(Invoice);
+    const data = await productRepo.find();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: true,
+      data: [],
+    };
+  }
+});
+
+ipcMain.handle("get-all-purchase-orders", async (ev, args) => {
+  try {
+    const productRepo = DBManager.getRepository(PurchaseOrder);
     const data = await productRepo.find();
     return {
       success: true,
@@ -1532,6 +1563,43 @@ async function addNewInvoice(invoiceData) {
   }
 }
 
+async function addNewPurchaseOrder(invoiceData) {
+  try {
+    const productRepo = DBManager.getRepository(PurchaseOrder);
+    const invoiceDataObj = {
+      rowsData: invoiceData.rowData,
+      Vendor: invoiceData.Vendor,
+      Document_No: invoiceData.Document_No,
+      Issue_Date: invoiceData.Issue_Date,
+      Project: invoiceData.Project,
+      Payment_Term: invoiceData.Payment_Term,
+      Due_Date: invoiceData.Due_Date,
+      Place_Of_Supply: invoiceData.Place_Of_Supply,
+      Notes: invoiceData.Notes,
+      Private_Notes: invoiceData.Private_Notes,
+      Shipping_Charges: invoiceData.Shipping_Charges,
+      Discount_on_all: invoiceData.Discount_on_all,
+      Total_BeforeTax: invoiceData.Total_BeforeTax,
+      Total_Tax: invoiceData.Total_Tax,
+      Location: invoiceData.Location,
+    };
+    // Save the new invoice entity to the database
+    const result = await productRepo
+      .createQueryBuilder()
+      .insert()
+      .values(invoiceDataObj)
+      .execute();
+    if (result) {
+      return {
+        success: true,
+        message: "New Purchase Order added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new purchase order:", error);
+  }
+}
+
 async function addNewDebitNote(invoiceData) {
   try {
     const productRepo = DBManager.getRepository(Debit_Notes);
@@ -1595,7 +1663,6 @@ async function addNewCreditNote(invoiceData) {
       Total_Tax: invoiceData.Total_Tax,
     };
 
-    console.log("logggg", invoiceDataObj);
     // Save the new invoice entity to the database
     const result = await productRepo
       .createQueryBuilder()
@@ -1711,6 +1778,36 @@ ipcMain.handle("delete-invoice-by-Document-no", async (ev, args) => {
   }
 });
 
+ipcMain.handle("delete-purchase-by-Document-no", async (ev, args) => {
+  try {
+    const documentNo = args;
+    const invoiceRepo = DBManager.getRepository(PurchaseOrder);
+    console.log(`${ev}-${args}`);
+    console.log(`Deleting purchase order with Document_No: ${documentNo}`);
+
+    const deleteResult = await invoiceRepo
+      .createQueryBuilder()
+      .delete()
+      .from(PurchaseOrder)
+      .where("Document_No = :documentNo", { documentNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "purchase order deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "purchase order with provided Document_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting purchase order:", error);
+    return { success: false, message: "Error while deleting purchase order" };
+  }
+});
+
 ipcMain.handle("delete-payment-by-Document-no", async (ev, args) => {
   try {
     const documentNo = args;
@@ -1804,7 +1901,6 @@ ipcMain.handle("delete-quotation-by-quotation-no", async (ev, args) => {
 
 ipcMain.handle("update-invoice", async (ev, args) => {
   try {
-    console.log(JSON.stringify(args));
     const response = await updateInvoice(args);
     return response;
   } catch (error) {
