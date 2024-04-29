@@ -231,7 +231,7 @@ export default function HomePage() {
               <div className="flex flex-col">
                 <ShortCutCard title="PURCHASE" to="/sales/purchase/new" />
 
-                <ShortCutCard title="REPORTS" />
+                <ShortCutCard title="REPORTS" to="/sales/invoice/show"  />
 
                 <ShortCutCard title="INVENTORY" to="/sales/inventory/show" />
 

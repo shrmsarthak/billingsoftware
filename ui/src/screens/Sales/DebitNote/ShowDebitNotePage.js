@@ -26,6 +26,7 @@ import { saveAs } from "file-saver";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
+import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
@@ -646,6 +647,7 @@ export default function ShowDebitNotePage() {
           <div className="flex items-center">
             <Typography variant="h6">Search Debit Note</Typography>
             <HomeButton />
+            <ReportsDropDown />
           </div>
           <hr />
         </div>
