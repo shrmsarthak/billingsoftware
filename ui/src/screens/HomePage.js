@@ -229,9 +229,9 @@ export default function HomePage() {
             </div>
             <div>
               <div className="flex flex-col">
-                <ShortCutCard title="PURCHASE" to="/sales/purchase/show" />
+                <ShortCutCard title="PURCHASE" to="/sales/purchase/new" />
 
-                <ShortCutCard title="REPORTS" to="/sales/invoice/show"/>
+                <ShortCutCard title="REPORTS" to="/sales/invoice/show"  />
 
                 <ShortCutCard title="INVENTORY" to="/sales/inventory/show" />
 
