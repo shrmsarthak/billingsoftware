@@ -573,7 +573,6 @@ export default function NewInvoicePage() {
           <div className="flex items-center">
             <Typography variant="h6">Add New Debit Note</Typography>
             <HomeButton />
-            <BackButton to="/sales/debit/show" />
             <ModuleDropDown />
           </div>
           <hr />

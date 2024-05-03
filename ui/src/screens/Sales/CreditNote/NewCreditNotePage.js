@@ -573,7 +573,6 @@ export default function NewCreditNotePage() {
           <div className="flex items-center">
             <Typography variant="h6">Add New Credit Note</Typography>
             <HomeButton />
-            <BackButton to="/sales/credit/show" />
             <ModuleDropDown />
           </div>
           <hr />

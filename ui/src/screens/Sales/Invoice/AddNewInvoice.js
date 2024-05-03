@@ -26,6 +26,12 @@ import BackButton from "../../../assets/Buttons/BackButton";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
 const { ipcRenderer } = window.require("electron");
 
+const customLabelStyles = {
+  label: {
+    width: "100px", // Set your desired width
+  },
+};
+
 const TABLE_HEAD = [
   "No",
   "Product Service",
@@ -544,7 +550,6 @@ export default function NewInvoicePage() {
           <div className="flex items-center">
             <Typography variant="h6">Add New Invoice</Typography>
             <HomeButton />
-            <BackButton to="/sales/invoice/show" />
             <ModuleDropDown />
           </div>
           <hr />
@@ -652,7 +657,7 @@ export default function NewInvoicePage() {
         </div>
       </div>
       <hr />
-      <div className="my-2 ">
+      <div className="my-2">
         <div className="flex my-2">
           <div className="mr-12">
             <SelectComp
@@ -705,27 +710,37 @@ export default function NewInvoicePage() {
               }
             />
           </div>
-          <div className="mr-12">
+          <div className="mr-12 w-100">
             <Input
               variant="outlined"
               label="UoM"
+              isinput={false}
               placeholder="UoM"
               value={
                 formData.UoM !== ""
                   ? getProductUOM(formData.Product, product_option)
                   : ""
               }
+              style={{ minWidth: 100, width: 100 }}
+              labelProps={{
+                className: "w-100",
+              }}
             />
           </div>
-          <div className="mr-12">
+          <div className="mr-12 w-100">
             <Input
               variant="outlined"
               label="Qty"
               placeholder="Qty"
+              type="number"
               onChange={(e) => handleFieldChange("Qty", e.target.value)}
+              style={{ minWidth: 100, width: 100 }}
+              labelProps={{
+                className: "w-100",
+              }}
             />
           </div>
-          <div className="mr-12">
+          <div className="mr-12 w-100">
             <Input
               variant="outlined"
               label="Unit Price"
@@ -735,14 +750,23 @@ export default function NewInvoicePage() {
                   ? getProductPrice(formData.Product, product_option)
                   : ""
               }
+              style={{ minWidth: 100, width: 100 }}
+              labelProps={{
+                className: "w-100",
+              }}
             />
           </div>
-          <div className=" mr-12">
+          <div className="mr-12 w-100">
             <Input
               variant="outlined"
               label="Discount"
               placeholder="Discount"
+              type="number"
               onChange={(e) => handleFieldChange("Discount", e.target.value)}
+              style={{ minWidth: 100, width: 100 }}
+              labelProps={{
+                className: "w-100",
+              }}
             />
           </div>
           <div className="mr-12">
@@ -763,6 +787,7 @@ export default function NewInvoicePage() {
             <Button
               onClick={() => setRows((pre) => [...pre, formData])}
               disabled={formData.Client === "" || formData.Product === ""}
+              size="md"
             >
               +
             </Button>
