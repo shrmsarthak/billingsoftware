@@ -2512,14 +2512,3 @@ ipcMain.handle("create-invoice-from-quotation", async (event, quotationNo) => {
     return { success: false, message: "Error creating invoice from quotation" };
   }
 });
-
-// 1. Remove back button from sales--- done
-// 2. Document No. Prefix and Number
-// 3. Drop Down Item Size --- done for invoice
-// 4. Dont show Invoice in payment module on client selection, increase element size --open in modal ask
-// 5. Ledger: Total credit, Total debit, Balance, Date and type in starting --done
-// 6. Add vendors button --done
-// 7. UOM: Inventory type drop down --done
-// 8. Product stock details, view option double click-------------------?
-// 9. Fix navigation in whole application --done
-// 10. Expense module
