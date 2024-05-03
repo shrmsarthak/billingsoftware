@@ -15,10 +15,10 @@ import {
   get_all_product_option,
   tax_type,
   uom_type,
-  get_all_invoices,
+  get_all_vendor_option,
   get_company_details,
 } from "../../../utils/SelectOptions";
-import { api_show_client, api_show_product } from "../../../utils/PageApi";
+import { api_show_vendor, api_show_product } from "../../../utils/PageApi";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
@@ -42,7 +42,7 @@ const TABLE_HEAD = [
   "Action",
 ];
 
-const vendor_option = ["Vendor 1", "Vendor 2", "Vendor 3"];
+const vendor_option = await get_all_vendor_option();
 
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
@@ -514,7 +514,6 @@ export default function NewPurchasePage() {
           <div className="flex items-center">
             <Typography variant="h6">Add New Purchase Order</Typography>
             <HomeButton />
-            <BackButton to="/sales/purchase/show" />
           </div>
           <hr />
         </div>
@@ -522,11 +521,11 @@ export default function NewPurchasePage() {
           <div className=" mr-12">
             <SelectComp
               label="Vendor"
-              options={populateDropdown(vendor_option)}
+              options={vendor_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
-                  api_show_client();
+                if (values.select == "Add New Vendor") {
+                  api_show_vendor();
                   return;
                 } else {
                   handleFieldChange("Vendor", values.select);

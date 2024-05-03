@@ -13,6 +13,7 @@ import {
   getCities,
   getFilterCities,
 } from "../../../utils/AddressDataApi";
+import HomeButton from "../../../assets/Buttons/HomeButton";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
@@ -92,7 +93,7 @@ export default function ShowClientPage() {
 
   const [filterCitiesData, setFilterCitiesData] = useState(getFilterCities());
 
-  console.log("data",clientData)
+  console.log("data", clientData);
 
   const fieldsToValidate = [
     "client_name",
@@ -414,8 +415,12 @@ export default function ShowClientPage() {
   return (
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 mb-3">
-        <div className="flex-1 py-3 px-4 border-b border-gray-400">
+        <div
+          className="flex-1 py-3 px-4 border-b border-gray-400"
+          style={{ display: "inline-flex", alignItems: "center" }}
+        >
           <h6>Search Clients</h6>
+          <HomeButton />
         </div>
         <div className="px-3 py-4">
           <div className="flex flex-row w-full max-w-screen-xl m-auto justify-between my-2">

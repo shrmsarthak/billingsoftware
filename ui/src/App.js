@@ -19,6 +19,8 @@ import ShowLedgerPage from "./screens/Sales/Ledger/ShowLedger";
 import ShowPurchase from "./screens/Sales/Purchase/ShowPurchase";
 import NewPurchasePage from "./screens/Sales/Purchase/AddNewPurchase";
 import Inventory from "./screens/Sales/Inventory/ShowInventory";
+import ShowVendors from "./screens/Sales/Vendor/ShowVendor";
+import ShowExpenses from "./screens/Sales/Expense/ShowExpenses";
 
 function App() {
   return (
@@ -50,6 +52,8 @@ function App() {
         <Route path="/sales/purchase/show" element={<ShowPurchase />} />
         <Route path="/sales/purchase/new" element={<NewPurchasePage />} />
         <Route path="/sales/inventory/show" element={<Inventory />} />
+        <Route path="/sales/vendors/show" element={<ShowVendors />} />
+        <Route path="/sales/expense/show" element={<ShowExpenses />} />
       </Routes>
     </>
   );

@@ -24,12 +24,12 @@ const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD_THREE = [
   "No",
-  "Client",
-  "Document No",
   "Date",
   "Type",
-  "Credit (+)",
-  "Debit (-)",
+  "Client",
+  "Document No",
+  <p style={{ color: "green" }}>{"Credit (+)"}</p>,
+  <p style={{ color: "red" }}>{"Debit (-)"}</p>,
 ];
 
 let invoices = await get_all_invoices();
@@ -125,16 +125,32 @@ export default function ShowLedgerPage() {
       .filter((object) => object.Client === filterValues.Client)
       .map((item) => {
         return {
-          Client: item.Client,
-          "Document No": item["Document No"],
           Date: item.Date,
           Type: item.Type,
+          Client: item.Client,
+          "Document No": item["Document No"],
           "Credit (+)": item["Credit (+)"],
           "Debit (-)": item["Debit (-)"],
         };
       });
+    const { creditSum, debitSum } = calculateSum(rowData);
+
+    const totalRow = {
+      Date: "",
+      Type: "",
+      Client: "",
+      "Document No": (
+        <p style={{ fontWeight: 700, fontSize: "medium" }}>{"Total"}</p>
+      ),
+      "Credit (+)": creditSum,
+      "Debit (-)": debitSum,
+    };
+    rowData.push(totalRow);
+
     setPaymentRows(rowData);
   }, [filterValues.Client]);
+
+  console.log(paymentRows);
 
   //   useEffect(() => {
   //     let rowData = mergedArray.filter((object) => {
@@ -177,6 +193,28 @@ export default function ShowLedgerPage() {
       creditSum += item["Credit (+)"];
       debitSum -= item["Debit (-)"];
     });
+
+    const totalSum = creditSum + debitSum;
+
+    // Determine the sign for totalSum
+    const totalSumSign = totalSum === 0 ? "" : totalSum > 0 ? "+" : "-";
+
+    return {
+      creditSum,
+      debitSum,
+      totalSum: `${totalSumSign}${Math.abs(totalSum)}`,
+    };
+  }
+
+  function calculateSumExceptLastRow(data) {
+    let creditSum = 0;
+    let debitSum = 0;
+
+    // Iterate through the data except for the last object
+    for (let i = 0; i < data.length - 1; i++) {
+      creditSum += data[i]["Credit (+)"];
+      debitSum -= data[i]["Debit (-)"];
+    }
 
     const totalSum = creditSum + debitSum;
 
@@ -406,7 +444,7 @@ export default function ShowLedgerPage() {
         style={{ height: "25px", marginBottom: 10 }}
       >
         <h1 className="text-2xl">{`Total Outstanding: ${
-          calculateSum(paymentRows).totalSum
+          calculateSumExceptLastRow(paymentRows).totalSum
         }`}</h1>
       </div>
 

@@ -95,8 +95,30 @@ export const get_all_product_option = async () => {
   return product_option;
 };
 
+export const get_all_vendor_option = async () => {
+  var res = await ipcRenderer.invoke("get-all-vendors");
+  let product_option = [{ text: "Add New Vendor", value: "Add New Vendor" }];
+  res.data.map((c, idx) => {
+    product_option.push({
+      text: c.Vendor,
+      value: c.id,
+      number: c.Contact_number,
+      created: c.created_at,
+      city: c.City,
+      state: c.State,
+      GSTIN: c.GSTIN,
+    });
+  });
+  return product_option;
+};
+
 export const get_all_invoices = async () => {
   var res = await ipcRenderer.invoke("get-all-invoice");
+  return [res.data];
+};
+
+export const get_all_expenses = async () => {
+  var res = await ipcRenderer.invoke("get-all-expenses");
   return [res.data];
 };
 
@@ -127,5 +149,10 @@ export const get_all_quotation = async () => {
 
 export const get_company_details = async () => {
   var res = await ipcRenderer.invoke("get-company-details");
+  return res;
+};
+
+export const get_invoice_count = async () => {
+  var res = await ipcRenderer.invoke("get-invoice-count");
   return res;
 };

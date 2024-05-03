@@ -544,7 +544,6 @@ export default function NewQuotationPage() {
           <div className="flex items-center">
             <Typography variant="h6">Add New Quotation</Typography>
             <HomeButton />
-            <BackButton to="/sales/quotation/show" />
             <ModuleDropDown />
           </div>
           <hr />

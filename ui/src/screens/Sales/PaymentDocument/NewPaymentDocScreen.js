@@ -323,7 +323,6 @@ export default function NewPaymentPage() {
           <div className="flex items-center">
             <Typography variant="h6">Add New Payment</Typography>
             <HomeButton />
-            <BackButton to="/sales/payment/show" />
           </div>
           <hr />
         </div>
@@ -401,12 +400,12 @@ export default function NewPaymentPage() {
       </div>
       <hr />
 
-      <div className="flex flex-1 mb-2">
+      {/* <div className="flex flex-1 mb-2">
         <ProductInvoiceTable
           TABLE_HEAD={TABLE_HEAD}
           TABLE_ROWS={filteredArray}
         />
-      </div>
+      </div> */}
       <div className="py-2 self-end" style={{ marginRight: 40 }}>
         <div style={{ textAlign: "left", marginRight: "auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end" }}>

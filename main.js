@@ -17,6 +17,8 @@ const { Debit_Notes } = require("./models/DebitNotes");
 const { Credit_Notes } = require("./models/CreditNotes");
 const { PaymentDetails } = require("./models/PaymentDetails");
 const { PurchaseOrder } = require("./models/PurchaseOrder");
+const { ExpenseDetails } = require("./models/ExpenseDetails");
+const { VendorDetails } = require("./models/VendorDetails");
 
 electronReload(__dirname);
 
@@ -537,6 +539,23 @@ ipcMain.handle("get-all-client", async (ev, args) => {
   const clientrepo = DBManager.getRepository(Client);
   const data = await clientrepo.find();
   // console.log(data);
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-vendors", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(VendorDetails);
+  const data = await clientrepo.find();
+  // console.log(data);
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-expenses", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(ExpenseDetails);
+  const data = await clientrepo.find();
   return {
     data,
   };
@@ -1360,6 +1379,19 @@ ipcMain.handle("add-new-invoice", async (ev, args) => {
   }
 });
 
+ipcMain.handle("get-invoice-count", async () => {
+  try {
+    const response = await getCountOfInvoices();
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to fetch invoice count",
+    };
+  }
+});
+
 ipcMain.handle("add-new-purchase-order", async (ev, args) => {
   try {
     const response = await addNewPurchaseOrder(args);
@@ -1382,6 +1414,32 @@ ipcMain.handle("add-new-debit-note", async (ev, args) => {
     return {
       success: false,
       message: "Failed to add debit note",
+    };
+  }
+});
+
+ipcMain.handle("add-new-vendor", async (ev, args) => {
+  try {
+    const response = await addNewVendor(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add vendor",
+    };
+  }
+});
+
+ipcMain.handle("add-new-expense", async (ev, args) => {
+  try {
+    const response = await addNewExpense(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add expense",
     };
   }
 });
@@ -1597,6 +1655,89 @@ async function addNewPurchaseOrder(invoiceData) {
     }
   } catch (error) {
     console.error("Error adding new purchase order:", error);
+  }
+}
+
+async function getCountOfInvoices() {
+  try {
+    const invoiceRepository = DBManager.getRepository(Invoice);
+    const count = await invoiceRepository.count();
+    console.log("Total count of invoices:", count);
+    return count;
+  } catch (error) {
+    console.error("Error getting count of invoices:", error);
+    return null;
+  }
+}
+
+async function addNewVendor(vendorData) {
+  try {
+    // Validate vendorData here if necessary
+
+    const vendorRepo = DBManager.getRepository(VendorDetails);
+
+    // Map vendorData to match the schema of VendorDetails entity
+    const vendorDetailsObj = {
+      Vendor: vendorData.Vendor,
+      Vendor_email: vendorData.Vendor_email,
+      Contact_number: vendorData.Contact_number,
+      Address: vendorData.Address,
+      City: vendorData.City,
+      State: vendorData.State,
+      GSTIN: vendorData.GSTIN,
+    };
+
+    // Save the new vendor details entity to the database
+    const result = await vendorRepo
+      .createQueryBuilder()
+      .insert()
+      .values(vendorDetailsObj)
+      .execute();
+
+    if (result.raw.insertId) {
+      // Return the ID of the inserted entity along with success message
+      return {
+        success: true,
+        id: result.raw.insertId,
+        message: "New vendor details added successfully!",
+      };
+    } else {
+      return { success: false, message: "Failed to add new vendor details." };
+    }
+  } catch (error) {
+    console.error("Error adding new vendor details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+async function addNewExpense(expenseData) {
+  try {
+    const expenseRepo = DBManager.getRepository(ExpenseDetails);
+    const expenseDetailsObj = {
+      Person_name: expenseData.Person_name,
+      Expense_type: expenseData.Expense_type,
+      Amount: expenseData.Amount,
+      Date: expenseData.Date,
+      Notes: expenseData.Notes,
+    };
+
+    // Save the new expense details entity to the database
+    const result = await expenseRepo
+      .createQueryBuilder()
+      .insert()
+      .values(expenseDetailsObj)
+      .execute();
+    if (result) {
+      return {
+        success: true,
+        message: "New expense details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new expense details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
   }
 }
 

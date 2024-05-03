@@ -48,6 +48,23 @@ let product_option = await get_all_product_option();
 let invoices = await get_all_invoices();
 let purchaseOrders = await get_all_purchase_orders();
 
+console.log(product_option);
+
+const getUomOptions = (data) => {
+  let types = data.map((x) => x.uom).filter((y) => y !== undefined);
+  let uniqueTypes = Array.from(new Set(types));
+  return uniqueTypes;
+};
+
+function convertDropdownData(data) {
+  return data.map((item) => ({
+    text: item,
+    value: item,
+  }));
+}
+
+console.log(getUomOptions(product_option));
+
 function adjustQuantities(purchaseData, invoiceData) {
   const soldQuantities = {};
 
@@ -157,13 +174,13 @@ export default function Inventory() {
     return result;
   }
 
-  console.log(JSON.stringify(combinedArray));
+  //console.log(JSON.stringify(combinedArray));
   const [filterValues, setFilterValues] = useState({
     Product: "",
     Type: "",
     Location: "",
   });
-  console.log(filterValues);
+  //console.log(filterValues);
   const [filterData, setFilterData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -179,7 +196,7 @@ export default function Inventory() {
     combinedArray,
     selectedProduct.Product
   );
-  console.log(selectedProduct);
+  //console.log(selectedProduct);
   const nonEmptyValues = () => {
     return Object.keys(filterValues).filter((key) => filterValues[key] !== "");
   };
@@ -237,7 +254,7 @@ export default function Inventory() {
     let filteredData = adjustedData
       .flat()
       .filter((object) => {
-        console.log(object);
+        //console.log(object);
         return nonEmptyFields.every((field) => {
           if (field !== "Product") {
             return object[field]?.includes(filterValues[field]);
@@ -326,11 +343,15 @@ export default function Inventory() {
             />
           </div>
           <div className=" mr-12">
-            <Input
+            <SelectComp
               variant="outlined"
               label="Type"
               placeholder="Type"
-              onChange={(e) => handleFilterChange("Type", e.target.value)}
+              options={convertDropdownData(getUomOptions(product_option))}
+              isinput={false}
+              handle={(values) => {
+                handleFilterChange("Type", values.select);
+              }}
             />
           </div>
           <div className="flex mr-12 gap-x-2">
@@ -370,7 +391,9 @@ export default function Inventory() {
       </div>
       <>
         <Dialog size="md" open={isModalOpen} handleOpen={openModal}>
-          <DialogHeader toggler={closeModal}>Product Stock Details</DialogHeader>
+          <DialogHeader toggler={closeModal}>
+            Product Stock Details
+          </DialogHeader>
           <DialogBody>
             <div className="flex flex-1 mb-2">
               <ProductInvoiceTable

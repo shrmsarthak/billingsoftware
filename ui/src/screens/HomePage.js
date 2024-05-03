@@ -16,14 +16,16 @@ import {
   api_add_company,
   api_show_quotation,
   api_show_debit,
-  api_show_credit,
+  api_show_vendor,
   api_show_payment,
   api_new_invoice,
   api_new_quotation,
   api_add_credit,
   api_add_debit,
 } from "../utils/PageApi";
+import { get_invoice_count } from "../utils/SelectOptions";
 import { Link } from "react-router-dom";
+const { ipcRenderer } = window.require("electron");
 
 const options = {
   sales: [
@@ -36,7 +38,7 @@ const options = {
     { title: "Products/Services", onClick: api_show_product },
   ],
   purchase: [
-    { title: "Vendors", onClick: api_show_invoice },
+    { title: "Vendors", onClick: api_show_vendor },
     { title: "Bills", onClick: api_show_invoice },
     { title: "Purchase Orders", onClick: api_show_invoice },
     { title: "Expenses", onClick: api_show_invoice },
@@ -110,8 +112,9 @@ function ShortCutCard({ title, to, color }) {
           minWidth: "300px",
           maxWidth: "300px",
           alignItems: "center",
-          padding: 60,
           maxHeight: "144px",
+          height: 144,
+          justifyContent: "center",
           background:
             "radial-gradient(circle, rgba(255,255,255,1) 0%, rgb(202 203 216 / 53%) 46%, rgb(33 150 243 / 0.5) 100%)",
         }}
@@ -126,10 +129,13 @@ function ShortCutCard({ title, to, color }) {
   );
 }
 
+const invoiceCount = await get_invoice_count();
+
 export default function HomePage() {
   useEffect(() => {
     document.title = "Billing System";
   });
+
   const [open, setOpen] = useState(true);
 
   return (
@@ -191,7 +197,9 @@ export default function HomePage() {
           >
             <div className="text-center">
               <span className="text-lg text-gray-600">Total Orders</span> <br />
-              <span className="font-bold text-black text-2xl mt-10">22</span>
+              <span className="font-bold text-black text-2xl mt-10">
+                {invoiceCount}
+              </span>
             </div>
           </div>
           <div
@@ -224,14 +232,14 @@ export default function HomePage() {
 
                 <ShortCutCard title="LEDGER" to="/sales/ledger/show" />
 
-                <ShortCutCard title="EXPENSES" />
+                <ShortCutCard title="EXPENSES" to="/sales/expense/show" />
               </div>
             </div>
             <div>
               <div className="flex flex-col">
                 <ShortCutCard title="PURCHASE" to="/sales/purchase/new" />
 
-                <ShortCutCard title="REPORTS" to="/sales/invoice/show"  />
+                <ShortCutCard title="REPORTS" to="/sales/invoice/show" />
 
                 <ShortCutCard title="INVENTORY" to="/sales/inventory/show" />
 
