@@ -1,5 +1,5 @@
 import SelectComp from "../../screens/Sales/components/SelectComp";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function ReportsDropDown() {
   const location = useLocation();

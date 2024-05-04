@@ -24,7 +24,7 @@ import {
   api_add_debit,
 } from "../utils/PageApi";
 import { get_invoice_count } from "../utils/SelectOptions";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 const { ipcRenderer } = window.require("electron");
 
 const options = {
@@ -128,13 +128,31 @@ function ShortCutCard({ title, to, color }) {
     </Link>
   );
 }
-
 const invoiceCount = await get_invoice_count();
 
 export default function HomePage() {
   useEffect(() => {
     document.title = "Billing System";
   });
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      console.log("key pressed: ", event.key);
+      if (event.key === "i" || event.key === "I") {
+        window.location.href = "/sales/invoice/new";
+      }
+      if (event.key === "q" || event.key === "Q") {
+        window.location.href = "/sales/quotation/new";
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
 
   const [open, setOpen] = useState(true);
 
