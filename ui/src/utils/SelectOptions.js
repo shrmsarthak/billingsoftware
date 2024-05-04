@@ -122,6 +122,16 @@ export const get_all_expenses = async () => {
   return [res.data];
 };
 
+export const get_all_employee = async () => {
+  var res = await ipcRenderer.invoke("get-all-employee");
+  return [res.data];
+};
+
+export const get_all_employee_payments = async () => {
+  var res = await ipcRenderer.invoke("get-all-employee-payments");
+  return res.data;
+};
+
 export const get_all_purchase_orders = async () => {
   var res = await ipcRenderer.invoke("get-all-purchase-orders");
   return [res.data];

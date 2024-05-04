@@ -498,7 +498,7 @@ export default function ShowCreditNotePage() {
   }
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
-      "delete-debit-note-by-Document-no",
+      "delete-credit-note-by-Document-no",
       obj.Document_No
     );
     alert(res.message);

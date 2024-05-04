@@ -25,7 +25,8 @@ export default function ReportsDropDown() {
     "Show Quotation",
     "Show Debit",
     "Show Credit",
-    "Show Purchase"
+    "Show Purchase",
+    "Show Payment",
   ];
   return (
     <div style={{ maxWidth: 300, marginLeft: 20 }}>
@@ -40,6 +41,8 @@ export default function ReportsDropDown() {
             window.location.href = "/sales/debit/show";
           } else if (value.select === "Show Credit") {
             window.location.href = "/sales/credit/show";
+          } else if (value.select === "Show Payment") {
+            window.location.href = "/sales/payment/show";
           } else {
             window.location.href = "/sales/purchase/show";
           }

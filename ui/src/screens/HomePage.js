@@ -243,7 +243,10 @@ export default function HomePage() {
 
                 <ShortCutCard title="INVENTORY" to="/sales/inventory/show" />
 
-                <ShortCutCard title="EMPLOYEE MANAGEMENT" />
+                <ShortCutCard
+                  title="EMPLOYEE MANAGEMENT"
+                  to="/mgmt/employee/show"
+                />
               </div>
             </div>
           </div>
