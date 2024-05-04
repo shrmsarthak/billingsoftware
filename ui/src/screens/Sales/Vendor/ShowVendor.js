@@ -59,6 +59,14 @@ const vendors = await get_all_vendor_option();
 vendors.shift();
 console.log(vendors);
 
+const handleDeleteVendor = async (obj) => {
+  const res = await ipcRenderer.invoke(
+    "delete-vendor-by-contact-number",
+    obj.number
+  );
+  alert(res.message);
+};
+
 const VENDOR_ROWS = vendors.map((x) => {
   return {
     "Vendor Name": x.text,
@@ -71,7 +79,7 @@ const VENDOR_ROWS = vendors.map((x) => {
         <Button
           color="white"
           size="xs" // Adjusted button size to xs
-          // onClick={() => handleDeleteInvoice(obj)}
+          onClick={() => handleDeleteVendor(x)}
           className="py-1 px-2" // Adjusted padding
         >
           <svg

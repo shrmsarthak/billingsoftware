@@ -19,6 +19,8 @@ const { PaymentDetails } = require("./models/PaymentDetails");
 const { PurchaseOrder } = require("./models/PurchaseOrder");
 const { ExpenseDetails } = require("./models/ExpenseDetails");
 const { VendorDetails } = require("./models/VendorDetails");
+const { Employee } = require("./models/Employee");
+const { EmployeePaymentDetails } = require("./models/EmployeePaymentDetails");
 
 electronReload(__dirname);
 
@@ -555,6 +557,22 @@ ipcMain.handle("get-all-vendors", async (ev, args) => {
 
 ipcMain.handle("get-all-expenses", async (ev, args) => {
   const clientrepo = DBManager.getRepository(ExpenseDetails);
+  const data = await clientrepo.find();
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-employee", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(Employee);
+  const data = await clientrepo.find();
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-employee-payments", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(EmployeePaymentDetails);
   const data = await clientrepo.find();
   return {
     data,
@@ -1444,6 +1462,32 @@ ipcMain.handle("add-new-expense", async (ev, args) => {
   }
 });
 
+ipcMain.handle("add-new-employee", async (ev, args) => {
+  try {
+    const response = await addNewEmployee(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add expense",
+    };
+  }
+});
+
+ipcMain.handle("add-new-employee-payment", async (ev, args) => {
+  try {
+    const response = await addNewEmployeePayment(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add employee payment",
+    };
+  }
+});
+
 ipcMain.handle("add-new-credit-note", async (ev, args) => {
   try {
     const response = await addNewCreditNote(args);
@@ -1662,7 +1706,6 @@ async function getCountOfInvoices() {
   try {
     const invoiceRepository = DBManager.getRepository(Invoice);
     const count = await invoiceRepository.count();
-    console.log("Total count of invoices:", count);
     return count;
   } catch (error) {
     console.error("Error getting count of invoices:", error);
@@ -1736,6 +1779,68 @@ async function addNewExpense(expenseData) {
     }
   } catch (error) {
     console.error("Error adding new expense details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+async function addNewEmployee(employeeData) {
+  try {
+    const employeeRepo = DBManager.getRepository(Employee);
+    const employeeDetailsObj = {
+      Employee_name: employeeData.Employee_name,
+      Age: employeeData.Age,
+      Contact_No: employeeData.Contact_No,
+      Address: employeeData.Address,
+      Joining_Date: employeeData.Joining_Date,
+      Notes: employeeData.Notes,
+    };
+
+    // Save the new employee details entity to the database
+    const result = await employeeRepo
+      .createQueryBuilder()
+      .insert()
+      .values(employeeDetailsObj)
+      .execute();
+    if (result) {
+      return {
+        success: true,
+        message: "New employee details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new employee details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+async function addNewEmployeePayment(paymentData) {
+  try {
+    const paymentRepo = DBManager.getRepository(EmployeePaymentDetails);
+    const paymentDetailsObj = {
+      Employee_name: paymentData.Employee_name,
+      Payment_date: paymentData.Payment_date,
+      Amount: paymentData.Amount,
+      Payment_type: paymentData.Payment_type,
+      Payment_notes: paymentData.Payment_notes,
+    };
+
+    // Save the new payment details entity to the database
+    const result = await paymentRepo
+      .createQueryBuilder()
+      .insert()
+      .values(paymentDetailsObj)
+      .execute();
+
+    if (result) {
+      return {
+        success: true,
+        message: "New payment details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new payment details:", error);
     // Throw the error so that calling code can handle it
     throw error;
   }
@@ -2009,6 +2114,120 @@ ipcMain.handle("delete-debit-note-by-Document-no", async (ev, args) => {
   } catch (error) {
     console.error("Error deleting Debit Note :", error);
     return { success: false, message: "Error while deleting Debit Note " };
+  }
+});
+
+ipcMain.handle("delete-credit-note-by-Document-no", async (ev, args) => {
+  try {
+    const documentNo = args;
+    const invoiceRepo = DBManager.getRepository(Credit_Notes);
+    console.log(`${ev}-${args}`);
+    console.log(`Deleting credit-note with Document_No: ${documentNo}`);
+
+    const deleteResult = await invoiceRepo
+      .createQueryBuilder()
+      .delete()
+      .from(Debit_Notes)
+      .where("Document_No = :documentNo", { documentNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Credit Note deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "credit Note  with provided Document_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting credit Note :", error);
+    return { success: false, message: "Error while deleting credit Note " };
+  }
+});
+
+ipcMain.handle("delete-employee-by-contact-no", async (ev, args) => {
+  try {
+    const contactNo = args;
+    const employeeRepo = DBManager.getRepository(Employee);
+    console.log(`Deleting employee with Contact_No: ${contactNo}`);
+
+    const deleteResult = await employeeRepo
+      .createQueryBuilder()
+      .delete()
+      .where("Contact_No = :contactNo", { contactNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Employee deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "Employee with provided Contact_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting employee:", error);
+    return { success: false, message: "Error while deleting employee." };
+  }
+});
+
+ipcMain.handle("delete-vendor-by-contact-number", async (ev, args) => {
+  try {
+    const contactNumber = args;
+    const vendorRepo = DBManager.getRepository(VendorDetails);
+    console.log(`Deleting vendor with Contact_number: ${contactNumber}`);
+
+    const deleteResult = await vendorRepo
+      .createQueryBuilder()
+      .delete()
+      .where("Contact_number = :contactNumber", { contactNumber })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Vendor deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "Vendor with provided Contact_number not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting vendor:", error);
+    return { success: false, message: "Error while deleting vendor." };
+  }
+});
+
+ipcMain.handle("delete-expense-by-id", async (ev, args) => {
+  try {
+    const expenseId = args;
+    const expenseRepo = DBManager.getRepository(ExpenseDetails);
+    console.log(`Deleting expense with id: ${expenseId}`);
+
+    const deleteResult = await expenseRepo
+      .createQueryBuilder()
+      .delete()
+      .where("id = :expenseId", { expenseId })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Expense deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "Expense with provided id not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting expense:", error);
+    return { success: false, message: "Error while deleting expense." };
   }
 });
 
