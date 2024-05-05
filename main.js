@@ -1794,6 +1794,9 @@ async function addNewEmployee(employeeData) {
       Address: employeeData.Address,
       Joining_Date: employeeData.Joining_Date,
       Notes: employeeData.Notes,
+      Employee_email: employeeData.Employee_email,
+      Employee_title: employeeData.Employee_title,
+      Salary: employeeData.Salary,
     };
 
     // Save the new employee details entity to the database
@@ -1816,6 +1819,18 @@ async function addNewEmployee(employeeData) {
 }
 
 async function addNewEmployeePayment(paymentData) {
+  function isLastDayOfMonth(dateString) {
+    // Convert the input string to a Date object
+    const date = new Date(dateString);
+
+    // Get the next day's date
+    const nextDay = new Date(date);
+    nextDay.setDate(date.getDate() + 1);
+
+    // Compare the months of the input date and the next day's date
+    // If the months are different, then the input date is the last day of the month
+    return date.getMonth() !== nextDay.getMonth();
+  }
   try {
     const paymentRepo = DBManager.getRepository(EmployeePaymentDetails);
     const paymentDetailsObj = {
@@ -1824,6 +1839,9 @@ async function addNewEmployeePayment(paymentData) {
       Amount: paymentData.Amount,
       Payment_type: paymentData.Payment_type,
       Payment_notes: paymentData.Payment_notes,
+      Is_Payment_Salary: isLastDayOfMonth(paymentData.Payment_date)
+        ? true
+        : false,
     };
 
     // Save the new payment details entity to the database
