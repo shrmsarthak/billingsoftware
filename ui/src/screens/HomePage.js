@@ -105,7 +105,7 @@ function ShortCutCard({ title, to, color, icon }) {
         className="text-sm font-bold text-black"
         style={{ display: "inline-flex", alignItems: "center" }}
       >
-        <span className="text-3xl">{firstChar}</span>
+        <span className="text-4xl">{firstChar}</span>
         {restChars}
         {icon && <span className="ml-2">{icon}</span>}
       </h1>
@@ -165,26 +165,42 @@ export default function HomePage() {
 
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if (
-        (event.ctrlKey && event.key === "i") ||
-        (event.ctrlKey && event.key === "I")
-      ) {
+      if (event.altKey && event.key.toLowerCase() === "s") {
         window.location.href = "/sales/invoice/new";
       }
-      if (
-        (event.ctrlKey && event.key === "q") ||
-        (event.ctrlKey && event.key === "Q")
-      ) {
-        window.location.href = "/sales/quotation/new";
+      if (event.ctrlKey && event.key.toLowerCase() === "l") {
+        window.location.href = "/sales/ledger/show";
+      }
+      if (event.ctrlKey && event.key.toLowerCase() === "r") {
+        window.location.href = "/sales/invoice/show";
+      }
+      if (event.altKey && event.key.toLowerCase() === "p") {
+        window.location.href = "/sales/purchase/show";
+      }
+      if (event.ctrlKey && event.key.toLowerCase() === "p") {
+        window.location.href = "/sales/payment/show";
+      }
+      if (event.ctrlKey && event.key.toLowerCase() === "i") {
+        window.location.href = "/sales/inventory/show";
+      }
+      if (event.ctrlKey && event.key.toLowerCase() === "e") {
+        window.location.href = "/mgmt/employee/show";
+      }
+      if (event.ctrlKey && event.key.toLowerCase() === "s") {
+        window.location.href = "/sales/invoice/show";
+      }
+      if (event.altKey && event.key.toLowerCase() === "e") {
+        window.location.href = "/sales/expense/show";
       }
     };
-
+  
     document.addEventListener("keydown", handleKeyPress);
-
+  
     return () => {
       document.removeEventListener("keydown", handleKeyPress);
     };
   }, []);
+  
 
   const [open, setOpen] = useState(true);
   const [text, setText] = useState("");
@@ -202,7 +218,7 @@ export default function HomePage() {
       <div
         className={"h-screen sticky top-0 overflow-y-auto"}
         style={{
-          background: "rgb(15 14 42 / 96%)",
+          background: "rgb(15 14 42 / 90%)",
           minWidth: "20%",
           maxWidth: "20%",
         }}
@@ -672,7 +688,8 @@ export default function HomePage() {
                       }}
                     >
                       <Textarea
-                        placeholder={todoData}
+                        label="Todo"
+                        defaultValue={todoData ? todoData : ""}
                         onChange={(e) => setText(e.target.value)}
                       />
                       <Button

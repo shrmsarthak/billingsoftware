@@ -19,6 +19,7 @@ import SelectComp from "../Sales/components/SelectComp";
 import {
   get_all_employee,
   get_all_employee_payments,
+  get_all_employee_leaves,
 } from "../../../src/utils/SelectOptions";
 import HomeButton from "../../assets/Buttons/HomeButton";
 import { saveAs } from "file-saver";
@@ -41,9 +42,12 @@ const TABLE_HEAD_BALANCE = [
   "Employee",
   "Payment Date",
   "Amount",
+  "Is_Salary",
   "Payment Type",
   "Payment Notes",
 ];
+
+const TABLE_HEAD_LEAVE = ["No", "Employee Name", "Leave Date", "Leave Reason"];
 
 const initialValue = {
   Employee_name: "",
@@ -55,6 +59,19 @@ const initialValue = {
   Employee_email: "",
   Employee_title: "",
   Salary: "",
+};
+
+const initialLeaveData = {
+  employeeName: "",
+  leaveDate: "",
+  leaveReason: "",
+};
+
+const initialAttendanceData = {
+  employeeName: "",
+  todayDate: convertDateToString(new Date()),
+  inTime: "",
+  outTime: "",
 };
 
 function convertDateToString(date) {
@@ -79,7 +96,25 @@ const generateDropDownList = (data) => {
 
 const allEmployees = await get_all_employee();
 const allPayments = await get_all_employee_payments();
-console.log(allPayments);
+const allLeaves = await get_all_employee_leaves();
+
+const uniqueMonths = [
+  ...new Set(
+    allPayments.map((doc) => new Date(doc.Payment_date).getMonth() + 1)
+  ),
+];
+
+const uniqueLeaveMonths = [
+  ...new Set(allLeaves.map((doc) => new Date(doc.leaveDate).getMonth() + 1)),
+];
+
+const LEAVE_ROWS = allLeaves.map((item) => {
+  return {
+    "Employee Name": item.employeeName,
+    "Leave Date": convertDateToString(item.leaveDate),
+    "Leave Reason": item.leaveReason,
+  };
+});
 
 const handleDeleteEmployee = async (obj) => {
   const res = await ipcRenderer.invoke(
@@ -108,12 +143,22 @@ export default function ShowEmployee() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filteredData, setFilterData] = useState("");
 
-  console.log(fields);
-
   // State for payment modal
   const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
   const [isBalanceModalOpen, setBalanceModalOpen] = useState(false);
+  const [isAttendanceModalOpen, setAttendanceModalOpen] = useState(false);
+  const [isLeaveModalOpen, setLeaveModalOpen] = useState(false);
+
   const [balanceData, setBalanceData] = useState([]);
+  const [monthWisePayment, setMonthWisePayment] = useState([]);
+
+  const [employeeApplyingLeave, setEmployeeApplyingLeave] =
+    useState(initialLeaveData);
+  const [monthWiseLeave, setMonthWiseLeave] = useState([]);
+
+  const [employeeApplyingAttendance, setEmployeeApplyingAttendance] = useState(
+    initialAttendanceData
+  );
 
   // Function to open payment modal
   const openPaymentModal = (obj) => {
@@ -126,10 +171,33 @@ export default function ShowEmployee() {
     setPaymentData(initialPaymentData);
   };
 
-  const openBalanceModal = (obj) => {
-    console.log(obj);
-    console.log(allPayments);
+  function generateMonths(uniqueMonths) {
+    const monthsToRender = uniqueMonths.sort().map((month) => ({
+      value: month,
+      text: new Date(2024, month - 1, 1).toLocaleString("en-us", {
+        month: "short",
+      }),
+    }));
+    return monthsToRender;
+  }
 
+  function filterDocumentsByMonth(month, data) {
+    const filteredDocs = data.filter((doc) => {
+      const paymentMonth = new Date(doc["Payment Date"]).getMonth() + 1;
+      return paymentMonth === month;
+    });
+    return filteredDocs;
+  }
+
+  function filterLeaveByMonth(month, data) {
+    const filteredDocs = data.filter((doc) => {
+      const paymentMonth = new Date(doc["Leave Date"]).getMonth() + 1;
+      return paymentMonth === month;
+    });
+    return filteredDocs;
+  }
+
+  const openBalanceModal = (obj) => {
     setBalanceData(
       allPayments
         .filter((item) => item.Employee_name === obj.Employee_name)
@@ -138,6 +206,7 @@ export default function ShowEmployee() {
             Employee: items.Employee_name,
             "Payment Date": convertDateToString(items.Payment_date),
             Amount: items.Amount,
+            Is_Salary: items.Is_Payment_Salary ? "Yes" : "No",
             "Payment Type": items.Payment_type,
             "Payment Notes": items.Payment_notes,
           };
@@ -148,6 +217,56 @@ export default function ShowEmployee() {
 
   const closeBalanceModal = () => {
     setBalanceModalOpen(false);
+    setMonthWisePayment([]);
+  };
+
+  // Function to open attendance modal
+  const openAttendanceModal = (obj) => {
+    setAttendanceModalOpen(true);
+    setEmployeeApplyingAttendance((prevState) => ({
+      ...prevState,
+      employeeName: obj.Employee_name,
+    }));
+  };
+
+  // Function to close attendance modal
+  const closeAttendanceModal = () => {
+    setAttendanceModalOpen(false);
+    setEmployeeApplyingAttendance(initialAttendanceData);
+  };
+
+  const handleAttendanceSave = async () => {
+    const res = await ipcRenderer.invoke(
+      "add-employee-attendance",
+      employeeApplyingAttendance
+    );
+    alert(res.message);
+    setEmployeeApplyingAttendance(initialAttendanceData);
+  };
+
+  // Function to open leave modal
+  const openLeaveModal = (obj) => {
+    setLeaveModalOpen(true);
+    setEmployeeApplyingLeave((prevState) => ({
+      ...prevState,
+      employeeName: obj.Employee_name,
+    }));
+  };
+
+  // Function to close leave modal
+  const closeLeaveModal = () => {
+    setLeaveModalOpen(false);
+    setEmployeeApplyingLeave(initialLeaveData);
+    setMonthWiseLeave([]);
+  };
+
+  const handleLeaveSave = async () => {
+    const res = await ipcRenderer.invoke(
+      "add-employee-leave",
+      employeeApplyingLeave
+    );
+    alert(res.message);
+    setEmployeeApplyingLeave(initialLeaveData);
   };
 
   const initialPaymentData = {
@@ -159,8 +278,6 @@ export default function ShowEmployee() {
   };
   // State for payment details
   const [paymentData, setPaymentData] = useState(initialPaymentData);
-
-  console.log(paymentData);
 
   // Function to handle changes in payment details
   const handlePaymentFieldChange = (field, value) => {
@@ -252,6 +369,58 @@ export default function ShowEmployee() {
                   stroke-linejoin="round"
                   stroke-width="2"
                   d="M17 8H5m12 0a1 1 0 0 1 1 1v2.6M17 8l-4-4M5 8a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.6M5 8l4-4 4 4m6 4h-4a2 2 0 1 0 0 4h4a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1Z"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
+          <Tooltip content="Attendance">
+            <Button
+              color="white"
+              size="sm" // Adjusted button size to xs
+              onClick={() => openAttendanceModal(x)}
+              className="py-1 px-2" // Adjusted padding
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 6H5m2 3H5m2 3H5m2 3H5m2 3H5m11-1a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2M7 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"
+                />
+              </svg>
+            </Button>
+          </Tooltip>
+          <Tooltip content="Leave">
+            <Button
+              color="white"
+              size="sm" // Adjusted button size to xs
+              onClick={() => openLeaveModal(x)}
+              className="py-1 px-2" // Adjusted padding
+            >
+              <svg
+                class="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"
                 />
               </svg>
             </Button>
@@ -395,6 +564,7 @@ export default function ShowEmployee() {
   const resetFilterValues = () => {
     window.location.reload();
   };
+
   return (
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
@@ -683,10 +853,22 @@ export default function ShowEmployee() {
             Employee Payment Details
           </DialogHeader>
           <DialogBody>
-            {" "}
+            <div style={{ marginBottom: 20, width: 100 }}>
+              <SelectComp
+                label="Month"
+                options={generateMonths(uniqueMonths)}
+                isInput={false}
+                handle={(values) => {
+                  setMonthWisePayment(
+                    filterDocumentsByMonth(values.select, balanceData)
+                  );
+                }}
+              />
+            </div>
+
             <ProductInvoiceTable
               TABLE_HEAD={TABLE_HEAD_BALANCE}
-              TABLE_ROWS={balanceData}
+              TABLE_ROWS={monthWisePayment}
             />
           </DialogBody>
           <DialogFooter>
@@ -696,6 +878,162 @@ export default function ShowEmployee() {
               style={{ marginRight: 5 }}
             >
               Close
+            </Button>
+          </DialogFooter>
+        </Dialog>
+        {/* Attendance Modal */}
+        <Dialog
+          size="l"
+          open={isAttendanceModalOpen}
+          handleOpen={openAttendanceModal}
+        >
+          <DialogHeader toggler={closeAttendanceModal}>
+            Employee Attendance Details
+          </DialogHeader>
+          <DialogBody>
+            <div className="Employee-attendance-modal">
+              <div>
+                <Input
+                  variant="outlined"
+                  label="Employee Name"
+                  value={employeeApplyingAttendance.employeeName}
+                  disabled
+                />
+              </div>
+              <div>
+                <Input
+                  variant="outlined"
+                  label="Current Date"
+                  type="date"
+                  value={employeeApplyingAttendance.todayDate}
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="Employee-attendance-modal">
+              <div>
+                <Input
+                  variant="outlined"
+                  label="IN"
+                  type="time"
+                  onChange={(e) =>
+                    setEmployeeApplyingAttendance((prevState) => ({
+                      ...prevState,
+                      inTime: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div>
+                <Input
+                  variant="outlined"
+                  label="OUT"
+                  type="time"
+                  onChange={(e) =>
+                    setEmployeeApplyingAttendance((prevState) => ({
+                      ...prevState,
+                      outTime: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              onClick={closeAttendanceModal}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              style={{ marginRight: 5 }}
+            >
+              Close
+            </Button>
+            <Button
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={handleAttendanceSave}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </Dialog>
+
+        {/* Leave Modal */}
+        <Dialog size="l" open={isLeaveModalOpen} handleOpen={openLeaveModal}>
+          <DialogHeader toggler={closeLeaveModal}>
+            Employee Leave Details
+          </DialogHeader>
+          <DialogBody>
+            <div className="Employee-leave-modal">
+              <div>
+                <Input
+                  variant="outlined"
+                  label="Employee Name"
+                  value={employeeApplyingLeave.employeeName}
+                  disabled
+                />
+              </div>
+              <div>
+                <Input
+                  variant="outlined"
+                  label="Leave Date"
+                  placeholder="Leave Date"
+                  type="date"
+                  onChange={(e) =>
+                    setEmployeeApplyingLeave((prevState) => ({
+                      ...prevState,
+                      leaveDate: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div>
+                <Input
+                  variant="outlined"
+                  label="Leave Reason"
+                  placeholder="Leave Reason"
+                  onChange={(e) =>
+                    setEmployeeApplyingLeave((prevState) => ({
+                      ...prevState,
+                      leaveReason: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+            <h2 style={{ color: "black", margin: "20px 0px 10px 0px" }}>
+              Leaves History:
+            </h2>
+            <div style={{ marginBottom: 20, width: 100 }}>
+              <SelectComp
+                label="Month"
+                options={generateMonths(uniqueLeaveMonths)}
+                isInput={false}
+                handle={(values) => {
+                  setMonthWiseLeave(
+                    filterLeaveByMonth(values.select, LEAVE_ROWS)
+                  );
+                }}
+              />{" "}
+            </div>
+            <ProductInvoiceTable
+              TABLE_HEAD={TABLE_HEAD_LEAVE}
+              TABLE_ROWS={monthWiseLeave.filter(
+                (x) => x["Employee Name"] === employeeApplyingLeave.employeeName
+              )}
+            />
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              onClick={closeLeaveModal}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              style={{ marginRight: 5 }}
+            >
+              Close
+            </Button>
+            <Button
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={handleLeaveSave}
+            >
+              Save
             </Button>
           </DialogFooter>
         </Dialog>

@@ -6509,11 +6509,6 @@ video {
   align-items: flex-start;
 }
 
-/* .hoverShortCutCard:hover {
-  transform: scale(1.1);
-  transition: transform 0.3s ease-in-out;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-} */
 .hoverShortCutCard {
   transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -6551,4 +6546,20 @@ video {
 .mainCointainer {
   display: flex;
   flex-direction: row;
+}
+
+.Employee-leave-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.Employee-attendance-modal {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
 }
