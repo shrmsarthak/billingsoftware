@@ -165,10 +165,16 @@ export default function HomePage() {
 
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if (event.key === "i" || event.key === "I") {
+      if (
+        (event.ctrlKey && event.key === "i") ||
+        (event.ctrlKey && event.key === "I")
+      ) {
         window.location.href = "/sales/invoice/new";
       }
-      if (event.key === "q" || event.key === "Q") {
+      if (
+        (event.ctrlKey && event.key === "q") ||
+        (event.ctrlKey && event.key === "Q")
+      ) {
         window.location.href = "/sales/quotation/new";
       }
     };
