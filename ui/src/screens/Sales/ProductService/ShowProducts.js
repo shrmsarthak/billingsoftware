@@ -8,6 +8,7 @@ import { DeleteModal } from "../components/DeleteModal";
 import { get_all_product_option } from "../../../utils/SelectOptions";
 // import DatePicker from "../components/DatePicker";
 import { AddEditViewProductModal } from "./AddEditViewProductModal";
+import HomeButton from "../../../assets/Buttons/HomeButton";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
@@ -500,8 +501,12 @@ export default function ShowProductsPage() {
   return (
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 mb-3">
-        <div className="flex-1 py-3 px-4 border-b border-gray-400">
+        <div
+          className="flex-1 py-3 px-4 border-b border-gray-400"
+          style={{ display: "inline-flex", alignItems: "center" }}
+        >
           <h6>Search Product/Services</h6>
+          <HomeButton />
         </div>
         <div className="px-3 py-4">
           <div className="flex flex-row w-full max-w-screen-xl m-auto justify-between my-2">

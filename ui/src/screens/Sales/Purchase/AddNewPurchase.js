@@ -15,10 +15,10 @@ import {
   get_all_product_option,
   tax_type,
   uom_type,
-  get_all_invoices,
+  get_all_vendor_option,
   get_company_details,
 } from "../../../utils/SelectOptions";
-import { api_show_client, api_show_product } from "../../../utils/PageApi";
+import { api_show_vendor, api_show_product } from "../../../utils/PageApi";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
@@ -42,68 +42,32 @@ const TABLE_HEAD = [
   "Action",
 ];
 
-const reason_options = [
-  "Sales Return",
-  "Post Sale Discount",
-  "Deficiency In Service",
-  "Change In POS",
-  "Correction In Invoice",
-  "Finalization Of Provisional Assessment",
-];
+const vendor_option = await get_all_vendor_option();
 
-const payemnt_options = [
-  {
-    text: "7 days",
-    value: "7 days",
-  },
-  {
-    text: "10 days",
-    value: "10 days",
-  },
-  {
-    text: "15 days",
-    value: "15 days",
-  },
-  {
-    text: "30 days",
-    value: "30 days",
-  },
-  {
-    text: "45 days",
-    value: "45 days",
-  },
-  {
-    text: "60 days",
-    value: "60 days",
-  },
-  {
-    text: "90 days",
-    value: "90 days",
-  },
-];
-
-let client_option = await get_all_client_option();
-let shiping_option = [];
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
 let tax_option = tax_type();
 let uom_option = uom_type();
-let invoices = await get_all_invoices();
-export default function NewCreditNotePage() {
+console.log(product_option);
+export default function NewPurchasePage() {
   useEffect(() => {
-    document.title = "New Credit Note";
+    document.title = "New Purchase Order";
   });
 
+  const populateDropdown = (data) => {
+    return data.map((item) => ({
+      text: item,
+      value: item,
+    }));
+  };
+
   const initialValues = {
-    Client: "",
+    Vendor: "",
     Document_No: "",
-    Invoice_No: "",
-    Reason: "",
     Issue_Date: new Date().toISOString().split("T")[0],
-    Ship_To: "",
-    PO_Number: "",
-    Payment_Term: "30 days",
-    PO_Date: "",
+    Project: "",
+    Payment_Term: "15 days",
+    Discount: "",
     Due_Date: "",
     Place_Of_Supply: "",
     Product: "",
@@ -111,8 +75,8 @@ export default function NewCreditNotePage() {
     UoM: "",
     Qty: "",
     Unit_Price: "",
-    Discount: "",
-    Tax: "GST Rate 18%",
+    Tax: "GST Rate 0%",
+    Location: "",
     Notes: "",
     Private_Notes: "",
     Shipping_Charges: 0,
@@ -121,8 +85,6 @@ export default function NewCreditNotePage() {
     Total_Tax: 0,
   };
   const [formData, setFormData] = useState(initialValues);
-
-  console.log(formData);
 
   useEffect(() => {
     // Convert the issue date to a Date object
@@ -177,7 +139,6 @@ export default function NewCreditNotePage() {
   const [shippingChecked, setShippingChecked] = useState(false);
   const [allClient, setAllClient] = useState([]);
   const [selectedClient, setSelectedClient] = useState([]);
-  const [selectedClientData, setSelectedClientData] = useState([]);
 
   useEffect(() => {
     getAllClients();
@@ -185,9 +146,9 @@ export default function NewCreditNotePage() {
 
   useEffect(() => {
     setSelectedClient(
-      allClient.filter((x) => x.client_name === formData.Client)
+      allClient.filter((x) => x.client_name === formData.Vendor)
     );
-  }, [formData.Client]);
+  }, [formData.Vendor]);
 
   const getAllClients = async () => {
     let page = 1;
@@ -200,23 +161,10 @@ export default function NewCreditNotePage() {
   };
 
   useEffect(() => {
-    if (formData.Client.length > 1) {
-      handleFieldChange(
-        "Ship_To",
-        selectedClient[0]?.address +
-          " " +
-          selectedClient[0]?.city +
-          "-" +
-          selectedClient[0]?.pincode
-      );
+    if (formData.Vendor.length > 1) {
+      console.log("inside if", selectedClient);
       handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
     }
-    setSelectedClientData(
-      invoices
-        .flat()
-        .filter((x) => formData.Client === x.Client)
-        .map((y) => y.Document_No)
-    );
   }, [selectedClient]);
 
   const updateRowsWithDiscount = (discount) => {
@@ -333,13 +281,6 @@ export default function NewCreditNotePage() {
     }, 0)
     .toFixed(2);
 
-  function convertDropdownData(data) {
-    return data.map((item) => ({
-      text: item,
-      value: item,
-    }));
-  }
-
   const handleFieldChange = (fieldName, value) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -359,10 +300,27 @@ export default function NewCreditNotePage() {
     const product = data.find((item) => item.text === productText);
     return product ? product.uom : null;
   };
-  const getProductPrice = (productText, data) => {
+  const getProductPurchasePrice = (productText, data) => {
     const product = data.find((item) => item.text === productText);
-    return product ? product.price : null;
+    return product ? product.purchase_price : null;
   };
+  const generateFieldValue = () => {
+    const today = new Date();
+    const day = ("0" + today.getDate()).slice(-2); // Get day with leading zero if needed
+    const hours = ("0" + today.getHours()).slice(-2); // Get hours with leading zero if needed
+    const minutes = ("0" + today.getMinutes()).slice(-2); // Get minutes with leading zero if needed
+    const monthAbbreviation = today
+      .toLocaleString("default", { month: "short" })
+      .toUpperCase(); // Get month abbreviation
+
+    const generatedValue = `PUR-${day}${monthAbbreviation}-${hours}${minutes}`;
+
+    handleFieldChange("Document_No", generatedValue);
+  };
+
+  useEffect(() => {
+    generateFieldValue();
+  }, []);
   useEffect(() => {
     if (!shippingChecked) {
       handleFieldChange("Shipping_Charges", 0);
@@ -391,19 +349,17 @@ export default function NewCreditNotePage() {
     setIsInvoicePreviewOpen(false);
   };
 
+  console.log(formData);
+
   const renderInvoicePreview = () => {
     const handleSave = async () => {
       const invoiceData = {
         rowData: rowData,
-        Client: formData.Client,
+        Vendor: formData.Vendor,
         Document_No: formData.Document_No,
-        Reason: formData.Reason,
-        Invoice_No: formData.Invoice_No,
         Issue_Date: formData.Issue_Date,
-        Ship_To: formData.Ship_To,
-        PO_Number: formData.PO_Number,
+        Project: formData.Project,
         Payment_Term: formData.Payment_Term,
-        PO_Date: formData.PO_Date,
         Due_Date: formData.Due_Date,
         Place_Of_Supply: formData.Place_Of_Supply,
         Notes: formData.Notes,
@@ -414,9 +370,12 @@ export default function NewCreditNotePage() {
         Discount_on_all: formData.Discount_on_all,
         Total_BeforeTax: formData.Total_BeforeTax,
         Total_Tax: formData.Total_Tax,
+        Location: formData.Location,
       };
-
-      const res = await ipcRenderer.invoke("add-new-credit-note", invoiceData);
+      const res = await ipcRenderer.invoke(
+        "add-new-purchase-order",
+        invoiceData
+      );
       alert(res.message); // Handle the response as needed
     };
 
@@ -518,7 +477,7 @@ export default function NewCreditNotePage() {
               <Invoice
                 data={rowData.flat()}
                 details={{
-                  Client: formData.Client,
+                  Client: formData.Vendor,
                   Issue_Date: formData.Issue_Date,
                   Document_No: formData.Document_No,
                   Ship_To: formData.Ship_To,
@@ -537,7 +496,7 @@ export default function NewCreditNotePage() {
                   Discount_on_all: formData.Discount_on_all,
                   Total_BeforeTax: formData.Total_BeforeTax,
                   Total_Tax: formData.Total_Tax,
-                  Type: "CREDIT NOTE",
+                  Type: "PURCHASE ORDER",
                   companyDetails: companyDetails.data[0],
                 }}
               />
@@ -548,70 +507,38 @@ export default function NewCreditNotePage() {
     }
   };
 
-  const generateFieldValue = () => {
-    const today = new Date();
-    const day = ("0" + today.getDate()).slice(-2); // Get day with leading zero if needed
-    const hours = ("0" + today.getHours()).slice(-2); // Get hours with leading zero if needed
-    const minutes = ("0" + today.getMinutes()).slice(-2); // Get minutes with leading zero if needed
-    const monthAbbreviation = today
-      .toLocaleString("default", { month: "short" })
-      .toUpperCase(); // Get month abbreviation
-
-    const generatedValue = `C${day}${monthAbbreviation}-${hours}${minutes}`;
-
-    handleFieldChange("Document_No", generatedValue);
-  };
-
-  useEffect(() => {
-    generateFieldValue();
-  }, []);
-
   return (
     <div className="flex flex-col w-full h-full px-1">
       <div className="flex flex-col border border-gray-400 p-1 mb-1">
         <div className="my-2 flex-1">
           <div className="flex items-center">
-            <Typography variant="h6">Add New Credit Note</Typography>
+            <Typography variant="h6">Add New Purchase Order</Typography>
             <HomeButton />
-            <ModuleDropDown />
           </div>
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">
           <div className=" mr-12">
             <SelectComp
-              label="Client"
-              options={client_option}
+              label="Vendor"
+              options={vendor_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
-                  api_show_client();
+                if (values.select == "Add New Vendor") {
+                  api_show_vendor();
                   return;
                 } else {
-                  handleFieldChange(
-                    "Client",
-                    getTextForValue(client_option, values.select)
-                  );
+                  handleFieldChange("Vendor", values.select);
                 }
               }}
             />
           </div>
           <div className=" mr-12">
-            <SelectComp
+            <Input
               variant="outlined"
-              label="Invoice No"
-              placeholder="Invoice No"
-              options={convertDropdownData(selectedClientData)}
-              handle={(values) => {
-                handleFieldChange("Invoice_No", values.select);
-                handleFieldChange(
-                  "Issue_Date",
-                  invoices
-                    .flat()
-                    .filter((x) => x.Document_No === values.select)[0]
-                    .Issue_Date
-                );
-              }}
+              label="Document No"
+              placeholder="Document No"
+              value={formData.Document_No}
             />
           </div>
           <div className=" mr-12">
@@ -621,69 +548,34 @@ export default function NewCreditNotePage() {
               placeholder="Issue Date"
               type="date"
               value={formData.Issue_Date}
+              onChange={(e) => handleFieldChange("Issue_Date", e.target.value)}
             />
           </div>
         </div>
 
         <div className="flex flex-row w-full justify-between my-2">
-          <div className="mr-12">
-            <Input
-              variant="outlined"
-              label="Document No"
-              placeholder="Document No"
-              value={formData.Document_No}
-            />
-          </div>
-          <div className=" mr-12">
-            <SelectComp
-              variant="outlined"
-              label="Reason"
-              placeholder="Invoice No"
-              options={convertDropdownData(reason_options)}
-              handle={(values) => handleFieldChange("Reason", values.select)}
-            />
-          </div>
-          <div className=" mr-12">
-            <SelectComp
-              label="Payment Term"
-              options={payemnt_options}
-              isinput={false}
-              value={formData.Payment_Term}
-              handle={(values) => {
-                handleFieldChange(
-                  "Payment_Term",
-                  getTextForValue(payemnt_options, values.select)
-                );
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-row w-full justify-between my-2">
-          <div className=" mr-12">
-            <Input
-              variant="outlined"
-              label="PO Date"
-              placeholder="PO Date"
-              type="date"
-              onChange={(e) => handleFieldChange("PO_Date", e.target.value)}
-            />
-          </div>
-          <div className="mr-12">
-            <Input
-              variant="outlined"
-              label="Due Date"
-              placeholder="Due Date"
-              type="date"
-              value={formData.Due_Date}
-              onChange={(e) => handleFieldChange("Due_Date", e.target.value)}
-            />
-          </div>
           <div className=" mr-12">
             <Input
               label="Place Of Supply"
               isinput={false}
               value={formData.Place_Of_Supply}
+            />
+          </div>
+          <div className=" mr-12">
+            <Input
+              label="Project"
+              isinput={false}
+              onChange={(e) => handleFieldChange("Project", e.target.value)}
+            />
+          </div>
+          <div className="mr-12">
+            <Input
+              variant="outlined"
+              label="Valid Until"
+              placeholder="Valid Until"
+              type="date"
+              value={formData.Due_Date}
+              onChange={(e) => handleFieldChange("Due_Date", e.target.value)}
             />
           </div>
         </div>
@@ -706,15 +598,15 @@ export default function NewCreditNotePage() {
                     getTextForValue(product_option, values.select)
                   );
                   handleFieldChange(
-                    "Unit_Price",
-                    getProductPrice(
+                    "UoM",
+                    getProductUOM(
                       getTextForValue(product_option, values.select),
                       product_option
                     )
                   );
                   handleFieldChange(
-                    "UoM",
-                    getProductUOM(
+                    "Unit_Price",
+                    getProductPurchasePrice(
                       getTextForValue(product_option, values.select),
                       product_option
                     )
@@ -759,27 +651,16 @@ export default function NewCreditNotePage() {
               variant="outlined"
               label="Qty"
               placeholder="Qty"
+              type="number"
               onChange={(e) => handleFieldChange("Qty", e.target.value)}
             />
           </div>
           <div className="mr-12">
             <Input
               variant="outlined"
-              label="Unit Price"
-              placeholder="Unit Price"
-              value={
-                formData.Product !== ""
-                  ? getProductPrice(formData.Product, product_option)
-                  : ""
-              }
-            />
-          </div>
-          <div className=" mr-12">
-            <Input
-              variant="outlined"
-              label="Discount"
-              placeholder="Discount"
-              onChange={(e) => handleFieldChange("Discount", e.target.value)}
+              label="Purchase Rate"
+              placeholder="Purchase Rate"
+              value={formData.Unit_Price}
             />
           </div>
           <div className="mr-12">
@@ -795,11 +676,21 @@ export default function NewCreditNotePage() {
               }}
             />
           </div>
+          <div className="mr-12">
+            <Input
+              variant="outlined"
+              label="Location"
+              placeholder="Location"
+              onChange={(e) => {
+                handleFieldChange("Location", e.target.value);
+              }}
+            />
+          </div>
 
           <div className="mr-12">
             <Button
               onClick={() => setRows((pre) => [...pre, formData])}
-              disabled={formData.Client === "" || formData.Product === ""}
+              disabled={formData.Vendor === "" || formData.Product === ""}
             >
               +
             </Button>

@@ -21,7 +21,16 @@ import {
 import { api_show_client, api_show_product } from "../../../utils/PageApi";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
+import HomeButton from "../../../assets/Buttons/HomeButton";
+import BackButton from "../../../assets/Buttons/BackButton";
+import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
 const { ipcRenderer } = window.require("electron");
+
+const customLabelStyles = {
+  label: {
+    width: "100px", // Set your desired width
+  },
+};
 
 const TABLE_HEAD = [
   "No",
@@ -403,7 +412,7 @@ export default function NewInvoicePage() {
       };
 
       const res = await ipcRenderer.invoke("add-new-invoice", invoiceData);
-      console.log(res); // Handle the response as needed
+      alert(res.message); // Handle the response as needed
     };
 
     if (isInvoicePreviewOpen) {
@@ -536,11 +545,13 @@ export default function NewInvoicePage() {
 
   return (
     <div className="flex flex-col w-full h-full px-1">
-      {" "}
-      {/* Decrease the padding */}
       <div className="flex flex-col border border-gray-400 p-1 mb-1">
         <div className="my-2 flex-1">
-          <Typography variant="h6">Document Data</Typography>
+          <div className="flex items-center">
+            <Typography variant="h6">Add New Invoice</Typography>
+            <HomeButton />
+            <ModuleDropDown />
+          </div>
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">
@@ -646,7 +657,7 @@ export default function NewInvoicePage() {
         </div>
       </div>
       <hr />
-      <div className="my-2 ">
+      <div className="my-2">
         <div className="flex my-2">
           <div className="mr-12">
             <SelectComp
@@ -699,27 +710,37 @@ export default function NewInvoicePage() {
               }
             />
           </div>
-          <div className="mr-12">
+          <div className="mr-12 w-100">
             <Input
               variant="outlined"
               label="UoM"
+              isinput={false}
               placeholder="UoM"
               value={
                 formData.UoM !== ""
                   ? getProductUOM(formData.Product, product_option)
                   : ""
               }
+              style={{ minWidth: 100, width: 100 }}
+              labelProps={{
+                className: "w-100",
+              }}
             />
           </div>
-          <div className="mr-12">
+          <div className="mr-12 w-100">
             <Input
               variant="outlined"
               label="Qty"
               placeholder="Qty"
+              type="number"
               onChange={(e) => handleFieldChange("Qty", e.target.value)}
+              style={{ minWidth: 100, width: 100 }}
+              labelProps={{
+                className: "w-100",
+              }}
             />
           </div>
-          <div className="mr-12">
+          <div className="mr-12 w-100">
             <Input
               variant="outlined"
               label="Unit Price"
@@ -729,14 +750,23 @@ export default function NewInvoicePage() {
                   ? getProductPrice(formData.Product, product_option)
                   : ""
               }
+              style={{ minWidth: 100, width: 100 }}
+              labelProps={{
+                className: "w-100",
+              }}
             />
           </div>
-          <div className=" mr-12">
+          <div className="mr-12 w-100">
             <Input
               variant="outlined"
               label="Discount"
               placeholder="Discount"
+              type="number"
               onChange={(e) => handleFieldChange("Discount", e.target.value)}
+              style={{ minWidth: 100, width: 100 }}
+              labelProps={{
+                className: "w-100",
+              }}
             />
           </div>
           <div className="mr-12">
@@ -757,6 +787,7 @@ export default function NewInvoicePage() {
             <Button
               onClick={() => setRows((pre) => [...pre, formData])}
               disabled={formData.Client === "" || formData.Product === ""}
+              size="md"
             >
               +
             </Button>

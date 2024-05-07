@@ -89,6 +89,24 @@ export const get_all_product_option = async () => {
       price: c.unit_price,
       uom: c.uom,
       description: c.description,
+      purchase_price: c.purchase_price,
+    });
+  });
+  return product_option;
+};
+
+export const get_all_vendor_option = async () => {
+  var res = await ipcRenderer.invoke("get-all-vendors");
+  let product_option = [{ text: "Add New Vendor", value: "Add New Vendor" }];
+  res.data.map((c, idx) => {
+    product_option.push({
+      text: c.Vendor,
+      value: c.id,
+      number: c.Contact_number,
+      created: c.created_at,
+      city: c.City,
+      state: c.State,
+      GSTIN: c.GSTIN,
     });
   });
   return product_option;
@@ -96,6 +114,36 @@ export const get_all_product_option = async () => {
 
 export const get_all_invoices = async () => {
   var res = await ipcRenderer.invoke("get-all-invoice");
+  return [res.data];
+};
+
+export const get_all_expenses = async () => {
+  var res = await ipcRenderer.invoke("get-all-expenses");
+  return [res.data];
+};
+
+export const get_all_employee = async () => {
+  var res = await ipcRenderer.invoke("get-all-employee");
+  return [res.data];
+};
+
+export const get_all_employee_payments = async () => {
+  var res = await ipcRenderer.invoke("get-all-employee-payments");
+  return res.data;
+};
+
+export const get_all_employee_leaves = async () => {
+  var res = await ipcRenderer.invoke("get-all-employee-leaves");
+  return res.data;
+};
+
+export const get_all_purchase_orders = async () => {
+  var res = await ipcRenderer.invoke("get-all-purchase-orders");
+  return [res.data];
+};
+
+export const get_all_payment_details = async () => {
+  var res = await ipcRenderer.invoke("get-all-payment-receipts");
   return [res.data];
 };
 
@@ -116,5 +164,15 @@ export const get_all_quotation = async () => {
 
 export const get_company_details = async () => {
   var res = await ipcRenderer.invoke("get-company-details");
+  return res;
+};
+
+export const get_invoice_count = async () => {
+  var res = await ipcRenderer.invoke("get-invoice-count");
+  return res;
+};
+
+export const get_todo_data = async () => {
+  var res = await ipcRenderer.invoke("get-todo-data");
   return res;
 };

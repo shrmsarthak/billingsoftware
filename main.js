@@ -15,6 +15,17 @@ const { CompanyDetails } = require("./models/CompanyDetails");
 const { Quotation } = require("./models/Quotation");
 const { Debit_Notes } = require("./models/DebitNotes");
 const { Credit_Notes } = require("./models/CreditNotes");
+const { PaymentDetails } = require("./models/PaymentDetails");
+const { PurchaseOrder } = require("./models/PurchaseOrder");
+const { ExpenseDetails } = require("./models/ExpenseDetails");
+const { VendorDetails } = require("./models/VendorDetails");
+const { Employee } = require("./models/Employee");
+const { EmployeePaymentDetails } = require("./models/EmployeePaymentDetails");
+const { Todo } = require("./models/Todo");
+const { EmployeeLeaveDetails } = require("./models/EmployeeLeaveDetails");
+const {
+  EmployeeAttendanceDetails,
+} = require("./models/EmployeeAttendanceDetails");
 
 electronReload(__dirname);
 
@@ -535,6 +546,56 @@ ipcMain.handle("get-all-client", async (ev, args) => {
   const clientrepo = DBManager.getRepository(Client);
   const data = await clientrepo.find();
   // console.log(data);
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-todo-data", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(Todo);
+  const data = await clientrepo.find();
+  // console.log(data);
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-vendors", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(VendorDetails);
+  const data = await clientrepo.find();
+  // console.log(data);
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-expenses", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(ExpenseDetails);
+  const data = await clientrepo.find();
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-employee", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(Employee);
+  const data = await clientrepo.find();
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-employee-payments", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(EmployeePaymentDetails);
+  const data = await clientrepo.find();
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-employee-leaves", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(EmployeeLeaveDetails);
+  const data = await clientrepo.find();
   return {
     data,
   };
@@ -1353,7 +1414,33 @@ ipcMain.handle("add-new-invoice", async (ev, args) => {
     console.log(error);
     return {
       success: false,
-      message: "Failed to add product",
+      message: "Failed to add invoice",
+    };
+  }
+});
+
+ipcMain.handle("get-invoice-count", async () => {
+  try {
+    const response = await getCountOfInvoices();
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to fetch invoice count",
+    };
+  }
+});
+
+ipcMain.handle("add-new-purchase-order", async (ev, args) => {
+  try {
+    const response = await addNewPurchaseOrder(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add purchase order",
     };
   }
 });
@@ -1371,9 +1458,113 @@ ipcMain.handle("add-new-debit-note", async (ev, args) => {
   }
 });
 
+ipcMain.handle("add-new-vendor", async (ev, args) => {
+  try {
+    const response = await addNewVendor(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add vendor",
+    };
+  }
+});
+
+ipcMain.handle("save-todo", async (ev, args) => {
+  try {
+    const response = await addOrUpdateTodo(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add todo",
+    };
+  }
+});
+
+ipcMain.handle("add-new-expense", async (ev, args) => {
+  try {
+    const response = await addNewExpense(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add expense",
+    };
+  }
+});
+
+ipcMain.handle("add-new-employee", async (ev, args) => {
+  try {
+    const response = await addNewEmployee(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add expense",
+    };
+  }
+});
+
+ipcMain.handle("add-new-employee-payment", async (ev, args) => {
+  try {
+    const response = await addNewEmployeePayment(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add employee payment",
+    };
+  }
+});
+
+ipcMain.handle("add-employee-leave", async (ev, args) => {
+  try {
+    const response = await addNewEmployeeLeave(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add employee payment",
+    };
+  }
+});
+
+ipcMain.handle("add-employee-attendance", async (ev, args) => {
+  try {
+    const response = await addEmployeeAttendance(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add employee payment",
+    };
+  }
+});
+
 ipcMain.handle("add-new-credit-note", async (ev, args) => {
   try {
     const response = await addNewCreditNote(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add credit note",
+    };
+  }
+});
+
+ipcMain.handle("add-new-payment-data", async (ev, args) => {
+  try {
+    const response = await addNewPaymentData(args);
     return response;
   } catch (error) {
     console.log(error);
@@ -1400,6 +1591,40 @@ ipcMain.handle("add-new-quotation", async (ev, args) => {
 ipcMain.handle("get-all-invoice", async (ev, args) => {
   try {
     const productRepo = DBManager.getRepository(Invoice);
+    const data = await productRepo.find();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: true,
+      data: [],
+    };
+  }
+});
+
+ipcMain.handle("get-all-purchase-orders", async (ev, args) => {
+  try {
+    const productRepo = DBManager.getRepository(PurchaseOrder);
+    const data = await productRepo.find();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: true,
+      data: [],
+    };
+  }
+});
+
+ipcMain.handle("get-all-payment-receipts", async (ev, args) => {
+  try {
+    const productRepo = DBManager.getRepository(PaymentDetails);
     const data = await productRepo.find();
     return {
       success: true,
@@ -1501,6 +1726,295 @@ async function addNewInvoice(invoiceData) {
   }
 }
 
+async function addNewPurchaseOrder(invoiceData) {
+  try {
+    const productRepo = DBManager.getRepository(PurchaseOrder);
+    const invoiceDataObj = {
+      rowsData: invoiceData.rowData,
+      Vendor: invoiceData.Vendor,
+      Document_No: invoiceData.Document_No,
+      Issue_Date: invoiceData.Issue_Date,
+      Project: invoiceData.Project,
+      Payment_Term: invoiceData.Payment_Term,
+      Due_Date: invoiceData.Due_Date,
+      Place_Of_Supply: invoiceData.Place_Of_Supply,
+      Notes: invoiceData.Notes,
+      Private_Notes: invoiceData.Private_Notes,
+      Shipping_Charges: invoiceData.Shipping_Charges,
+      Discount_on_all: invoiceData.Discount_on_all,
+      Total_BeforeTax: invoiceData.Total_BeforeTax,
+      Total_Tax: invoiceData.Total_Tax,
+      Location: invoiceData.Location,
+    };
+    // Save the new invoice entity to the database
+    const result = await productRepo
+      .createQueryBuilder()
+      .insert()
+      .values(invoiceDataObj)
+      .execute();
+    if (result) {
+      return {
+        success: true,
+        message: "New Purchase Order added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new purchase order:", error);
+  }
+}
+
+async function getCountOfInvoices() {
+  try {
+    const invoiceRepository = DBManager.getRepository(Invoice);
+    const count = await invoiceRepository.count();
+    return count;
+  } catch (error) {
+    console.error("Error getting count of invoices:", error);
+    return null;
+  }
+}
+
+async function addOrUpdateTodo(todoData) {
+  try {
+    const todoRepo = DBManager.getRepository(Todo);
+    // Check if a todo already exists
+    let existingTodo = await todoRepo.find();
+
+    // If a todo exists, update it; otherwise, create a new todo
+    if (existingTodo.length > 0) {
+      // Assuming you only want to update the first found todo
+      existingTodo[0].todo = todoData;
+      await todoRepo.save(existingTodo[0]);
+      return { success: true, message: "Todo updated successfully!" };
+    } else {
+      const newTodo = todoRepo.create({ todo: todoData });
+      await todoRepo.save(newTodo);
+      return { success: true, message: "Todo added successfully!" };
+    }
+  } catch (error) {
+    console.error("Error adding or updating todo:", error);
+    return { success: false, message: "Error adding or updating todo" };
+  }
+}
+
+async function addNewVendor(vendorData) {
+  try {
+    // Validate vendorData here if necessary
+
+    const vendorRepo = DBManager.getRepository(VendorDetails);
+
+    // Map vendorData to match the schema of VendorDetails entity
+    const vendorDetailsObj = {
+      Vendor: vendorData.Vendor,
+      Vendor_email: vendorData.Vendor_email,
+      Contact_number: vendorData.Contact_number,
+      Address: vendorData.Address,
+      City: vendorData.City,
+      State: vendorData.State,
+      GSTIN: vendorData.GSTIN,
+    };
+
+    // Save the new vendor details entity to the database
+    const result = await vendorRepo
+      .createQueryBuilder()
+      .insert()
+      .values(vendorDetailsObj)
+      .execute();
+
+    if (result.raw.insertId) {
+      // Return the ID of the inserted entity along with success message
+      return {
+        success: true,
+        id: result.raw.insertId,
+        message: "New vendor details added successfully!",
+      };
+    } else {
+      return { success: false, message: "Failed to add new vendor details." };
+    }
+  } catch (error) {
+    console.error("Error adding new vendor details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+async function addNewExpense(expenseData) {
+  try {
+    const expenseRepo = DBManager.getRepository(ExpenseDetails);
+    const expenseDetailsObj = {
+      Person_name: expenseData.Person_name,
+      Expense_type: expenseData.Expense_type,
+      Amount: expenseData.Amount,
+      Date: expenseData.Date,
+      Notes: expenseData.Notes,
+    };
+
+    // Save the new expense details entity to the database
+    const result = await expenseRepo
+      .createQueryBuilder()
+      .insert()
+      .values(expenseDetailsObj)
+      .execute();
+    if (result) {
+      return {
+        success: true,
+        message: "New expense details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new expense details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+async function addNewEmployee(employeeData) {
+  try {
+    const employeeRepo = DBManager.getRepository(Employee);
+    const employeeDetailsObj = {
+      Employee_name: employeeData.Employee_name,
+      Age: employeeData.Age,
+      Contact_No: employeeData.Contact_No,
+      Address: employeeData.Address,
+      Joining_Date: employeeData.Joining_Date,
+      Notes: employeeData.Notes,
+      Employee_email: employeeData.Employee_email,
+      Employee_title: employeeData.Employee_title,
+      Salary: employeeData.Salary,
+    };
+
+    // Save the new employee details entity to the database
+    const result = await employeeRepo
+      .createQueryBuilder()
+      .insert()
+      .values(employeeDetailsObj)
+      .execute();
+    if (result) {
+      return {
+        success: true,
+        message: "New employee details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new employee details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+async function addNewEmployeePayment(paymentData) {
+  function isLastDayOfMonth(dateString) {
+    // Convert the input string to a Date object
+    const date = new Date(dateString);
+
+    // Get the next day's date
+    const nextDay = new Date(date);
+    nextDay.setDate(date.getDate() + 1);
+
+    // Compare the months of the input date and the next day's date
+    // If the months are different, then the input date is the last day of the month
+    return date.getMonth() !== nextDay.getMonth();
+  }
+  try {
+    const paymentRepo = DBManager.getRepository(EmployeePaymentDetails);
+    const paymentDetailsObj = {
+      Employee_name: paymentData.Employee_name,
+      Payment_date: paymentData.Payment_date,
+      Amount: paymentData.Amount,
+      Payment_type: paymentData.Payment_type,
+      Payment_notes: paymentData.Payment_notes,
+      Is_Payment_Salary: isLastDayOfMonth(paymentData.Payment_date)
+        ? true
+        : false,
+    };
+
+    // Save the new payment details entity to the database
+    const result = await paymentRepo
+      .createQueryBuilder()
+      .insert()
+      .values(paymentDetailsObj)
+      .execute();
+
+    if (result) {
+      return {
+        success: true,
+        message: "New payment details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new payment details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+// Function to add new employee leave details
+async function addNewEmployeeLeave(leaveData) {
+  try {
+    // Get the repository for employee leave details
+    const leaveRepo = DBManager.getRepository(EmployeeLeaveDetails);
+
+    // Create the leave details object
+    const leaveDetailsObj = {
+      employeeName: leaveData.employeeName,
+      leaveDate: leaveData.leaveDate,
+      leaveReason: leaveData.leaveReason,
+    };
+
+    // Save the new leave details entity to the database
+    const result = await leaveRepo
+      .createQueryBuilder()
+      .insert()
+      .values(leaveDetailsObj)
+      .execute();
+
+    if (result) {
+      return {
+        success: true,
+        message: "New leave details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new leave details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+// Function to add new employee attendance details
+async function addEmployeeAttendance(attendanceData) {
+  try {
+    // Get the repository for employee attendance details
+    const attendanceRepo = DBManager.getRepository(EmployeeAttendanceDetails);
+
+    // Create the attendance details object
+    const attendanceDetailsObj = {
+      employeeName: attendanceData.employeeName,
+      todayDate: attendanceData.todayDate,
+      inTime: attendanceData.inTime,
+      outTime: attendanceData.outTime,
+    };
+
+    // Save the new attendance details entity to the database
+    const result = await attendanceRepo
+      .createQueryBuilder()
+      .insert()
+      .values(attendanceDetailsObj)
+      .execute();
+
+    if (result) {
+      return {
+        success: true,
+        message: "New attendance details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new attendance details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
 async function addNewDebitNote(invoiceData) {
   try {
     const productRepo = DBManager.getRepository(Debit_Notes);
@@ -1564,7 +2078,6 @@ async function addNewCreditNote(invoiceData) {
       Total_Tax: invoiceData.Total_Tax,
     };
 
-    console.log("logggg", invoiceDataObj);
     // Save the new invoice entity to the database
     const result = await productRepo
       .createQueryBuilder()
@@ -1576,6 +2089,41 @@ async function addNewCreditNote(invoiceData) {
     }
   } catch (error) {
     console.error("Error adding new Credit Note:", error);
+  }
+}
+
+async function addNewPaymentData(paymentData) {
+  try {
+    const paymentRepo = DBManager.getRepository(PaymentDetails);
+
+    const paymentDataObj = {
+      rowData: paymentData.rowData,
+      Client: paymentData.Client,
+      Document_Date: paymentData.Document_Date,
+      Document_No: paymentData.Document_No,
+      Pay_Date: paymentData.Pay_Date,
+      Bank_Charges: paymentData.Bank_Charges,
+      Payment_Type: paymentData.Payment_Type,
+      Payment_Mode: paymentData.Payment_Mode,
+      Amount_Received: paymentData.Amount_Received,
+    };
+
+    // Save the new payment details entity to the database
+    const result = await paymentRepo
+      .createQueryBuilder()
+      .insert()
+      .values(paymentDataObj)
+      .execute();
+
+    if (result) {
+      return {
+        success: true,
+        message: "New payment details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new payment details:", error);
+    return { success: false, message: "Failed to add new payment details" };
   }
 }
 
@@ -1645,12 +2193,75 @@ ipcMain.handle("delete-invoice-by-Document-no", async (ev, args) => {
   }
 });
 
+ipcMain.handle("delete-purchase-by-Document-no", async (ev, args) => {
+  try {
+    const documentNo = args;
+    const invoiceRepo = DBManager.getRepository(PurchaseOrder);
+    console.log(`${ev}-${args}`);
+    console.log(`Deleting purchase order with Document_No: ${documentNo}`);
+
+    const deleteResult = await invoiceRepo
+      .createQueryBuilder()
+      .delete()
+      .from(PurchaseOrder)
+      .where("Document_No = :documentNo", { documentNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "purchase order deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "purchase order with provided Document_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting purchase order:", error);
+    return { success: false, message: "Error while deleting purchase order" };
+  }
+});
+
+ipcMain.handle("delete-payment-by-Document-no", async (ev, args) => {
+  try {
+    const documentNo = args;
+    const invoiceRepo = DBManager.getRepository(PaymentDetails);
+    console.log(`${ev}-${args}`);
+    console.log(`Deleting payment document with Document_No: ${documentNo}`);
+
+    const deleteResult = await invoiceRepo
+      .createQueryBuilder()
+      .delete()
+      .from(PaymentDetails)
+      .where("Document_No = :documentNo", { documentNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return {
+        success: true,
+        message: "Payment Details deleted successfully.",
+      };
+    } else {
+      return {
+        success: false,
+        message: "Payment Details with provided Document_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting Payment Details:", error);
+    return { success: false, message: "Error while deleting Payment Details" };
+  }
+});
+
 ipcMain.handle("delete-debit-note-by-Document-no", async (ev, args) => {
   try {
     const documentNo = args;
     const invoiceRepo = DBManager.getRepository(Debit_Notes);
     console.log(`${ev}-${args}`);
-    console.log(`Deleting invoice with Document_No: ${documentNo}`);
+    console.log(`Deleting debit-note with Document_No: ${documentNo}`);
 
     const deleteResult = await invoiceRepo
       .createQueryBuilder()
@@ -1672,6 +2283,120 @@ ipcMain.handle("delete-debit-note-by-Document-no", async (ev, args) => {
   } catch (error) {
     console.error("Error deleting Debit Note :", error);
     return { success: false, message: "Error while deleting Debit Note " };
+  }
+});
+
+ipcMain.handle("delete-credit-note-by-Document-no", async (ev, args) => {
+  try {
+    const documentNo = args;
+    const invoiceRepo = DBManager.getRepository(Credit_Notes);
+    console.log(`${ev}-${args}`);
+    console.log(`Deleting credit-note with Document_No: ${documentNo}`);
+
+    const deleteResult = await invoiceRepo
+      .createQueryBuilder()
+      .delete()
+      .from(Debit_Notes)
+      .where("Document_No = :documentNo", { documentNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Credit Note deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "credit Note  with provided Document_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting credit Note :", error);
+    return { success: false, message: "Error while deleting credit Note " };
+  }
+});
+
+ipcMain.handle("delete-employee-by-contact-no", async (ev, args) => {
+  try {
+    const contactNo = args;
+    const employeeRepo = DBManager.getRepository(Employee);
+    console.log(`Deleting employee with Contact_No: ${contactNo}`);
+
+    const deleteResult = await employeeRepo
+      .createQueryBuilder()
+      .delete()
+      .where("Contact_No = :contactNo", { contactNo })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Employee deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "Employee with provided Contact_No not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting employee:", error);
+    return { success: false, message: "Error while deleting employee." };
+  }
+});
+
+ipcMain.handle("delete-vendor-by-contact-number", async (ev, args) => {
+  try {
+    const contactNumber = args;
+    const vendorRepo = DBManager.getRepository(VendorDetails);
+    console.log(`Deleting vendor with Contact_number: ${contactNumber}`);
+
+    const deleteResult = await vendorRepo
+      .createQueryBuilder()
+      .delete()
+      .where("Contact_number = :contactNumber", { contactNumber })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Vendor deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "Vendor with provided Contact_number not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting vendor:", error);
+    return { success: false, message: "Error while deleting vendor." };
+  }
+});
+
+ipcMain.handle("delete-expense-by-id", async (ev, args) => {
+  try {
+    const expenseId = args;
+    const expenseRepo = DBManager.getRepository(ExpenseDetails);
+    console.log(`Deleting expense with id: ${expenseId}`);
+
+    const deleteResult = await expenseRepo
+      .createQueryBuilder()
+      .delete()
+      .where("id = :expenseId", { expenseId })
+      .execute();
+
+    console.log("Delete result:", deleteResult);
+
+    if (deleteResult && deleteResult.affected) {
+      return { success: true, message: "Expense deleted successfully." };
+    } else {
+      return {
+        success: false,
+        message: "Expense with provided id not found.",
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting expense:", error);
+    return { success: false, message: "Error while deleting expense." };
   }
 });
 
@@ -1705,7 +2430,6 @@ ipcMain.handle("delete-quotation-by-quotation-no", async (ev, args) => {
 
 ipcMain.handle("update-invoice", async (ev, args) => {
   try {
-    console.log(JSON.stringify(args));
     const response = await updateInvoice(args);
     return response;
   } catch (error) {

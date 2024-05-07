@@ -25,6 +25,8 @@ import {
 import { saveAs } from "file-saver";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
+import HomeButton from "../../../assets/Buttons/HomeButton";
+import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
@@ -496,7 +498,7 @@ export default function ShowCreditNotePage() {
   }
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
-      "delete-debit-note-by-Document-no",
+      "delete-credit-note-by-Document-no",
       obj.Document_No
     );
     alert(res.message);
@@ -642,7 +644,11 @@ export default function ShowCreditNotePage() {
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
         <div className="my-2 flex-1">
-          <Typography variant="h6">Search Debit Notes</Typography>
+          <div className="flex items-center">
+            <Typography variant="h6">Search Credit Note</Typography>
+            <HomeButton />
+            <ReportsDropDown />
+          </div>
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">

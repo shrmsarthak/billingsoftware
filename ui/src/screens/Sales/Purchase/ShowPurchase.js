@@ -10,51 +10,56 @@ import {
 import React, { useEffect, useState } from "react";
 import { ProductInvoiceTable } from "../components/ProductInvoiceTable";
 import SelectComp from "../components/SelectComp";
-import { api_new_client, api_new_payment } from "../../../utils/PageApi";
+import { api_new_purchase } from "../../../utils/PageApi";
 import {
   get_all_client_option,
-  get_all_payment_details,
+  get_all_purchase_orders,
   get_company_details,
 } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
-import PaymentReceipt from "../components/Receipts/PaymentReceipt";
+import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
+import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
-  "Client Name",
+  "Vendor Name",
   "Document No",
-  "Pay Date",
+  "Issue Date",
+  "Valid Until",
+  "Amount",
+  "Tax",
+  "Total",
+  "Private Notes",
   "Type",
-  "Amount Payment",
-  "Amount Used",
-  "Available Credit",
-  "Payment Type",
   "Action",
 ];
 
-const payment_type = ["Received", "Made", "Advance Payment"];
-function convertDropdownData(data) {
+let invoices = await get_all_purchase_orders();
+let companyDetails = await get_company_details();
+let client_option = await get_all_client_option();
+client_option.shift();
+const vendor_option = ["Vendor 1", "Vendor 2", "Vendor 3"];
+const populateDropdown = (data) => {
   return data.map((item) => ({
     text: item,
     value: item,
   }));
-}
-
-let invoices = await get_all_payment_details();
-let companyDetails = await get_company_details();
-let client_option = await get_all_client_option();
-client_option.shift();
-
-export default function ShowPaymentDocScreen() {
+};
+export default function ShowInvoicePage() {
   useEffect(() => {
-    document.title = "Payment Documents Report";
+    document.title = "Purchase Order Report";
   });
-
+  const [formValues, setFormValues] = useState({
+    Document_No: "",
+    Transaction_type: "",
+    Amount_Paid: "",
+    Date_of_payment: "",
+  });
   const [filterValues, setFilterValues] = useState({
-    Client: "",
+    Vendor: "",
     Status: "",
     Issue_From: "",
     Issue_To: "",
@@ -76,29 +81,41 @@ export default function ShowPaymentDocScreen() {
   const resetFilterValues = () => {
     window.location.reload();
   };
+  const handleInputChange = (fieldName, value) => {
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+    }));
+  };
   const handleFilterChange = (fieldName, value) => {
     setFilterValues((prevValues) => ({
       ...prevValues,
       [fieldName]: value,
     }));
   };
+
+  const handleDbUpdate = async () => {
+    const res = await ipcRenderer.invoke("update-invoice", formValues);
+  };
+
   let filteredArray = invoices.flat().map((obj) => {
-    let combinedBill = obj.rowData.reduce((total, item) => {
-      // Convert 'Amount Due' to a number and add it to the total
-      return total + parseFloat(item["Amount Due"]);
-    }, 0);
+    const dueDate = new Date(obj.Due_Date);
+    // Get today's date
+    const today = new Date();
     return {
-      "Client Name": obj.Client,
-      "Invoice No": obj.Document_No,
-      "Pay Date": obj.Pay_Date,
-      Type: obj.Payment_Type,
-      "Amount Payment": combinedBill.toFixed(2),
-      "Amount Used": obj.Amount_Received,
-      "Available Credit": (obj.Amount_Received > combinedBill
-        ? Number(obj.Amount_Received) - Number(combinedBill)
-        : 0.0
+      "Vendor Name": obj.Vendor,
+      "Document No": obj.Document_No,
+      "Issue Date": obj.Issue_Date,
+      "Valid Until": obj.Due_Date,
+      Amount: obj.Total_BeforeTax,
+      Tax: obj.Total_Tax,
+      Total: (
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges)
       ).toFixed(2),
-      "Payment Type": obj.Payment_Mode,
+      "Private Notes": obj.Private_Notes,
+      Type: "Purchase Order",
       ActionButton: (
         <>
           <Tooltip content="Edit">
@@ -182,7 +199,6 @@ export default function ShowPaymentDocScreen() {
       ),
     };
   });
-  // .filter((obj) => obj["Amount Used"]);
 
   const [filterData, setFilterData] = useState([]);
   const nonEmptyValues = () => {
@@ -196,36 +212,45 @@ export default function ShowPaymentDocScreen() {
       .filter((object) => {
         return nonEmptyFields.every((field) => {
           if (field === "Issue_From" || field === "Issue_To") {
+            // Check if Issue Date lies in the range between Issue_From and Issue_To
             const fromDate = new Date(filterValues.Issue_From);
             const toDate = new Date(filterValues.Issue_To);
-            const issueDate = new Date(object.Pay_Date);
+            const issueDate = new Date(object.Issue_Date);
             return issueDate >= fromDate && issueDate <= toDate;
+          } else if (field === "Status") {
+            // Check if the invoice is paid or unpaid
+            if (filterValues.Status === "Paid") {
+              // Filter for paid invoices
+              return (
+                Number(object.Total_BeforeTax) +
+                  Number(object.Total_Tax) +
+                  Number(object.Shipping_Charges) -
+                  object.Amount_Paid <=
+                0
+              );
+            }
           } else if (field === "Document_No") {
             return object[field].includes(filterValues[field]);
-          } else if (field === "Transaction_type") {
-            return object.Payment_Type === filterValues[field];
           } else {
             return object[field] === filterValues[field];
           }
         });
       })
       .map((obj) => {
-        let combinedBill = obj.rowData.reduce((total, item) => {
-          // Convert 'Amount Due' to a number and add it to the total
-          return total + parseFloat(item["Amount Due"]);
-        }, 0);
         return {
-          "Client Name": obj.Client,
-          "Invoice No": obj.Document_No,
-          "Pay Date": obj.Pay_Date,
-          Type: obj.Payment_Type,
-          "Amount Payment": combinedBill.toFixed(2),
-          "Amount Used": obj.Amount_Received,
-          "Available Credit": (obj.Amount_Received > combinedBill
-            ? Number(obj.Amount_Received) - Number(combinedBill)
-            : 0.0
+          "Vendor Name": obj.Vendor,
+          "Document No": obj.Document_No,
+          "Issue Date": obj.Issue_Date,
+          "Valid Until": obj.Due_Date,
+          Amount: obj.Total_BeforeTax,
+          Tax: obj.Total_Tax,
+          Total: (
+            Number(obj.Total_BeforeTax) +
+            Number(obj.Total_Tax) +
+            Number(obj.Shipping_Charges)
           ).toFixed(2),
-          "Payment Type": obj.Payment_Mode,
+          "Private Notes": obj.Private_Notes,
+          Type: "Purchase Order",
           ActionButton: (
             <>
               <Tooltip content="Edit">
@@ -315,10 +340,9 @@ export default function ShowPaymentDocScreen() {
   const nonEmptyFields = nonEmptyValues();
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
-      "delete-payment-by-Document-no",
+      "delete-purchase-by-Document-no",
       obj.Document_No
     );
-    alert(res.message);
   };
   function getTextForValue(option, value) {
     const clients = option;
@@ -338,7 +362,7 @@ export default function ShowPaymentDocScreen() {
   const exportInvoicesToExcel = async () => {
     try {
       const response = await ipcRenderer.invoke(
-        "export-payment_report-to-excel",
+        "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
           : removeStatusField(filterData)
@@ -348,7 +372,8 @@ export default function ShowPaymentDocScreen() {
         const blob = new Blob([buffer], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
-        saveAs(blob, "export_payment_report.xlsx");
+        saveAs(blob, "export_invoices.xlsx");
+        alert("yo");
       } else {
         console.error("Error:", response?.error);
       }
@@ -357,7 +382,7 @@ export default function ShowPaymentDocScreen() {
       console.error("Export error:", error);
     }
   };
-
+  console.log(invoices);
   const renderInvoicePreview = () => {
     if (isInvoicePreviewOpen) {
       return (
@@ -422,18 +447,25 @@ export default function ShowPaymentDocScreen() {
                 height: "90vh" /* Adjusted height */,
               }}
             >
-              <PaymentReceipt
-                tableData={selectedRow.rowData}
+              <Invoice
+                data={selectedRow.rowsData.flat()}
                 details={{
-                  Client: selectedRow.Client,
+                  Client: selectedRow.Vendor,
                   Issue_Date: selectedRow.Issue_Date,
                   Document_No: selectedRow.Document_No,
-                  Pay_Date: selectedRow.Pay_Date,
-                  Bank_Charges: selectedRow.Bank_Charges,
-                  Payment_Type: selectedRow.Payment_Type,
-                  Payment_Mode: selectedRow.Payment_Mode,
-                  Amount_Received: selectedRow.Amount_Received,
-                  Type: "PAYMENT NOTE",
+                  Ship_To: selectedRow.Ship_To,
+                  PO_Number: selectedRow.PO_Number,
+                  PO_Date: selectedRow.PO_Date,
+                  Due_Date: selectedRow.Due_Date,
+                  Payment_Term: selectedRow.Payment_Term,
+                  Place_Of_Supply: selectedRow.Place_Of_Supply,
+                  Notes: selectedRow.Notes,
+                  Shipping_Charges: Number(selectedRow.Shipping_Charges),
+                  Shipping_Tax: selectedRow.Shipping_Tax || 0,
+                  Discount_on_all: selectedRow.Discount_on_all,
+                  Total_BeforeTax: selectedRow.Total_BeforeTax,
+                  Total_Tax: selectedRow.Total_Tax,
+                  Type: "PURCHASE ORDER",
                   companyDetails: companyDetails.data[0],
                 }}
               />
@@ -451,22 +483,20 @@ export default function ShowPaymentDocScreen() {
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
         <div className="my-2 flex-1">
           <div className="flex items-center">
-            <Typography variant="h6">Search Payment</Typography>
+            <Typography variant="h6">Search Purchase Order</Typography>
             <HomeButton />
+            <ReportsDropDown />
           </div>
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">
           <div className="mr-12">
             <SelectComp
-              label="Client"
-              options={client_option}
+              label="Vendor"
+              options={populateDropdown(vendor_option)}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFilterChange("Vendor", values.select);
               }}
             />
           </div>
@@ -474,18 +504,27 @@ export default function ShowPaymentDocScreen() {
           <div className="flex mr-12 gap-x-2">
             <Input
               variant="outlined"
-              label="Paid From"
-              placeholder="Paid From"
+              label="Issue From"
+              placeholder="Issue From"
               type="date"
               onChange={(e) => handleFilterChange("Issue_From", e.target.value)}
             />
 
             <Input
               variant="outlined"
-              label="Paid To "
-              placeholder="Paid To"
+              label="Issue To "
+              placeholder="Issue To"
               type="date"
               onChange={(e) => handleFilterChange("Issue_To", e.target.value)}
+            />
+          </div>
+          <div className="flex mr-12 gap-x-2">
+            <Input
+              variant="outlined"
+              label="Valid Until"
+              placeholder="Valid Until"
+              type="date"
+              onChange={(e) => handleFilterChange("Due_Date", e.target.value)}
             />
           </div>
         </div>
@@ -494,21 +533,11 @@ export default function ShowPaymentDocScreen() {
           <div className=" mr-12">
             <Input
               variant="outlined"
-              label="Invoice Number"
-              placeholder="Invoice Number"
+              label="Document Number"
+              placeholder="Document Number"
               onChange={(e) =>
                 handleFilterChange("Document_No", e.target.value)
               }
-            />
-          </div>
-          <div className="mr-12">
-            <SelectComp
-              label="Payment Type"
-              options={convertDropdownData(payment_type)}
-              isinput={false}
-              handle={(values) => {
-                handleFilterChange("Transaction_type", values.select);
-              }}
             />
           </div>
         </div>
@@ -529,7 +558,7 @@ export default function ShowPaymentDocScreen() {
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
         <div className="mx-3">
-          <Button onClick={api_new_payment}>New Payment Document</Button>
+          <Button onClick={api_new_purchase}>New Purchase Order</Button>
         </div>
       </div>
 
@@ -539,7 +568,6 @@ export default function ShowPaymentDocScreen() {
           TABLE_ROWS={nonEmptyFields.length === 0 ? filteredArray : filterData}
         />
       </div>
-      {/* Modal */}
       {renderInvoicePreview()}
     </div>
   );

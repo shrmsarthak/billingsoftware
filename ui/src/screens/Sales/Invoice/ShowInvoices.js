@@ -25,6 +25,8 @@ import {
 import { saveAs } from "file-saver";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
+import HomeButton from "../../../assets/Buttons/HomeButton";
+import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
 const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
@@ -537,7 +539,6 @@ export default function ShowInvoicePage() {
       console.error("Export error:", error);
     }
   };
-  console.log(invoices);
   const renderInvoicePreview = () => {
     if (isInvoicePreviewOpen) {
       return (
@@ -637,7 +638,11 @@ export default function ShowInvoicePage() {
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
         <div className="my-2 flex-1">
-          <Typography variant="h6">Search Invoice</Typography>
+          <div className="flex items-center">
+            <Typography variant="h6">Search Invoice</Typography>
+            <HomeButton />
+            <ReportsDropDown />
+          </div>
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">
