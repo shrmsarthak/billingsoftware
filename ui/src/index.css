@@ -6508,3 +6508,47 @@ video {
   overflow-y: auto;
   align-items: flex-start;
 }
+
+/* .hoverShortCutCard:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+} */
+.hoverShortCutCard {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hoverShortCutCard:hover {
+  transform: scale(1.1);
+}
+
+.firstContainer {
+  width: 75%;
+}
+
+.secondContainer {
+  width: 20%;
+  margin-left: 50px;
+}
+
+.firstIndicators {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.gradientButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 100px;
+}
+
+.helpSection {
+  margin-top: 100px;
+}
+
+.mainCointainer {
+  display: flex;
+  flex-direction: row;
+}

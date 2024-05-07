@@ -21,8 +21,9 @@ const { ExpenseDetails } = require("./models/ExpenseDetails");
 const { VendorDetails } = require("./models/VendorDetails");
 const { Employee } = require("./models/Employee");
 const { EmployeePaymentDetails } = require("./models/EmployeePaymentDetails");
+const { Todo } = require("./models/Todo");
 
-electronReload(__dirname);
+// electronReload(__dirname);
 
 let mainWindow;
 function createWindow() {
@@ -539,6 +540,15 @@ ipcMain.handle("delete-client-by-id", async (ev, args) => {
 // Get all  clients for drop-down
 ipcMain.handle("get-all-client", async (ev, args) => {
   const clientrepo = DBManager.getRepository(Client);
+  const data = await clientrepo.find();
+  // console.log(data);
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-todo-data", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(Todo);
   const data = await clientrepo.find();
   // console.log(data);
   return {
@@ -1449,6 +1459,19 @@ ipcMain.handle("add-new-vendor", async (ev, args) => {
   }
 });
 
+ipcMain.handle("save-todo", async (ev, args) => {
+  try {
+    const response = await addOrUpdateTodo(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add todo",
+    };
+  }
+});
+
 ipcMain.handle("add-new-expense", async (ev, args) => {
   try {
     const response = await addNewExpense(args);
@@ -1710,6 +1733,29 @@ async function getCountOfInvoices() {
   } catch (error) {
     console.error("Error getting count of invoices:", error);
     return null;
+  }
+}
+
+async function addOrUpdateTodo(todoData) {
+  try {
+    const todoRepo = DBManager.getRepository(Todo);
+    // Check if a todo already exists
+    let existingTodo = await todoRepo.find();
+
+    // If a todo exists, update it; otherwise, create a new todo
+    if (existingTodo.length > 0) {
+      // Assuming you only want to update the first found todo
+      existingTodo[0].todo = todoData;
+      await todoRepo.save(existingTodo[0]);
+      return { success: true, message: "Todo updated successfully!" };
+    } else {
+      const newTodo = todoRepo.create({ todo: todoData });
+      await todoRepo.save(newTodo);
+      return { success: true, message: "Todo added successfully!" };
+    }
+  } catch (error) {
+    console.error("Error adding or updating todo:", error);
+    return { success: false, message: "Error adding or updating todo" };
   }
 }
 

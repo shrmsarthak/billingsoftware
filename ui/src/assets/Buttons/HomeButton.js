@@ -2,6 +2,20 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const HomeButton = () => {
+  React.useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === "Backspace") {
+        window.location.href = "/dashboard";
+      }
+      console.log(event.key)
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
   return (
     <Link to="/">
       <button
