@@ -7,7 +7,7 @@ const HomeButton = () => {
       if (event.key === "Backspace") {
         window.location.href = "/dashboard";
       }
-      console.log(event.key)
+      console.log(event.key);
     };
 
     document.addEventListener("keydown", handleKeyPress);

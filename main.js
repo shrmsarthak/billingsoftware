@@ -22,8 +22,12 @@ const { VendorDetails } = require("./models/VendorDetails");
 const { Employee } = require("./models/Employee");
 const { EmployeePaymentDetails } = require("./models/EmployeePaymentDetails");
 const { Todo } = require("./models/Todo");
+const { EmployeeLeaveDetails } = require("./models/EmployeeLeaveDetails");
+const {
+  EmployeeAttendanceDetails,
+} = require("./models/EmployeeAttendanceDetails");
 
-// electronReload(__dirname);
+electronReload(__dirname);
 
 let mainWindow;
 function createWindow() {
@@ -583,6 +587,14 @@ ipcMain.handle("get-all-employee", async (ev, args) => {
 
 ipcMain.handle("get-all-employee-payments", async (ev, args) => {
   const clientrepo = DBManager.getRepository(EmployeePaymentDetails);
+  const data = await clientrepo.find();
+  return {
+    data,
+  };
+});
+
+ipcMain.handle("get-all-employee-leaves", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(EmployeeLeaveDetails);
   const data = await clientrepo.find();
   return {
     data,
@@ -1511,6 +1523,32 @@ ipcMain.handle("add-new-employee-payment", async (ev, args) => {
   }
 });
 
+ipcMain.handle("add-employee-leave", async (ev, args) => {
+  try {
+    const response = await addNewEmployeeLeave(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add employee payment",
+    };
+  }
+});
+
+ipcMain.handle("add-employee-attendance", async (ev, args) => {
+  try {
+    const response = await addEmployeeAttendance(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to add employee payment",
+    };
+  }
+});
+
 ipcMain.handle("add-new-credit-note", async (ev, args) => {
   try {
     const response = await addNewCreditNote(args);
@@ -1905,6 +1943,73 @@ async function addNewEmployeePayment(paymentData) {
     }
   } catch (error) {
     console.error("Error adding new payment details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+// Function to add new employee leave details
+async function addNewEmployeeLeave(leaveData) {
+  try {
+    // Get the repository for employee leave details
+    const leaveRepo = DBManager.getRepository(EmployeeLeaveDetails);
+
+    // Create the leave details object
+    const leaveDetailsObj = {
+      employeeName: leaveData.employeeName,
+      leaveDate: leaveData.leaveDate,
+      leaveReason: leaveData.leaveReason,
+    };
+
+    // Save the new leave details entity to the database
+    const result = await leaveRepo
+      .createQueryBuilder()
+      .insert()
+      .values(leaveDetailsObj)
+      .execute();
+
+    if (result) {
+      return {
+        success: true,
+        message: "New leave details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new leave details:", error);
+    // Throw the error so that calling code can handle it
+    throw error;
+  }
+}
+
+// Function to add new employee attendance details
+async function addEmployeeAttendance(attendanceData) {
+  try {
+    // Get the repository for employee attendance details
+    const attendanceRepo = DBManager.getRepository(EmployeeAttendanceDetails);
+
+    // Create the attendance details object
+    const attendanceDetailsObj = {
+      employeeName: attendanceData.employeeName,
+      todayDate: attendanceData.todayDate,
+      inTime: attendanceData.inTime,
+      outTime: attendanceData.outTime,
+    };
+
+    // Save the new attendance details entity to the database
+    const result = await attendanceRepo
+      .createQueryBuilder()
+      .insert()
+      .values(attendanceDetailsObj)
+      .execute();
+
+    if (result) {
+      return {
+        success: true,
+        message: "New attendance details added successfully!",
+      };
+    }
+  } catch (error) {
+    console.error("Error adding new attendance details:", error);
     // Throw the error so that calling code can handle it
     throw error;
   }

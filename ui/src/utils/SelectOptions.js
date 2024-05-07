@@ -132,6 +132,11 @@ export const get_all_employee_payments = async () => {
   return res.data;
 };
 
+export const get_all_employee_leaves = async () => {
+  var res = await ipcRenderer.invoke("get-all-employee-leaves");
+  return res.data;
+};
+
 export const get_all_purchase_orders = async () => {
   var res = await ipcRenderer.invoke("get-all-purchase-orders");
   return [res.data];
