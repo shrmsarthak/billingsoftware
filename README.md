@@ -35,10 +35,6 @@ To get started with the billing software, follow these steps:
 
 5. **Start Billing**: Begin creating invoices, managing payments, and utilizing other features of the software to streamline your billing process.
 
-## Contributing
-
-Contributions to the billing software project are welcome! Whether you're interested in fixing bugs, adding new features, or improving documentation, your contributions are greatly appreciated. Please follow the contribution guidelines outlined in the `CONTRIBUTING.md` file.
-
 ## Support
 
 If you encounter any issues or have questions about the billing software, please don't hesitate to reach out to our support team at usarabhai@gmail.com. We're here to help!
