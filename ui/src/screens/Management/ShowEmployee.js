@@ -27,6 +27,8 @@ const { ipcRenderer } = window.require("electron");
 const TABLE_HEAD_MAIN = [
   "No",
   "Employee Name",
+  "Employee Title",
+  "Salary",
   "Contact Number",
   "Address",
   "Joining Date",
@@ -50,6 +52,9 @@ const initialValue = {
   Address: "",
   Joining_Date: "",
   Notes: "",
+  Employee_email: "",
+  Employee_title: "",
+  Salary: "",
 };
 
 function convertDateToString(date) {
@@ -103,6 +108,8 @@ export default function ShowEmployee() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filteredData, setFilterData] = useState("");
 
+  console.log(fields);
+
   // State for payment modal
   const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
   const [isBalanceModalOpen, setBalanceModalOpen] = useState(false);
@@ -116,9 +123,13 @@ export default function ShowEmployee() {
 
   const closePaymentModal = () => {
     setPaymentModalOpen(false);
+    setPaymentData(initialPaymentData);
   };
 
   const openBalanceModal = (obj) => {
+    console.log(obj);
+    console.log(allPayments);
+
     setBalanceData(
       allPayments
         .filter((item) => item.Employee_name === obj.Employee_name)
@@ -139,14 +150,15 @@ export default function ShowEmployee() {
     setBalanceModalOpen(false);
   };
 
-  // State for payment details
-  const [paymentData, setPaymentData] = useState({
+  const initialPaymentData = {
     Employee_name: "",
     Payment_date: "",
     Amount: "",
     Payment_type: "",
     Payment_notes: "",
-  });
+  };
+  // State for payment details
+  const [paymentData, setPaymentData] = useState(initialPaymentData);
 
   console.log(paymentData);
 
@@ -161,7 +173,7 @@ export default function ShowEmployee() {
       paymentData
     );
     alert(res.message);
-    closePaymentModal();
+    setPaymentData(initialPaymentData);
   };
   const openModal = () => {
     setIsModalOpen(true);
@@ -180,9 +192,12 @@ export default function ShowEmployee() {
     return Object.keys(filterValues).filter((key) => filterValues[key] !== "");
   };
   let nonEmptyFields = nonEmptyValues();
+
   const EXPENSES_ROWS = allEmployees.flat().map((x) => {
     return {
       "Employee Name": x.Employee_name,
+      "Employee Title": x.Employee_title,
+      Salary: x.Salary,
       "Contact Number": x.Contact_No,
       Address: x.Address,
       "Joining Date": convertDateToString(x.Joining_Date),
@@ -271,6 +286,7 @@ export default function ShowEmployee() {
       ),
     };
   });
+
   useEffect(() => {
     let nonEmptyFields = nonEmptyValues();
     let filter = allEmployees
@@ -363,12 +379,6 @@ export default function ShowEmployee() {
       });
     setFilterData(filter);
   }, [filterValues]);
-
-  function getTextForValue(option, value) {
-    const clients = option;
-    const client = clients.find((client) => client.value === value);
-    return client ? client.text : "Unknown";
-  }
 
   const handleFilterChange = (fieldName, value) => {
     setFilterValues((prevValues) => ({
@@ -472,6 +482,7 @@ export default function ShowEmployee() {
         />
       </div>
       <>
+        {/* New Employee Modal */}
         <Dialog size="l" open={isModalOpen} handleOpen={openModal}>
           <DialogHeader toggler={closeModal}>
             Add New Employee Details
@@ -496,7 +507,7 @@ export default function ShowEmployee() {
                   onChange={(e) => handleFieldChange("Age", e.target.value)}
                   placeholder="Age"
                 />
-              </div>{" "}
+              </div>
               <div>
                 <Input
                   variant="outlined"
@@ -511,12 +522,40 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
+                  label="Employee Email"
+                  placeholder="Employee Email"
+                  onChange={(e) =>
+                    handleFieldChange("Employee_email", e.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <Input
+                  variant="outlined"
+                  label="Employee Title"
+                  onChange={(e) =>
+                    handleFieldChange("Employee_title", e.target.value)
+                  }
+                  placeholder="Employee Title"
+                />
+              </div>
+              <div>
+                <Input
+                  variant="outlined"
+                  label="Salary"
+                  type="number"
+                  onChange={(e) => handleFieldChange("Salary", e.target.value)}
+                  placeholder="Salary"
+                />
+              </div>
+              <div>
+                <Input
+                  variant="outlined"
                   label="Address"
                   onChange={(e) => handleFieldChange("Address", e.target.value)}
                   placeholder="Address"
                 />
               </div>
-              {/* Address */}
               <div>
                 <Input
                   variant="outlined"
@@ -554,6 +593,8 @@ export default function ShowEmployee() {
             </Button>
           </DialogFooter>
         </Dialog>
+
+        {/* Payment Modal */}
         <Dialog
           size="l"
           open={isPaymentModalOpen}
@@ -578,7 +619,6 @@ export default function ShowEmployee() {
                   variant="outlined"
                   label="Payment Date"
                   type="date"
-                  value={paymentData.Payment_date}
                   onChange={(e) =>
                     handlePaymentFieldChange("Payment_date", e.target.value)
                   }
@@ -589,7 +629,6 @@ export default function ShowEmployee() {
                   variant="outlined"
                   label="Amount"
                   type="number"
-                  value={paymentData.Amount}
                   onChange={(e) =>
                     handlePaymentFieldChange("Amount", e.target.value)
                   }
@@ -599,8 +638,7 @@ export default function ShowEmployee() {
                 <Input
                   variant="outlined"
                   label="Payment Type"
-                  placeholder="Payment Type example: Cash"
-                  value={paymentData.Payment_type}
+                  placeholder="Payment Type Eg: Cash, UPI"
                   onChange={(e) =>
                     handlePaymentFieldChange("Payment_type", e.target.value)
                   }
@@ -611,7 +649,6 @@ export default function ShowEmployee() {
                   variant="outlined"
                   label="Payment Notes"
                   placeholder="Payment Notes"
-                  value={paymentData.Payment_notes}
                   onChange={(e) =>
                     handlePaymentFieldChange("Payment_notes", e.target.value)
                   }
@@ -635,6 +672,8 @@ export default function ShowEmployee() {
             </Button>
           </DialogFooter>
         </Dialog>
+
+        {/* Balance Modal */}
         <Dialog
           size="l"
           open={isBalanceModalOpen}
@@ -664,3 +703,35 @@ export default function ShowEmployee() {
     </div>
   );
 }
+
+// *Employee Management Functionality
+//  -Add Employee
+//  -Delete Employee
+//  -Update Employee
+//  -View All Employee
+//  -Advance Payment Option
+//  -History of Payment
+//  -Employee Leaves
+//  -Attendance Option
+//  -Custom Office Day off
+
+// *Employee Management Functionality
+
+// ++Add New Employee
+//   -Name
+//   -Phone
+//   -Email
+//   -Age
+//   -Address
+//   -DOJ
+//   -Salary
+//   -Type (Custom Category) - It can be like Sales Person, Technician etc. Businesses can add their custom types
+
+// ++Advance Payment Option
+//  -Option to add payment in middle of the month
+
+// ++Employee Leaves
+//  -Reason & Date
+
+// ++ Attendance Option
+//  -Current date, IN/OUT timing

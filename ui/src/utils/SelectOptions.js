@@ -166,3 +166,8 @@ export const get_invoice_count = async () => {
   var res = await ipcRenderer.invoke("get-invoice-count");
   return res;
 };
+
+export const get_todo_data = async () => {
+  var res = await ipcRenderer.invoke("get-todo-data");
+  return res;
+};

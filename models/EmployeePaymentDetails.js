@@ -25,6 +25,10 @@ const EmployeePaymentDetails = new EntitySchema({
       type: String,
       nullable: false,
     },
+    Is_Payment_Salary: {
+      type: Boolean,
+      nullable: true,
+    },
     Payment_notes: {
       type: String,
       nullable: true,

@@ -18,49 +18,18 @@ export const api_show_ledger = (options) => {
 };
 export const api_new_client = (options) => {
   window.location.href = "/sales/client/new";
-
-  // window.open(
-  //   "/sales/client/new",
-  //   "_blank",
-  //   "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
-  // );
 };
 export const api_new_product = (options) => {
   window.location.href = "/sales/product_service/new";
-
-  // window.open(
-  //   "/sales/product_service/new",
-  //   "_blank",
-  //   "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
-  // );
 };
 export const api_show_client = (options) => {
   window.location.href = "/sales/client/show";
-
-  // window.open(
-  //   "/sales/client/show",
-  //   "_blank",
-  //   "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
-  // );
 };
 export const api_show_product = (options) => {
   window.location.href = "/sales/product_service/show";
-
-  // window.open(
-  //   "/sales/product_service/show",
-  //   "_blank",
-  //   "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
-  // );
 };
-
 export const api_edit_client = (options) => {
   window.location.href = `/sales/client/edit/${options.id}`;
-
-  // window.open(
-  //   `/sales/client/edit/${options.id}`,
-  //   "_blank",
-  //   "top=0,left=0,width=1600px,height=800,frame=true,nodeIntegration=true,contextIsolation=false,title=Invoice"
-  // );
 };
 export const api_add_company = (options) => {
   window.location.href = "/settings/company/new";
@@ -88,4 +57,7 @@ export const api_new_purchase = (options) => {
 };
 export const api_show_purchase = (options) => {
   window.location.href = "/sales/purchase/show";
+};
+export const api_show_expense = (options) => {
+  window.location.href = "/sales/expense/show";
 };

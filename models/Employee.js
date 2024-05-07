@@ -32,6 +32,18 @@ const Employee = new EntitySchema({
       type: String,
       nullable: true,
     },
+    Employee_email: {
+      type: String,
+      nullable: true,
+    },
+    Employee_title: {
+      type: String,
+      nullable: false,
+    },
+    Salary: {
+      type: String,
+      nullable: false,
+    },
     created_at: {
       type: Date,
       nullable: true,
