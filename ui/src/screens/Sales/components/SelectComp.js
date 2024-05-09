@@ -29,7 +29,7 @@ export default function SelectComp({
           list={label}
           value={selectedValue}
           onChange={handleInputChange}
-          placeholder={placeholder}
+          placeholder={placeholder ? placeholder : label}
         />
         <datalist id={label}>
           {optionsToMap.map((option, index) => (
