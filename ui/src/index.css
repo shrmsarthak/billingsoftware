@@ -6579,3 +6579,7 @@ video {
   display: flex;
   flex-wrap: wrap;
 }
+
+.selectComp{
+  min-width: 200px;
+}

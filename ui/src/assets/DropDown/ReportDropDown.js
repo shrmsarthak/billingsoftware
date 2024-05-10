@@ -33,15 +33,15 @@ export default function ReportsDropDown() {
       <SelectComp
         options={convertDropdownData(navigateOptions)}
         handle={(value) => {
-          if (value.select === "Show Invoice") {
+          if (value === "Show Invoice") {
             window.location.href = "/sales/invoice/show";
-          } else if (value.select === "Show Quotation") {
+          } else if (value === "Show Quotation") {
             window.location.href = "/sales/quotation/show";
-          } else if (value.select === "Show Debit") {
+          } else if (value === "Show Debit") {
             window.location.href = "/sales/debit/show";
-          } else if (value.select === "Show Credit") {
+          } else if (value === "Show Credit") {
             window.location.href = "/sales/credit/show";
-          } else if (value.select === "Show Payment") {
+          } else if (value === "Show Payment") {
             window.location.href = "/sales/payment/show";
           } else {
             window.location.href = "/sales/purchase/show";
@@ -49,7 +49,7 @@ export default function ReportsDropDown() {
         }}
         label="Module"
         isinput={false}
-        defaultValue={extractMiddleTitleCase(location.pathname)}
+        placeholder={extractMiddleTitleCase(location.pathname)}
       />
     </div>
   );
