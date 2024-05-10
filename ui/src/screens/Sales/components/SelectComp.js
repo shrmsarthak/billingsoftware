@@ -1,48 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
+import Select from "react-select";
 
 export default function SelectComp({
   label = "",
   placeholder = "",
   options = [],
   handle,
-  isinput = false,
 }) {
-  let optionsToMap = options.map((item) => item.text);
-  const [selectedValue, setSelectedValue] = useState("");
-
-  const handleInputChange = (event) => {
-    const newValue = event.target.value;
-    setSelectedValue(newValue);
-    handle(newValue);
+  const handleChange = (selectedOption) => {
+    handle(selectedOption.value);
   };
 
-  const handleOptionClick = (value) => {
-    setSelectedValue(value);
-    handle(value);
-  };
+  const selectOptions = options.map((option) => ({
+    value: option.text,
+    label: option.text,
+  }));
 
   return (
-    <div className="flex flex-1 items-center w-full">
-      <div className="selectCompStyle">
-        <input
-          autoComplete="on"
-          list={label}
-          value={selectedValue}
-          onChange={handleInputChange}
-          placeholder={placeholder ? placeholder : label}
-        />
-        <datalist id={label}>
-          {optionsToMap.map((option, index) => (
-            <option
-              key={index}
-              value={option}
-              onClick={() => handleOptionClick(option)}
-            >
-              {option}
-            </option>
-          ))}
-        </datalist>
-      </div>
+    <div className="flex flex-1 items-center w-full" style={{ minWidth: 200 }}>
+      <Select
+        options={selectOptions}
+        onChange={handleChange}
+        placeholder={placeholder ? placeholder : label}
+        className="selectComp"
+      />
     </div>
   );
 }

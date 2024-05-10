@@ -19,6 +19,7 @@ export default function ModuleDropDown() {
     });
     return "New " + titleCaseMiddlePart;
   }
+  console.log(extractMiddleTitleCase(location.pathname));
 
   const navigateOptions = [
     "New Invoice",
@@ -27,24 +28,24 @@ export default function ModuleDropDown() {
     "New Credit",
   ];
   return (
-    <div style={{maxWidth: 300, marginLeft: 20}}>
-    <SelectComp
-      options={convertDropdownData(navigateOptions)}
-      handle={(value) => {
-        if (value.select === "New Invoice") {
-          window.location.href = "/sales/invoice/new";
-        } else if (value.select === "New Quotation") {
-          window.location.href = "/sales/quotation/new";
-        } else if (value.select === "New Debit") {
-          window.location.href = "/sales/debit/new";
-        } else {
-          window.location.href = "/sales/credit/new";
-        }
-      }}
-      label="Module"
-      isinput={false}
-      defaultValue={extractMiddleTitleCase(location.pathname)}
-    />
+    <div style={{ maxWidth: 300, marginLeft: 20 }}>
+      <SelectComp
+        options={convertDropdownData(navigateOptions)}
+        handle={(value) => {
+          if (value === "New Invoice") {
+            window.location.href = "/sales/invoice/new";
+          } else if (value === "New Quotation") {
+            window.location.href = "/sales/quotation/new";
+          } else if (value === "New Debit") {
+            window.location.href = "/sales/debit/new";
+          } else {
+            window.location.href = "/sales/credit/new";
+          }
+        }}
+        label="Module"
+        isinput={false}
+        placeholder={extractMiddleTitleCase(location.pathname)}
+      />
     </div>
   );
 }

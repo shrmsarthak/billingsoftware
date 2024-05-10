@@ -555,13 +555,14 @@ export default function NewInvoicePage() {
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">
-          <div className=" mr-12">
+          <div className="mr-12">
             <SelectComp
               label="Client"
               placeholder="Client"
               options={client_option}
               isinput={false}
               handle={(values) => {
+                console.log(values)
                 if (values === "Add New Client") {
                   api_show_client();
                   return;
@@ -694,6 +695,7 @@ export default function NewInvoicePage() {
                   ? getProductDescription(formData.Product, product_option)
                   : ""
               }
+              disabled
             />
           </div>
           <div className="mr-12 w-100">
@@ -711,6 +713,7 @@ export default function NewInvoicePage() {
               labelProps={{
                 className: "w-100",
               }}
+              disabled
             />
           </div>
           <div className="mr-12 w-100">
@@ -740,6 +743,7 @@ export default function NewInvoicePage() {
               labelProps={{
                 className: "w-100",
               }}
+              disabled
             />
           </div>
           <div className="mr-12 w-100">
@@ -838,6 +842,7 @@ export default function NewInvoicePage() {
                       options={tax_option}
                       isinput={false}
                       handle={(values) => {
+                        console.log(values)
                         handleFieldChange(
                           "Shipping_Tax",
                           getIntegerFromPercentageString(
