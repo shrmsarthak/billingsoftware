@@ -72,7 +72,6 @@ export const get_all_client_option = async () => {
     option.push({
       text: c.client_name,
       value: c.id,
-      all: c,
     });
   });
   return option;

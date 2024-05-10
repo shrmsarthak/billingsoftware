@@ -4,10 +4,9 @@ import { Link } from "react-router-dom";
 const HomeButton = () => {
   React.useEffect(() => {
     const handleKeyPress = (event) => {
-      if (event.key === "Backspace") {
+      if (event.key === "Escape") {
         window.location.href = "/dashboard";
       }
-      console.log(event.key);
     };
 
     document.addEventListener("keydown", handleKeyPress);
