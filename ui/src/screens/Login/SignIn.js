@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { useCookies } from "react-cookie";
-const { ipcRenderer } = window.require("electron");
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -20,7 +19,7 @@ function SignIn() {
     document.title = "Sign In";
   });
   const siginhandle = () => {
-    var res = ipcRenderer.invoke("company-sign-in", {
+    var res = window.api.invoke("company-sign-in", {
       email: email,
       password: password,
     });

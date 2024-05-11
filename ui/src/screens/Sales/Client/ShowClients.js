@@ -14,7 +14,6 @@ import {
   getFilterCities,
 } from "../../../utils/AddressDataApi";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "S.No",
@@ -112,7 +111,7 @@ export default function ShowClientPage() {
 
   // Fetching all clients for grid
   const getAllClients = async () => {
-    let res = await ipcRenderer.invoke("get-all-clients-list", {
+    let res = await window.api.invoke("get-all-clients-list", {
       page,
       limit,
     });
@@ -142,7 +141,7 @@ export default function ShowClientPage() {
     const filteredSearchQuery = Object.fromEntries(
       Object.entries(searchQuery).filter(([key, value]) => value !== ""),
     );
-    const res = await ipcRenderer.invoke("get-all-clients-list", {
+    const res = await window.api.invoke("get-all-clients-list", {
       page,
       limit,
       searchQuery: filteredSearchQuery,
@@ -170,7 +169,7 @@ export default function ShowClientPage() {
 
   const downloadSampleFile = async () => {
     try {
-      const response = await ipcRenderer.invoke(
+      const response = await window.api.invoke(
         "download-client-sample-import-file",
       );
       if (response?.success) {
@@ -197,7 +196,7 @@ export default function ShowClientPage() {
         originalName: file.name,
         path: file.path,
       };
-      const response = await ipcRenderer.invoke("import-clients-from-excel", {
+      const response = await window.api.invoke("import-clients-from-excel", {
         fileData,
       });
     }
@@ -206,7 +205,7 @@ export default function ShowClientPage() {
   //Export Products
   const exportClientsToExcel = async () => {
     try {
-      const response = await ipcRenderer.invoke("export-clients-to-excel", {
+      const response = await window.api.invoke("export-clients-to-excel", {
         page,
         limit,
         searchQuery,
@@ -237,7 +236,7 @@ export default function ShowClientPage() {
   };
 
   const deleteClient = async () => {
-    const response = await ipcRenderer.invoke("delete-client-by-id", {
+    const response = await window.api.invoke("delete-client-by-id", {
       clientId: clientIdDelete.id,
     });
   };
@@ -250,7 +249,7 @@ export default function ShowClientPage() {
   const openAddEditModal = async (values) => {
     if (values) {
       setEditId(values?.id);
-      const clientDataForEdit = await ipcRenderer.invoke("get-client-by-id", {
+      const clientDataForEdit = await window.api.invoke("get-client-by-id", {
         clientId: values?.id,
       });
       const clientData = clientDataForEdit.client;
@@ -347,7 +346,7 @@ export default function ShowClientPage() {
     );
 
     if (clientData.id) {
-      const res = await ipcRenderer.invoke("update-client", {
+      const res = await window.api.invoke("update-client", {
         clientId: nonEmptyProductFields.id,
         clientFields: updateClientObj,
         billingAddress: updateBillingObj,
@@ -359,7 +358,7 @@ export default function ShowClientPage() {
         alert(res.message);
       }
     } else {
-      const res = await ipcRenderer.invoke(
+      const res = await window.api.invoke(
         "add-new-client",
         nonEmptyProductFields,
       );
@@ -380,7 +379,7 @@ export default function ShowClientPage() {
     setViewModal(true);
     if (values) {
       setEditId(values?.id);
-      const clientDataForEdit = await ipcRenderer.invoke("get-client-by-id", {
+      const clientDataForEdit = await window.api.invoke("get-client-by-id", {
         clientId: values?.id,
       });
       const clientData = clientDataForEdit.client;

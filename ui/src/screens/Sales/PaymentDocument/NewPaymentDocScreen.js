@@ -29,7 +29,6 @@ import PaymentReceipt from "../components/Receipts/PaymentReceipt";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -78,7 +77,7 @@ export default function NewPaymentPage() {
   const getAllClients = async () => {
     let page = 1;
     let limit = 50;
-    let res = await ipcRenderer.invoke("get-all-clients-list", {
+    let res = await window.api.invoke("get-all-clients-list", {
       page,
       limit,
     });
@@ -123,7 +122,7 @@ export default function NewPaymentPage() {
         Amount_Received: formData.Amount_Received,
       };
 
-      const res = await ipcRenderer.invoke(
+      const res = await window.api.invoke(
         "add-new-payment-data",
         paymentReceiptData,
       );

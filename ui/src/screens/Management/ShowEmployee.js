@@ -23,7 +23,6 @@ import {
 } from "../../../src/utils/SelectOptions";
 import HomeButton from "../../assets/Buttons/HomeButton";
 import { saveAs } from "file-saver";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD_MAIN = [
   "No",
@@ -119,7 +118,7 @@ const LEAVE_ROWS = allLeaves.map((item) => {
 });
 
 const handleDeleteEmployee = async (obj) => {
-  const res = await ipcRenderer.invoke(
+  const res = await window.api.invoke(
     "delete-employee-by-contact-no",
     obj.Contact_No,
   );
@@ -272,7 +271,7 @@ export default function ShowEmployee() {
   };
 
   const handleAttendanceSave = async () => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "add-employee-attendance",
       employeeApplyingAttendance,
     );
@@ -297,7 +296,7 @@ export default function ShowEmployee() {
   };
 
   const handleLeaveSave = async () => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "add-employee-leave",
       employeeApplyingLeave,
     );
@@ -321,7 +320,7 @@ export default function ShowEmployee() {
   };
 
   const handlePaymentSave = async () => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "add-new-employee-payment",
       paymentData,
     );
@@ -337,7 +336,7 @@ export default function ShowEmployee() {
   };
 
   const handleSave = async () => {
-    const res = await ipcRenderer.invoke("add-new-employee", fields);
+    const res = await window.api.invoke("add-new-employee", fields);
     alert(res.message);
   };
 

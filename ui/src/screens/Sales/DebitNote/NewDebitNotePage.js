@@ -24,7 +24,6 @@ import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -191,7 +190,7 @@ export default function NewInvoicePage() {
   const getAllClients = async () => {
     let page = 1;
     let limit = 50;
-    let res = await ipcRenderer.invoke("get-all-clients-list", {
+    let res = await window.api.invoke("get-all-clients-list", {
       page,
       limit,
     });
@@ -416,7 +415,7 @@ export default function NewInvoicePage() {
         Total_Tax: formData.Total_Tax,
       };
 
-      const res = await ipcRenderer.invoke("add-new-debit-note", invoiceData);
+      const res = await window.api.invoke("add-new-debit-note", invoiceData);
       alert(res.message); // Handle the response as needed
     };
 

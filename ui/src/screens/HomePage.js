@@ -30,7 +30,6 @@ import {
 } from "../utils/PageApi";
 import { get_invoice_count, get_todo_data } from "../utils/SelectOptions";
 import { Link, useLocation } from "react-router-dom";
-const { ipcRenderer } = window.require("electron");
 
 const options = {
   sales: [
@@ -205,7 +204,7 @@ export default function HomePage() {
   const [text, setText] = useState("");
 
   const handleSave = async () => {
-    const res = await ipcRenderer.invoke("save-todo", text);
+    const res = await window.api.invoke("save-todo", text);
     alert(res.message);
   };
 

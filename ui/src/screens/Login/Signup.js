@@ -8,7 +8,6 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import SelectComp from "../Sales/components/SelectComp";
-const { ipcRenderer } = window.require("electron");
 
 const option1 = [
   {
@@ -56,7 +55,7 @@ function AddCompanyDetails() {
   };
   const proceed = () => {
     console.log(company_detail);
-    var res = ipcRenderer.invoke("add-new-company", company_detail);
+    var res = window.api.invoke("add-new-company", company_detail);
     res.then((v) => {
       console.log(v);
       if (v == "ok") {

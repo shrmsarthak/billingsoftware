@@ -27,7 +27,6 @@ import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -135,7 +134,7 @@ export default function ShowInvoicePage() {
   };
 
   const handleDbUpdate = async () => {
-    const res = await ipcRenderer.invoke("update-invoice", formValues);
+    const res = await window.api.invoke("update-invoice", formValues);
   };
 
   let filteredArray = invoices.flat().map((obj) => {
@@ -492,7 +491,7 @@ export default function ShowInvoicePage() {
     }
   }
   const handleDeleteInvoice = async (obj) => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "delete-invoice-by-Document-no",
       obj.Document_No,
     );
@@ -518,7 +517,7 @@ export default function ShowInvoicePage() {
 
   const exportInvoicesToExcel = async () => {
     try {
-      const response = await ipcRenderer.invoke(
+      const response = await window.api.invoke(
         "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)

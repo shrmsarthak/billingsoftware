@@ -20,7 +20,6 @@ import { saveAs } from "file-saver";
 import PaymentReceipt from "../components/Receipts/PaymentReceipt";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -314,7 +313,7 @@ export default function ShowPaymentDocScreen() {
 
   const nonEmptyFields = nonEmptyValues();
   const handleDeleteInvoice = async (obj) => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "delete-payment-by-Document-no",
       obj.Document_No,
     );
@@ -337,7 +336,7 @@ export default function ShowPaymentDocScreen() {
 
   const exportInvoicesToExcel = async () => {
     try {
-      const response = await ipcRenderer.invoke(
+      const response = await window.api.invoke(
         "export-payment_report-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)

@@ -27,7 +27,6 @@ import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -138,7 +137,7 @@ export default function ShowDebitNotePage() {
   };
 
   const handleDbUpdate = async () => {
-    const res = await ipcRenderer.invoke("update-debit-note", formValues);
+    const res = await window.api.invoke("update-debit-note", formValues);
   };
 
   let filteredArray = invoices.flat().map((obj) => {
@@ -497,7 +496,7 @@ export default function ShowDebitNotePage() {
     }
   }
   const handleDeleteInvoice = async (obj) => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "delete-debit-note-by-Document-no",
       obj.Document_No,
     );
@@ -524,7 +523,7 @@ export default function ShowDebitNotePage() {
 
   const exportInvoicesToExcel = async () => {
     try {
-      const response = await ipcRenderer.invoke(
+      const response = await window.api.invoke(
         "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)

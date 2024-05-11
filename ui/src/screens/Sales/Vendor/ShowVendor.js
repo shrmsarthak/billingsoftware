@@ -19,7 +19,6 @@ import SelectComp from "../components/SelectComp";
 import { get_all_vendor_option } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -60,7 +59,7 @@ vendors.shift();
 console.log(vendors);
 
 const handleDeleteVendor = async (obj) => {
-  const res = await ipcRenderer.invoke(
+  const res = await window.api.invoke(
     "delete-vendor-by-contact-number",
     obj.number,
   );
@@ -130,7 +129,7 @@ export default function ShowVendors() {
   };
 
   const handleSave = async () => {
-    const res = await ipcRenderer.invoke("add-new-vendor", fields);
+    const res = await window.api.invoke("add-new-vendor", fields);
     alert(res.message);
   };
   // const nonEmptyValues = () => {

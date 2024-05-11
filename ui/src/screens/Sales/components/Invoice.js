@@ -1,6 +1,5 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
-const { ipcRenderer } = window.require("electron");
 
 const Invoice = ({ data, details }) => {
   // Calculate total amount

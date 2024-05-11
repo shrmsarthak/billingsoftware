@@ -19,7 +19,6 @@ import SelectComp from "../components/SelectComp";
 import { get_all_expenses } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -71,7 +70,7 @@ const generateDropDownList = (data) => {
 const allExpenses = await get_all_expenses();
 console.log(allExpenses);
 const handleDeleteExpense = async (obj) => {
-  const res = await ipcRenderer.invoke("delete-expense-by-id", obj.id);
+  const res = await window.api.invoke("delete-expense-by-id", obj.id);
   alert(res.message);
 };
 
@@ -142,7 +141,7 @@ export default function ShowExpenses() {
 
   const handleSave = async () => {
     setRenderCustomExpense(false);
-    const res = await ipcRenderer.invoke("add-new-expense", fields);
+    const res = await window.api.invoke("add-new-expense", fields);
     alert(res.message);
   };
 

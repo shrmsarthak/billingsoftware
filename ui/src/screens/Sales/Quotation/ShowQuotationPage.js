@@ -27,7 +27,6 @@ import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -128,7 +127,7 @@ export default function ShowQuotationPage() {
   };
 
   const handleQuotationChange = async (rowData) => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "create-invoice-from-quotation",
       rowData.Quotation_No,
     );
@@ -454,7 +453,7 @@ export default function ShowQuotationPage() {
     }
   }
   const handleDeleteQuotation = async (obj) => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "delete-quotation-by-quotation-no",
       obj.Quotation_No,
     );
@@ -481,7 +480,7 @@ export default function ShowQuotationPage() {
   // console.log(removeStatusField(filteredArray));
   const exportInvoicesToExcel = async () => {
     try {
-      const response = await ipcRenderer.invoke(
+      const response = await window.api.invoke(
         "export-quotation-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
