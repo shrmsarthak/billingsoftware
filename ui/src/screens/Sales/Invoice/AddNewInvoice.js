@@ -50,7 +50,7 @@ const TABLE_HEAD = [
 
 const select_option = [];
 
-const payemnt_options = [
+const payment_options = [
   {
     text: "7 days",
     value: "7 days",
@@ -555,20 +555,19 @@ export default function NewInvoicePage() {
           <hr />
         </div>
         <div className="flex flex-row w-full justify-between my-2">
-          <div className=" mr-12">
+          <div className="mr-12">
             <SelectComp
               label="Client"
+              placeholder="Client"
               options={client_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
+                console.log(values)
+                if (values === "Add New Client") {
                   api_show_client();
                   return;
                 } else {
-                  handleFieldChange(
-                    "Client",
-                    getTextForValue(client_option, values.select)
-                  );
+                  handleFieldChange("Client", values);
                 }
               }}
             />
@@ -614,14 +613,13 @@ export default function NewInvoicePage() {
           <div className=" mr-12">
             <SelectComp
               label="Payment Term"
-              options={payemnt_options}
+              placeholder="Payment Term"
+              options={payment_options}
               isinput={false}
               value={formData.Payment_Term}
               handle={(values) => {
-                handleFieldChange(
-                  "Payment_Term",
-                  getTextForValue(payemnt_options, values.select)
-                );
+                console.log(values);
+                handleFieldChange("Payment_Term", values);
               }}
             />
           </div>
@@ -658,41 +656,30 @@ export default function NewInvoicePage() {
       </div>
       <hr />
       <div className="my-2">
-        <div className="flex my-2">
+        <div className="contain-overflow">
           <div className="mr-12">
             <SelectComp
               label="Product"
+              placeholder="Product"
               options={product_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
+                if (values.select == "Add New Product") {
                   api_show_product();
                   return;
                 } else {
-                  handleFieldChange(
-                    "Product",
-                    getTextForValue(product_option, values.select)
-                  );
+                  handleFieldChange("Product", values);
                   handleFieldChange(
                     "Unit_Price",
-                    getProductPrice(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductPrice(values, product_option)
                   );
                   handleFieldChange(
                     "UoM",
-                    getProductUOM(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductUOM(values, product_option)
                   );
                   handleFieldChange(
                     "Description",
-                    getProductDescription(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductDescription(values, product_option)
                   );
                 }
               }}
@@ -708,6 +695,7 @@ export default function NewInvoicePage() {
                   ? getProductDescription(formData.Product, product_option)
                   : ""
               }
+              disabled
             />
           </div>
           <div className="mr-12 w-100">
@@ -725,6 +713,7 @@ export default function NewInvoicePage() {
               labelProps={{
                 className: "w-100",
               }}
+              disabled
             />
           </div>
           <div className="mr-12 w-100">
@@ -754,6 +743,7 @@ export default function NewInvoicePage() {
               labelProps={{
                 className: "w-100",
               }}
+              disabled
             />
           </div>
           <div className="mr-12 w-100">
@@ -772,13 +762,11 @@ export default function NewInvoicePage() {
           <div className="mr-12">
             <SelectComp
               label="Tax"
+              placeholder="Tax"
               options={tax_option}
               isinput={false}
               handle={(values) => {
-                handleFieldChange(
-                  "Tax",
-                  getTextForValue(tax_option, values.select)
-                );
+                handleFieldChange("Tax", values);
               }}
             />
           </div>
@@ -850,13 +838,15 @@ export default function NewInvoicePage() {
                     />
                     <SelectComp
                       label="Shipping Tax"
+                      placeholder="Shipping Tax"
                       options={tax_option}
                       isinput={false}
                       handle={(values) => {
+                        console.log(values)
                         handleFieldChange(
                           "Shipping_Tax",
                           getIntegerFromPercentageString(
-                            getTextForValue(tax_option, values.select)
+                            getTextForValue(tax_option, values)
                           )
                         );
                       }}

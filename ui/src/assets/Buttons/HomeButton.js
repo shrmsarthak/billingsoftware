@@ -4,10 +4,9 @@ import { Link } from "react-router-dom";
 const HomeButton = () => {
   React.useEffect(() => {
     const handleKeyPress = (event) => {
-      if (event.key === "Backspace") {
+      if (event.key === "Escape") {
         window.location.href = "/dashboard";
       }
-      console.log(event.key);
     };
 
     document.addEventListener("keydown", handleKeyPress);
@@ -17,13 +16,12 @@ const HomeButton = () => {
     };
   }, []);
   return (
-    <Link to="/">
+    <Link to="/" style={{ marginLeft: 20 }}>
       <button
         className="cursor-pointer duration-200 hover:scale-110 active:scale-100"
         title="Go Home"
         style={{
           border: "1px solid lightslategray",
-          marginLeft: 20,
           padding: 8,
           borderRadius: 5,
         }}

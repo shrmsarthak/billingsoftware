@@ -1,50 +1,29 @@
-import React, { useState } from "react";
-import { Option, Select } from "@material-tailwind/react";
+import React from "react";
+import Select from "react-select";
 
 export default function SelectComp({
-  defaultValue = "",
+  label = "",
+  placeholder = "",
   options = [],
   handle,
-  isinput,
-  label,
-  disabled = "",
 }) {
-  const [selectedOption, setSelectedOption] = useState(defaultValue);
-  const [inputValue, setInputValue] = useState("");
-
-  const handleOnChange = (selectedValue) => {
-    setSelectedOption(selectedValue);
-    handle({ select: selectedValue, input: inputValue });
+  const handleChange = (selectedOption) => {
+    handle(selectedOption.value);
   };
 
-  const handleInputChange = (event) => {
-    const newInputValue = event.target.value;
-    setInputValue(newInputValue);
-    handle({ select: selectedOption, input: newInputValue });
-  };
+  const selectOptions = options.map((option) => ({
+    value: option.text,
+    label: option.text,
+  }));
+
   return (
-    <div className="flex flex-1 items-center w-full">
+    <div className="flex flex-1 items-center w-full" style={{ minWidth: 200 }}>
       <Select
-        disabled={disabled || options.length === 0}
-        label={label}
-        value={selectedOption}
-        onChange={(value) => {
-          handleOnChange(value);
-        }}
-        key={selectedOption}
-      >
-        {options.map((option) => (
-          <Option key={option.value} value={option.value}>
-            {option.text}
-          </Option>
-        ))}
-      </Select>
-
-      {isinput && (
-        <div className="ml-5">
-          <input className="border rounded-md" onChange={handleInputChange} />
-        </div>
-      )}
+        options={selectOptions}
+        onChange={handleChange}
+        placeholder={placeholder ? placeholder : label}
+        className="selectComp"
+      />
     </div>
   );
 }
