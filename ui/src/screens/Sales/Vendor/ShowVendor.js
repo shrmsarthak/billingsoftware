@@ -62,7 +62,7 @@ console.log(vendors);
 const handleDeleteVendor = async (obj) => {
   const res = await ipcRenderer.invoke(
     "delete-vendor-by-contact-number",
-    obj.number
+    obj.number,
   );
   alert(res.message);
 };
@@ -277,10 +277,7 @@ export default function ShowVendors() {
               options={vendors}
               isInput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Product",
-                  getTextForValue([], values.select)
-                );
+                handleFilterChange("Product", values);
               }}
             />
           </div>
@@ -402,7 +399,6 @@ export default function ShowVendors() {
                   placeholder="GSTIN"
                 ></Input>
               </div>
-              {/* Add other personal information fields similarly */}
             </div>
           </DialogBody>
           <DialogFooter>

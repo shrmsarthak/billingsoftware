@@ -316,7 +316,7 @@ export default function ShowPaymentDocScreen() {
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
       "delete-payment-by-Document-no",
-      obj.Document_No
+      obj.Document_No,
     );
     alert(res.message);
   };
@@ -341,7 +341,7 @@ export default function ShowPaymentDocScreen() {
         "export-payment_report-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData)
+          : removeStatusField(filterData),
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -463,10 +463,7 @@ export default function ShowPaymentDocScreen() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFilterChange("Client", values);
               }}
             />
           </div>
@@ -507,7 +504,7 @@ export default function ShowPaymentDocScreen() {
               options={convertDropdownData(payment_type)}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Transaction_type", values.select);
+                handleFilterChange("Transaction_type", values);
               }}
             />
           </div>

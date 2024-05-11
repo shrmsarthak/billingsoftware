@@ -110,7 +110,7 @@ export default function NewPurchasePage() {
 
     // Calculate the due date by adding days to the issue date
     const dueDate = new Date(
-      issueDate.setDate(issueDate.getDate() + daysToAdd)
+      issueDate.setDate(issueDate.getDate() + daysToAdd),
     );
 
     // Check if dueDate is a valid date
@@ -146,7 +146,7 @@ export default function NewPurchasePage() {
 
   useEffect(() => {
     setSelectedClient(
-      allClient.filter((x) => x.client_name === formData.Vendor)
+      allClient.filter((x) => x.client_name === formData.Vendor),
     );
   }, [formData.Vendor]);
 
@@ -226,8 +226,8 @@ export default function NewPurchasePage() {
       discountValue !== -1
         ? discountValue + "%"
         : item.Discount
-        ? item.Discount + "%"
-        : "0%",
+          ? item.Discount + "%"
+          : "0%",
     CGST: (
       (((item.Discount === ""
         ? item.Unit_Price * (item.Qty || 1)
@@ -374,7 +374,7 @@ export default function NewPurchasePage() {
       };
       const res = await ipcRenderer.invoke(
         "add-new-purchase-order",
-        invoiceData
+        invoiceData,
       );
       alert(res.message); // Handle the response as needed
     };
@@ -490,7 +490,7 @@ export default function NewPurchasePage() {
                   Shipping_Charges:
                     Number(formData.Shipping_Charges) +
                     Number(
-                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax,
                     ),
                   Shipping_Tax: formData.Shipping_Tax,
                   Discount_on_all: formData.Discount_on_all,
@@ -524,11 +524,11 @@ export default function NewPurchasePage() {
               options={vendor_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "Add New Vendor") {
+                if (values === "Add New Vendor") {
                   api_show_vendor();
                   return;
                 } else {
-                  handleFieldChange("Vendor", values.select);
+                  handleFieldChange("Vendor", values);
                 }
               }}
             />
@@ -582,56 +582,35 @@ export default function NewPurchasePage() {
       </div>
       <hr />
       <div className="my-2 ">
-        <div className="flex my-2">
+        <div className="contain-overflow">
           <div className="mr-12">
             <SelectComp
               label="Product"
               options={product_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
+                if (values === "Add New Product") {
                   api_show_product();
                   return;
                 } else {
-                  handleFieldChange(
-                    "Product",
-                    getTextForValue(product_option, values.select)
-                  );
+                  handleFieldChange("Product", values);
                   handleFieldChange(
                     "UoM",
                     getProductUOM(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                      getTextForValue(product_option, values),
+                      product_option,
+                    ),
                   );
                   handleFieldChange(
                     "Unit_Price",
-                    getProductPurchasePrice(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductPurchasePrice(values, product_option),
                   );
                   handleFieldChange(
                     "Description",
-                    getProductDescription(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductDescription(values, product_option),
                   );
                 }
               }}
-            />
-          </div>
-          <div className="mr-12">
-            <Input
-              variant="outlined"
-              label="Description"
-              placeholder="Description"
-              value={
-                formData.Description !== ""
-                  ? getProductDescription(formData.Product, product_option)
-                  : ""
-              }
             />
           </div>
           <div className="mr-12">
@@ -644,6 +623,7 @@ export default function NewPurchasePage() {
                   ? getProductUOM(formData.Product, product_option)
                   : ""
               }
+              disabled
             />
           </div>
           <div className="mr-12">
@@ -661,6 +641,7 @@ export default function NewPurchasePage() {
               label="Purchase Rate"
               placeholder="Purchase Rate"
               value={formData.Unit_Price}
+              disabled
             />
           </div>
           <div className="mr-12">
@@ -669,10 +650,7 @@ export default function NewPurchasePage() {
               options={tax_option}
               isinput={false}
               handle={(values) => {
-                handleFieldChange(
-                  "Tax",
-                  getTextForValue(tax_option, values.select)
-                );
+                handleFieldChange("Tax", getTextForValue(tax_option, values));
               }}
             />
           </div>
@@ -759,8 +737,8 @@ export default function NewPurchasePage() {
                         handleFieldChange(
                           "Shipping_Tax",
                           getIntegerFromPercentageString(
-                            getTextForValue(tax_option, values.select)
-                          )
+                            getTextForValue(tax_option, values),
+                          ),
                         );
                       }}
                     />
@@ -864,7 +842,7 @@ export default function NewPurchasePage() {
                   Number(totalTax) +
                   Number(formData.Shipping_Charges) +
                   Number(
-                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax,
                   )
                 ).toFixed(2)}
               </div>

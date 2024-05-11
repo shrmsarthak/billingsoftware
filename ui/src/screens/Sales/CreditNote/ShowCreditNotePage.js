@@ -50,7 +50,7 @@ const TABLE_HEAD = [
 ];
 
 const select_option = [];
-const payemnt_options = [
+const payment_options = [
   {
     text: "Cash",
     value: "Cash",
@@ -499,7 +499,7 @@ export default function ShowCreditNotePage() {
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
       "delete-credit-note-by-Document-no",
-      obj.Document_No
+      obj.Document_No,
     );
     alert(res.message);
   };
@@ -528,7 +528,7 @@ export default function ShowCreditNotePage() {
         "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData)
+          : removeStatusField(filterData),
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -658,10 +658,7 @@ export default function ShowCreditNotePage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFilterChange("Client", values);
               }}
             />
           </div>
@@ -701,7 +698,7 @@ export default function ShowCreditNotePage() {
               options={status_options}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Status", values.select);
+                handleFilterChange("Status", values);
               }}
             />
           </div>
@@ -718,13 +715,10 @@ export default function ShowCreditNotePage() {
           <div className="mr-12">
             <SelectComp
               label="Type"
-              options={payemnt_options}
+              options={payment_options}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Transaction_type",
-                  getTextForValue(payemnt_options, values.select)
-                );
+                handleFilterChange("Transaction_type", values);
               }}
             />
           </div>
@@ -769,10 +763,10 @@ export default function ShowCreditNotePage() {
               <div className="flex flex-row items-center">
                 <SelectComp
                   label="Payment Type"
-                  options={payemnt_options}
+                  options={payment_options}
                   isinput={false}
                   handle={(values) => {
-                    handleInputChange("Transaction_type", values.select);
+                    handleInputChange("Transaction_type", values);
                   }}
                 />
               </div>
@@ -795,7 +789,6 @@ export default function ShowCreditNotePage() {
                   }
                 />
               </div>
-              {/* Add any other components here */}
             </div>
           )}
         </DialogBody>

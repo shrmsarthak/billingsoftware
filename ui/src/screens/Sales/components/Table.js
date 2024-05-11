@@ -43,7 +43,7 @@ export function Table({
     const columnName = Object.keys(TABLE_ROWS[0])[columnIndex + 1]; // +1 to skip the index column
     if (
       ["quantity", "amount", "quantity_sold", "cogs", "gross_margin"].includes(
-        columnName
+        columnName,
       )
     ) {
       return TABLE_ROWS.reduce((total, row) => {

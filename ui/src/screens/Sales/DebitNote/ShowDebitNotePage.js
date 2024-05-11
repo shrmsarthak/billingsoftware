@@ -499,7 +499,7 @@ export default function ShowDebitNotePage() {
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
       "delete-debit-note-by-Document-no",
-      obj.Document_No
+      obj.Document_No,
     );
     alert(res.message);
   };
@@ -528,7 +528,7 @@ export default function ShowDebitNotePage() {
         "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData)
+          : removeStatusField(filterData),
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -658,10 +658,7 @@ export default function ShowDebitNotePage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFilterChange("Client", values);
               }}
             />
           </div>
@@ -701,7 +698,7 @@ export default function ShowDebitNotePage() {
               options={status_options}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Status", values.select);
+                handleFilterChange("Status", values);
               }}
             />
           </div>
@@ -723,7 +720,7 @@ export default function ShowDebitNotePage() {
               handle={(values) => {
                 handleFilterChange(
                   "Transaction_type",
-                  getTextForValue(payemnt_options, values.select)
+                  getTextForValue(payemnt_options, values),
                 );
               }}
             />
@@ -772,7 +769,7 @@ export default function ShowDebitNotePage() {
                   options={payemnt_options}
                   isinput={false}
                   handle={(values) => {
-                    handleInputChange("Transaction_type", values.select);
+                    handleInputChange("Transaction_type", values);
                   }}
                 />
               </div>
@@ -795,7 +792,6 @@ export default function ShowDebitNotePage() {
                   }
                 />
               </div>
-              {/* Add any other components here */}
             </div>
           )}
         </DialogBody>

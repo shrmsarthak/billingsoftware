@@ -100,13 +100,15 @@ const allLeaves = await get_all_employee_leaves();
 
 const uniqueMonths = [
   ...new Set(
-    allPayments.map((doc) => new Date(doc.Payment_date).getMonth() + 1)
+    allPayments.map((doc) => new Date(doc.Payment_date).getMonth() + 1),
   ),
 ];
 
 const uniqueLeaveMonths = [
   ...new Set(allLeaves.map((doc) => new Date(doc.leaveDate).getMonth() + 1)),
 ];
+
+console.log(uniqueLeaveMonths);
 
 const LEAVE_ROWS = allLeaves.map((item) => {
   return {
@@ -119,7 +121,7 @@ const LEAVE_ROWS = allLeaves.map((item) => {
 const handleDeleteEmployee = async (obj) => {
   const res = await ipcRenderer.invoke(
     "delete-employee-by-contact-no",
-    obj.Contact_No
+    obj.Contact_No,
   );
   alert(res.message);
 };
@@ -130,7 +132,7 @@ export default function ShowEmployee() {
   });
 
   const person_option = Array.from(
-    new Set(allEmployees.flat().map((x) => x.Employee_name))
+    new Set(allEmployees.flat().map((x) => x.Employee_name)),
   );
 
   const [filterValues, setFilterValues] = useState({
@@ -151,13 +153,15 @@ export default function ShowEmployee() {
 
   const [balanceData, setBalanceData] = useState([]);
   const [monthWisePayment, setMonthWisePayment] = useState([]);
+  const [paymentDatamentForTheMonth, setPaymentDatamentForTheMonth] =
+    useState(0);
 
   const [employeeApplyingLeave, setEmployeeApplyingLeave] =
     useState(initialLeaveData);
   const [monthWiseLeave, setMonthWiseLeave] = useState([]);
 
   const [employeeApplyingAttendance, setEmployeeApplyingAttendance] = useState(
-    initialAttendanceData
+    initialAttendanceData,
   );
 
   // Function to open payment modal
@@ -181,19 +185,51 @@ export default function ShowEmployee() {
     return monthsToRender;
   }
 
+  function calculateNonSalaryTotal(data) {
+    let total = 0;
+    for (const entry of data) {
+      if (entry.Is_Salary === "No") {
+        total += entry.Amount;
+      }
+    }
+    return total;
+  }
+
   function filterDocumentsByMonth(month, data) {
     const filteredDocs = data.filter((doc) => {
       const paymentMonth = new Date(doc["Payment Date"]).getMonth() + 1;
-      return paymentMonth === month;
+      return paymentMonth === getMonthNumber(month);
     });
+    console.log(filteredDocs);
     return filteredDocs;
+  }
+
+  function getMonthNumber(shortMonthName) {
+    const shortMonthNames = [
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC",
+    ];
+    const monthIndex =
+      shortMonthNames.indexOf(shortMonthName.toUpperCase()) + 1;
+    return monthIndex > 0 ? monthIndex : null;
   }
 
   function filterLeaveByMonth(month, data) {
     const filteredDocs = data.filter((doc) => {
       const paymentMonth = new Date(doc["Leave Date"]).getMonth() + 1;
-      return paymentMonth === month;
+      return paymentMonth === getMonthNumber(month);
     });
+    console.log("log", filteredDocs);
     return filteredDocs;
   }
 
@@ -210,7 +246,7 @@ export default function ShowEmployee() {
             "Payment Type": items.Payment_type,
             "Payment Notes": items.Payment_notes,
           };
-        })
+        }),
     );
     setBalanceModalOpen(true);
   };
@@ -238,7 +274,7 @@ export default function ShowEmployee() {
   const handleAttendanceSave = async () => {
     const res = await ipcRenderer.invoke(
       "add-employee-attendance",
-      employeeApplyingAttendance
+      employeeApplyingAttendance,
     );
     alert(res.message);
     setEmployeeApplyingAttendance(initialAttendanceData);
@@ -263,7 +299,7 @@ export default function ShowEmployee() {
   const handleLeaveSave = async () => {
     const res = await ipcRenderer.invoke(
       "add-employee-leave",
-      employeeApplyingLeave
+      employeeApplyingLeave,
     );
     alert(res.message);
     setEmployeeApplyingLeave(initialLeaveData);
@@ -287,7 +323,7 @@ export default function ShowEmployee() {
   const handlePaymentSave = async () => {
     const res = await ipcRenderer.invoke(
       "add-new-employee-payment",
-      paymentData
+      paymentData,
     );
     alert(res.message);
     setPaymentData(initialPaymentData);
@@ -565,6 +601,12 @@ export default function ShowEmployee() {
     window.location.reload();
   };
 
+  console.log(monthWisePayment);
+  console.log(EXPENSES_ROWS);
+  let salaryToRender = EXPENSES_ROWS.filter(
+    (item) => item["Employee Name"] === monthWisePayment[0]?.Employee,
+  )[0]?.Salary;
+  console.log(salaryToRender);
   return (
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
@@ -582,7 +624,7 @@ export default function ShowEmployee() {
               options={generateDropDownList(person_option)}
               isInput={false}
               handle={(values) => {
-                handleFilterChange("Person", values.select);
+                handleFilterChange("Person", values);
               }}
             />
           </div>
@@ -614,7 +656,7 @@ export default function ShowEmployee() {
               placeholder="Type"
               options={generateDropDownList(expense_options)}
               handle={(values) => {
-                handleFilterChange("Type", values.select);
+                handleFilterChange("Type", values);
               }}
               disabled
             />
@@ -860,12 +902,23 @@ export default function ShowEmployee() {
                 isInput={false}
                 handle={(values) => {
                   setMonthWisePayment(
-                    filterDocumentsByMonth(values.select, balanceData)
+                    filterDocumentsByMonth(values, balanceData),
+                  );
+                  setPaymentDatamentForTheMonth(
+                    calculateNonSalaryTotal(
+                      filterDocumentsByMonth(values, balanceData),
+                    ),
                   );
                 }}
               />
             </div>
-
+            <div className="balanceClass">
+              <div>Salary: {salaryToRender}</div>
+              <div>Advance: {paymentDatamentForTheMonth}</div>
+              <div>
+                <b>Balance: {salaryToRender - paymentDatamentForTheMonth}</b>
+              </div>
+            </div>
             <ProductInvoiceTable
               TABLE_HEAD={TABLE_HEAD_BALANCE}
               TABLE_ROWS={monthWisePayment}
@@ -1008,16 +1061,15 @@ export default function ShowEmployee() {
                 options={generateMonths(uniqueLeaveMonths)}
                 isInput={false}
                 handle={(values) => {
-                  setMonthWiseLeave(
-                    filterLeaveByMonth(values.select, LEAVE_ROWS)
-                  );
+                  setMonthWiseLeave(filterLeaveByMonth(values, LEAVE_ROWS));
                 }}
               />{" "}
             </div>
             <ProductInvoiceTable
               TABLE_HEAD={TABLE_HEAD_LEAVE}
               TABLE_ROWS={monthWiseLeave.filter(
-                (x) => x["Employee Name"] === employeeApplyingLeave.employeeName
+                (x) =>
+                  x["Employee Name"] === employeeApplyingLeave.employeeName,
               )}
             />
           </DialogBody>
@@ -1041,35 +1093,3 @@ export default function ShowEmployee() {
     </div>
   );
 }
-
-// *Employee Management Functionality
-//  -Add Employee
-//  -Delete Employee
-//  -Update Employee
-//  -View All Employee
-//  -Advance Payment Option
-//  -History of Payment
-//  -Employee Leaves
-//  -Attendance Option
-//  -Custom Office Day off
-
-// *Employee Management Functionality
-
-// ++Add New Employee
-//   -Name
-//   -Phone
-//   -Email
-//   -Age
-//   -Address
-//   -DOJ
-//   -Salary
-//   -Type (Custom Category) - It can be like Sales Person, Technician etc. Businesses can add their custom types
-
-// ++Advance Payment Option
-//  -Option to add payment in middle of the month
-
-// ++Employee Leaves
-//  -Reason & Date
-
-// ++ Attendance Option
-//  -Current date, IN/OUT timing

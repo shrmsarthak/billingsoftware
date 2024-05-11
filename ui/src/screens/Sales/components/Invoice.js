@@ -7,7 +7,7 @@ const Invoice = ({ data, details }) => {
   const totalAmount = data.reduce(
     (acc, item) =>
       acc + item.UnitPrice * item.Qty * (1 - parseFloat(item.Discount) / 100),
-    0
+    0,
   );
 
   function convertAmountToWords(n) {
@@ -406,8 +406,8 @@ const Invoice = ({ data, details }) => {
                 parseInt(
                   Number(details.Total_BeforeTax) +
                     Number(details.Total_Tax) +
-                    Number(details.Shipping_Charges)
-                )
+                    Number(details.Shipping_Charges),
+                ),
               )}
             </Text>
           </View>

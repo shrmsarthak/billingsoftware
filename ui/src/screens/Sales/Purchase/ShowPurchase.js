@@ -341,7 +341,7 @@ export default function ShowInvoicePage() {
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
       "delete-purchase-by-Document-no",
-      obj.Document_No
+      obj.Document_No,
     );
   };
   function getTextForValue(option, value) {
@@ -365,7 +365,7 @@ export default function ShowInvoicePage() {
         "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData)
+          : removeStatusField(filterData),
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -496,7 +496,7 @@ export default function ShowInvoicePage() {
               options={populateDropdown(vendor_option)}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Vendor", values.select);
+                handleFilterChange("Vendor", values);
               }}
             />
           </div>

@@ -140,7 +140,7 @@ export default function ShowClientPage() {
   // For search Filters
   const searchByQuery = async () => {
     const filteredSearchQuery = Object.fromEntries(
-      Object.entries(searchQuery).filter(([key, value]) => value !== "")
+      Object.entries(searchQuery).filter(([key, value]) => value !== ""),
     );
     const res = await ipcRenderer.invoke("get-all-clients-list", {
       page,
@@ -171,7 +171,7 @@ export default function ShowClientPage() {
   const downloadSampleFile = async () => {
     try {
       const response = await ipcRenderer.invoke(
-        "download-client-sample-import-file"
+        "download-client-sample-import-file",
       );
       if (response?.success) {
         // Handle successful response, e.g., prompt download
@@ -306,7 +306,7 @@ export default function ShowClientPage() {
       return;
     }
     const nonEmptyProductFields = Object.fromEntries(
-      Object.entries(clientData).filter(([key, value]) => value !== "")
+      Object.entries(clientData).filter(([key, value]) => value !== ""),
     );
 
     const updateClientObj = {
@@ -343,7 +343,7 @@ export default function ShowClientPage() {
     };
 
     const isShippingObjDefined = Object.values(updateShippingObj).every(
-      (value) => value !== undefined
+      (value) => value !== undefined,
     );
 
     if (clientData.id) {
@@ -361,7 +361,7 @@ export default function ShowClientPage() {
     } else {
       const res = await ipcRenderer.invoke(
         "add-new-client",
-        nonEmptyProductFields
+        nonEmptyProductFields,
       );
       if (res && res.success === true) {
         alert(res.message);
@@ -430,7 +430,7 @@ export default function ShowClientPage() {
                 options={client_option}
                 isinput={false}
                 handle={(values) => {
-                  if (values.select === "*") {
+                  if (values === "Add new Client") {
                     openAddEditModal();
                     return;
                   }
@@ -454,19 +454,7 @@ export default function ShowClientPage() {
                 }
               />
             </div>
-            <div className="w-1/3 mr-6">
-              {/* <SelectComp
-                label="City"
-                isinput={false}
-                options={filterCitiesData}
-                handle={(values) => {
-                  setSearchQuery((prevSearchQuery) => ({
-                    ...prevSearchQuery,
-                    city: values.select,
-                  }));
-                }}
-              /> */}
-            </div>
+            <div className="w-1/3 mr-6"></div>
           </div>
 
           <div className="flex flex-row w-full max-w-screen-xl m-auto justify-between my-2">

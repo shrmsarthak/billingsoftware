@@ -119,7 +119,7 @@ export default function ShowExpenses() {
   });
 
   const person_option = Array.from(
-    new Set(allExpenses.flat().map((x) => x.Person_name))
+    new Set(allExpenses.flat().map((x) => x.Person_name)),
   );
 
   const [filterValues, setFilterValues] = useState({
@@ -255,7 +255,7 @@ export default function ShowExpenses() {
               options={generateDropDownList(person_option)}
               isInput={false}
               handle={(values) => {
-                handleFilterChange("Person", values.select);
+                handleFilterChange("Person", values);
               }}
             />
           </div>
@@ -287,7 +287,7 @@ export default function ShowExpenses() {
               placeholder="Type"
               options={generateDropDownList(expense_options)}
               handle={(values) => {
-                handleFilterChange("Type", values.select);
+                handleFilterChange("Type", values);
               }}
             />
           </div>
@@ -362,10 +362,10 @@ export default function ShowExpenses() {
                     label="Expense Type"
                     placeholder="Expense Type"
                     handle={(values) => {
-                      if (values.select === "Other") {
+                      if (values === "Other") {
                         setRenderCustomExpense(true);
                       } else {
-                        handleFieldChange("Expense_type", values.select);
+                        handleFieldChange("Expense_type", values);
                       }
                     }}
                   />

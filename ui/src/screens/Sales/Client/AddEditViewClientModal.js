@@ -36,13 +36,13 @@ export function AddEditViewClientModal({
   const title = isView
     ? "View Client"
     : editId
-    ? "Edit Client"
-    : "Add New Client";
+      ? "Edit Client"
+      : "Add New Client";
   const subTitle = isView
     ? "View Client"
     : editId
-    ? "Edit Client"
-    : "Add Client";
+      ? "Edit Client"
+      : "Add Client";
 
   const renderErrorMessage = (fieldName, message) => {
     return (
@@ -219,7 +219,7 @@ export function AddEditViewClientModal({
                   defaultValue={data.country}
                   disabled={isView}
                   handle={(values) => {
-                    const value = values.select;
+                    const value = values;
                     setError((prevErrors) => ({
                       ...prevErrors,
                       country: !value,
@@ -239,7 +239,7 @@ export function AddEditViewClientModal({
                   defaultValue={data.state}
                   disabled={isView}
                   handle={(values) => {
-                    const value = values.select;
+                    const value = values;
                     setError((prevErrors) => ({
                       ...prevErrors,
                       state: !value,
@@ -258,12 +258,12 @@ export function AddEditViewClientModal({
                   defaultValue={data.city}
                   disabled={isView}
                   handle={(values) => {
-                    const value = values.select;
+                    const value = values;
                     setError((prevErrors) => ({
                       ...prevErrors,
                       city: !value,
                     }));
-                    setData({ ...data, city: values.select });
+                    setData({ ...data, city: values });
                   }}
                 />
                 {renderErrorMessage("city", "City is required.")}
@@ -386,8 +386,8 @@ export function AddEditViewClientModal({
                       defaultValue={data.shipping_country}
                       disabled={isView}
                       handle={(values) => {
-                        setData({ ...data, shipping_country: values.select });
-                        setStates(getStates(values.select));
+                        setData({ ...data, shipping_country: values });
+                        setStates(getStates(values));
                       }}
                     />
                     <SelectComp
@@ -397,8 +397,8 @@ export function AddEditViewClientModal({
                       defaultValue={data.shipping_state}
                       disabled={isView}
                       handle={(values) => {
-                        setData({ ...data, shipping_state: values.select });
-                        setCities(getCities(values.select));
+                        setData({ ...data, shipping_state: values });
+                        setCities(getCities(values));
                       }}
                     />
                     <SelectComp
@@ -408,7 +408,7 @@ export function AddEditViewClientModal({
                       defaultValue={data.shipping_city}
                       disabled={isView}
                       handle={(values) => {
-                        setData({ ...data, shipping_city: values.select });
+                        setData({ ...data, shipping_city: values });
                       }}
                     />
                   </div>

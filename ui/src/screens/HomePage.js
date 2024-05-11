@@ -193,14 +193,13 @@ export default function HomePage() {
         window.location.href = "/sales/expense/show";
       }
     };
-  
+
     document.addEventListener("keydown", handleKeyPress);
-  
+
     return () => {
       document.removeEventListener("keydown", handleKeyPress);
     };
   }, []);
-  
 
   const [open, setOpen] = useState(true);
   const [text, setText] = useState("");

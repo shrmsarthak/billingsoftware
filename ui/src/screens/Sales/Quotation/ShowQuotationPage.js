@@ -130,7 +130,7 @@ export default function ShowQuotationPage() {
   const handleQuotationChange = async (rowData) => {
     const res = await ipcRenderer.invoke(
       "create-invoice-from-quotation",
-      rowData.Quotation_No
+      rowData.Quotation_No,
     );
   };
 
@@ -456,7 +456,7 @@ export default function ShowQuotationPage() {
   const handleDeleteQuotation = async (obj) => {
     const res = await ipcRenderer.invoke(
       "delete-quotation-by-quotation-no",
-      obj.Quotation_No
+      obj.Quotation_No,
     );
   };
   const AmountPaidHandler = async (e, doc_no) => {
@@ -485,7 +485,7 @@ export default function ShowQuotationPage() {
         "export-quotation-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData)
+          : removeStatusField(filterData),
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -618,10 +618,7 @@ export default function ShowQuotationPage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFilterChange("Client", values);
               }}
             />
           </div>
@@ -653,43 +650,9 @@ export default function ShowQuotationPage() {
               onChange={(e) => handleFilterChange("Issue_To", e.target.value)}
             />
           </div>
-          {/* <div className="flex mr-12 gap-x-2">
-            <Input
-              variant="outlined"
-              label="Due Date"
-              placeholder="Due to"
-              type="date"
-              onChange={(e) => handleFilterChange("Due_Date", e.target.value)}
-            />
-          </div> */}
         </div>
 
-        <div className="flex flex-row w-full justify-between my-2">
-          {/* <div className="mr-12">
-            <SelectComp
-              label="Status"
-              options={status_options}
-              isinput={false}
-              handle={(values) => {
-                handleFilterChange("Status", values.select);
-              }}
-            />
-          </div> */}
-
-          {/* <div className="mr-12">
-            <SelectComp
-              label="Type"
-              options={payemnt_options}
-              isinput={false}
-              handle={(values) => {
-                handleFilterChange(
-                  "Transaction_type",
-                  getTextForValue(payemnt_options, values.select)
-                );
-              }}
-            />
-          </div> */}
-        </div>
+        <div className="flex flex-row w-full justify-between my-2"></div>
 
         <div className="flex justify-center">
           <div className="mx-3">

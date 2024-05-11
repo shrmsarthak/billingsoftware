@@ -494,7 +494,7 @@ export default function ShowInvoicePage() {
   const handleDeleteInvoice = async (obj) => {
     const res = await ipcRenderer.invoke(
       "delete-invoice-by-Document-no",
-      obj.Document_No
+      obj.Document_No,
     );
   };
   const AmountPaidHandler = async (e, doc_no) => {
@@ -522,7 +522,7 @@ export default function ShowInvoicePage() {
         "export-invoices-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData)
+          : removeStatusField(filterData),
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -652,10 +652,7 @@ export default function ShowInvoicePage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFilterChange("Client", values);
               }}
             />
           </div>
@@ -695,7 +692,7 @@ export default function ShowInvoicePage() {
               options={status_options}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Status", values.select);
+                handleFilterChange("Status", values);
               }}
             />
           </div>
@@ -717,7 +714,7 @@ export default function ShowInvoicePage() {
               handle={(values) => {
                 handleFilterChange(
                   "Transaction_type",
-                  getTextForValue(payemnt_options, values.select)
+                  getTextForValue(payemnt_options, values),
                 );
               }}
             />
@@ -766,7 +763,7 @@ export default function ShowInvoicePage() {
                   options={payemnt_options}
                   isinput={false}
                   handle={(values) => {
-                    handleInputChange("Transaction_type", values.select);
+                    handleInputChange("Transaction_type", values);
                   }}
                 />
               </div>

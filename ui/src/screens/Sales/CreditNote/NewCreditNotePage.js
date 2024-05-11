@@ -148,7 +148,7 @@ export default function NewCreditNotePage() {
 
     // Calculate the due date by adding days to the issue date
     const dueDate = new Date(
-      issueDate.setDate(issueDate.getDate() + daysToAdd)
+      issueDate.setDate(issueDate.getDate() + daysToAdd),
     );
 
     // Check if dueDate is a valid date
@@ -185,7 +185,7 @@ export default function NewCreditNotePage() {
 
   useEffect(() => {
     setSelectedClient(
-      allClient.filter((x) => x.client_name === formData.Client)
+      allClient.filter((x) => x.client_name === formData.Client),
     );
   }, [formData.Client]);
 
@@ -207,7 +207,7 @@ export default function NewCreditNotePage() {
           " " +
           selectedClient[0]?.city +
           "-" +
-          selectedClient[0]?.pincode
+          selectedClient[0]?.pincode,
       );
       handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
     }
@@ -215,7 +215,7 @@ export default function NewCreditNotePage() {
       invoices
         .flat()
         .filter((x) => formData.Client === x.Client)
-        .map((y) => y.Document_No)
+        .map((y) => y.Document_No),
     );
   }, [selectedClient]);
 
@@ -278,8 +278,8 @@ export default function NewCreditNotePage() {
       discountValue !== -1
         ? discountValue + "%"
         : item.Discount
-        ? item.Discount + "%"
-        : "0%",
+          ? item.Discount + "%"
+          : "0%",
     CGST: (
       (((item.Discount === ""
         ? item.Unit_Price * (item.Qty || 1)
@@ -531,7 +531,7 @@ export default function NewCreditNotePage() {
                   Shipping_Charges:
                     Number(formData.Shipping_Charges) +
                     Number(
-                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax,
                     ),
                   Shipping_Tax: formData.Shipping_Tax,
                   Discount_on_all: formData.Discount_on_all,
@@ -584,13 +584,13 @@ export default function NewCreditNotePage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
+                if (values == "*") {
                   api_show_client();
                   return;
                 } else {
                   handleFieldChange(
                     "Client",
-                    getTextForValue(client_option, values.select)
+                    getTextForValue(client_option, values),
                   );
                 }
               }}
@@ -603,13 +603,11 @@ export default function NewCreditNotePage() {
               placeholder="Invoice No"
               options={convertDropdownData(selectedClientData)}
               handle={(values) => {
-                handleFieldChange("Invoice_No", values.select);
+                handleFieldChange("Invoice_No", values);
                 handleFieldChange(
                   "Issue_Date",
-                  invoices
-                    .flat()
-                    .filter((x) => x.Document_No === values.select)[0]
-                    .Issue_Date
+                  invoices.flat().filter((x) => x.Document_No === values)[0]
+                    .Issue_Date,
                 );
               }}
             />
@@ -640,7 +638,7 @@ export default function NewCreditNotePage() {
               label="Reason"
               placeholder="Invoice No"
               options={convertDropdownData(reason_options)}
-              handle={(values) => handleFieldChange("Reason", values.select)}
+              handle={(values) => handleFieldChange("Reason", values)}
             />
           </div>
           <div className=" mr-12">
@@ -652,7 +650,7 @@ export default function NewCreditNotePage() {
               handle={(values) => {
                 handleFieldChange(
                   "Payment_Term",
-                  getTextForValue(payemnt_options, values.select)
+                  getTextForValue(payemnt_options, values),
                 );
               }}
             />
@@ -690,56 +688,32 @@ export default function NewCreditNotePage() {
       </div>
       <hr />
       <div className="my-2 ">
-        <div className="flex my-2">
+        <div className="contain-overflow">
           <div className="mr-12">
             <SelectComp
               label="Product"
               options={product_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
+                if (values === "Add New Product") {
                   api_show_product();
                   return;
                 } else {
-                  handleFieldChange(
-                    "Product",
-                    getTextForValue(product_option, values.select)
-                  );
+                  handleFieldChange("Product", values);
                   handleFieldChange(
                     "Unit_Price",
-                    getProductPrice(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductPrice(values, product_option),
                   );
                   handleFieldChange(
                     "UoM",
-                    getProductUOM(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductUOM(values, product_option),
                   );
                   handleFieldChange(
                     "Description",
-                    getProductDescription(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductDescription(values, product_option),
                   );
                 }
               }}
-            />
-          </div>
-          <div className="mr-12">
-            <Input
-              variant="outlined"
-              label="Description"
-              placeholder="Description"
-              value={
-                formData.Description !== ""
-                  ? getProductDescription(formData.Product, product_option)
-                  : ""
-              }
             />
           </div>
           <div className="mr-12">
@@ -752,6 +726,7 @@ export default function NewCreditNotePage() {
                   ? getProductUOM(formData.Product, product_option)
                   : ""
               }
+              disabled
             />
           </div>
           <div className="mr-12">
@@ -772,6 +747,7 @@ export default function NewCreditNotePage() {
                   ? getProductPrice(formData.Product, product_option)
                   : ""
               }
+              disabled
             />
           </div>
           <div className=" mr-12">
@@ -788,10 +764,7 @@ export default function NewCreditNotePage() {
               options={tax_option}
               isinput={false}
               handle={(values) => {
-                handleFieldChange(
-                  "Tax",
-                  getTextForValue(tax_option, values.select)
-                );
+                handleFieldChange("Tax", getTextForValue(tax_option, values));
               }}
             />
           </div>
@@ -868,8 +841,8 @@ export default function NewCreditNotePage() {
                         handleFieldChange(
                           "Shipping_Tax",
                           getIntegerFromPercentageString(
-                            getTextForValue(tax_option, values.select)
-                          )
+                            getTextForValue(tax_option, values),
+                          ),
                         );
                       }}
                     />
@@ -973,7 +946,7 @@ export default function NewCreditNotePage() {
                   Number(totalTax) +
                   Number(formData.Shipping_Charges) +
                   Number(
-                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax,
                   )
                 ).toFixed(2)}
               </div>

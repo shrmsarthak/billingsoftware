@@ -168,7 +168,7 @@ export default function ShowProductsPage() {
     const getSubCategories = async () => {
       const subCategoriesData = await ipcRenderer.invoke(
         "get-sub-categories-by-category-id",
-        { category_id: categoryId }
+        { category_id: categoryId },
       );
       const subCategoriesArray = subCategoriesData?.data?.map((cat) => ({
         text: cat.name,
@@ -242,7 +242,7 @@ export default function ShowProductsPage() {
   // For search Filters
   const searchByQuery = async () => {
     const filteredSearchQuery = Object.fromEntries(
-      Object.entries(searchQuery).filter(([key, value]) => value !== "")
+      Object.entries(searchQuery).filter(([key, value]) => value !== ""),
     );
     const res = await ipcRenderer.invoke("get-all-products-list", {
       page,
@@ -286,7 +286,7 @@ export default function ShowProductsPage() {
   const downloadSampleFile = async () => {
     try {
       const response = await ipcRenderer.invoke(
-        "download-product-sample-import-file"
+        "download-product-sample-import-file",
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -429,7 +429,7 @@ export default function ShowProductsPage() {
       return;
     }
     const nonEmptyProductFields = Object.fromEntries(
-      Object.entries(productData).filter(([key, value]) => value !== "")
+      Object.entries(productData).filter(([key, value]) => value !== ""),
     );
     productData["cess"] = `${productData.cessValue1},${productData.cessValue2}`;
     delete productData["cessValue1"];
@@ -447,7 +447,7 @@ export default function ShowProductsPage() {
     } else {
       const res = await ipcRenderer.invoke(
         "add-new-product",
-        nonEmptyProductFields
+        nonEmptyProductFields,
       );
       if (res && res.success === true) {
         alert(res.message);
@@ -516,7 +516,7 @@ export default function ShowProductsPage() {
                 options={product_option}
                 isinput={false}
                 handle={(values) => {
-                  if (values.select === "*") {
+                  if (values === "*") {
                     openAddEditModal();
                     return;
                   }
@@ -594,29 +594,6 @@ export default function ShowProductsPage() {
               />
             </div>
           </div>
-
-          {/* <div className="flex flex-row w-full max-w-screen-xl m-auto justify-between my-2">
-            <div className="w-1/3 mr-6">
-              <SelectComp
-                label="Product/Service Name"
-                options={product_option}
-                isinput={false}
-                handle={(values) => {
-                  if (values.select === "*") {
-                    return;
-                  }
-                  setSearchQuery((prevSearchQuery) => ({
-                    ...prevSearchQuery,
-                    name: values.select,
-                  }));
-                }}
-              />
-            </div>
-            <div className="w-1/3 mr-6">
-              <DatePicker />
-            </div>
-          </div> */}
-
           <div className="flex justify-center gap-3 mt-4">
             <div className="">
               <Button
