@@ -9,7 +9,6 @@ import { get_all_product_option } from "../../../utils/SelectOptions";
 // import DatePicker from "../components/DatePicker";
 import { AddEditViewProductModal } from "./AddEditViewProductModal";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "S.No",
@@ -166,9 +165,9 @@ export default function ShowProductsPage() {
   //Getting categories and Sub categories
   useEffect(() => {
     const getSubCategories = async () => {
-      const subCategoriesData = await ipcRenderer.invoke(
+      const subCategoriesData = await window.api.invoke(
         "get-sub-categories-by-category-id",
-        { category_id: categoryId }
+        { category_id: categoryId },
       );
       const subCategoriesArray = subCategoriesData?.data?.map((cat) => ({
         text: cat.name,
@@ -181,7 +180,7 @@ export default function ShowProductsPage() {
   }, [categoryId]);
 
   const getCategories = async () => {
-    const category = await ipcRenderer.invoke("get-all-categories");
+    const category = await window.api.invoke("get-all-categories");
     let category_option = [{ text: "Add New Category", value: "*" }];
 
     category.data.map((cat) => {
@@ -191,7 +190,7 @@ export default function ShowProductsPage() {
   };
 
   const getTaxes = async () => {
-    const taxes = await ipcRenderer.invoke("get-all-taxes");
+    const taxes = await window.api.invoke("get-all-taxes");
     const taxArray = taxes.data.map((tax) => ({
       text: tax.name,
       value: tax.tax_rate,
@@ -201,7 +200,7 @@ export default function ShowProductsPage() {
 
   // Fetching all products for grid
   const getAllProduct = async () => {
-    var res = await ipcRenderer.invoke("get-all-products-list", {
+    var res = await window.api.invoke("get-all-products-list", {
       page,
       limit,
     });
@@ -242,9 +241,9 @@ export default function ShowProductsPage() {
   // For search Filters
   const searchByQuery = async () => {
     const filteredSearchQuery = Object.fromEntries(
-      Object.entries(searchQuery).filter(([key, value]) => value !== "")
+      Object.entries(searchQuery).filter(([key, value]) => value !== ""),
     );
-    const res = await ipcRenderer.invoke("get-all-products-list", {
+    const res = await window.api.invoke("get-all-products-list", {
       page,
       limit,
       searchQuery: filteredSearchQuery,
@@ -285,8 +284,8 @@ export default function ShowProductsPage() {
 
   const downloadSampleFile = async () => {
     try {
-      const response = await ipcRenderer.invoke(
-        "download-product-sample-import-file"
+      const response = await window.api.invoke(
+        "download-product-sample-import-file",
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -311,7 +310,7 @@ export default function ShowProductsPage() {
         originalName: file.name,
         path: file.path,
       };
-      const response = await ipcRenderer.invoke("import-products-from-excel", {
+      const response = await window.api.invoke("import-products-from-excel", {
         fileData,
       });
       if (response && response.success === true) {
@@ -326,7 +325,7 @@ export default function ShowProductsPage() {
   //Export Products
   const exportClientsToExcel = async () => {
     try {
-      const response = await ipcRenderer.invoke("export-products-to-excel", {
+      const response = await window.api.invoke("export-products-to-excel", {
         page,
         limit,
         searchQuery,
@@ -357,7 +356,7 @@ export default function ShowProductsPage() {
   };
 
   const deleteClient = async () => {
-    const response = await ipcRenderer.invoke("delete-product-by-id", {
+    const response = await window.api.invoke("delete-product-by-id", {
       productId: productIdDelete.id,
     });
   };
@@ -370,7 +369,7 @@ export default function ShowProductsPage() {
   const openAddEditModal = async (values) => {
     if (values) {
       setEditId(values?.id);
-      const productDataForEdit = await ipcRenderer.invoke("get-product-by-id", {
+      const productDataForEdit = await window.api.invoke("get-product-by-id", {
         productId: values?.id,
       });
       const prodData = productDataForEdit.product;
@@ -429,13 +428,13 @@ export default function ShowProductsPage() {
       return;
     }
     const nonEmptyProductFields = Object.fromEntries(
-      Object.entries(productData).filter(([key, value]) => value !== "")
+      Object.entries(productData).filter(([key, value]) => value !== ""),
     );
     productData["cess"] = `${productData.cessValue1},${productData.cessValue2}`;
     delete productData["cessValue1"];
     delete productData["cessValue2"];
     if (productData.id) {
-      const res = await ipcRenderer.invoke("update-product", {
+      const res = await window.api.invoke("update-product", {
         productId: nonEmptyProductFields.id,
         updatedFields: nonEmptyProductFields,
       });
@@ -445,9 +444,9 @@ export default function ShowProductsPage() {
         alert(res.message);
       }
     } else {
-      const res = await ipcRenderer.invoke(
+      const res = await window.api.invoke(
         "add-new-product",
-        nonEmptyProductFields
+        nonEmptyProductFields,
       );
       if (res && res.success === true) {
         alert(res.message);
@@ -466,7 +465,7 @@ export default function ShowProductsPage() {
     setIsView(true);
     if (values) {
       setEditId(values?.id);
-      const productDataForEdit = await ipcRenderer.invoke("get-product-by-id", {
+      const productDataForEdit = await window.api.invoke("get-product-by-id", {
         productId: values?.id,
       });
       const prodData = productDataForEdit.product;
@@ -516,7 +515,7 @@ export default function ShowProductsPage() {
                 options={product_option}
                 isinput={false}
                 handle={(values) => {
-                  if (values.select === "*") {
+                  if (values === "*") {
                     openAddEditModal();
                     return;
                   }
@@ -594,29 +593,6 @@ export default function ShowProductsPage() {
               />
             </div>
           </div>
-
-          {/* <div className="flex flex-row w-full max-w-screen-xl m-auto justify-between my-2">
-            <div className="w-1/3 mr-6">
-              <SelectComp
-                label="Product/Service Name"
-                options={product_option}
-                isinput={false}
-                handle={(values) => {
-                  if (values.select === "*") {
-                    return;
-                  }
-                  setSearchQuery((prevSearchQuery) => ({
-                    ...prevSearchQuery,
-                    name: values.select,
-                  }));
-                }}
-              />
-            </div>
-            <div className="w-1/3 mr-6">
-              <DatePicker />
-            </div>
-          </div> */}
-
           <div className="flex justify-center gap-3 mt-4">
             <div className="">
               <Button

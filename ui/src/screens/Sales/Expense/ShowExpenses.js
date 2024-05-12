@@ -19,7 +19,6 @@ import SelectComp from "../components/SelectComp";
 import { get_all_expenses } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -71,7 +70,7 @@ const generateDropDownList = (data) => {
 const allExpenses = await get_all_expenses();
 console.log(allExpenses);
 const handleDeleteExpense = async (obj) => {
-  const res = await ipcRenderer.invoke("delete-expense-by-id", obj.id);
+  const res = await window.api.invoke("delete-expense-by-id", obj.id);
   alert(res.message);
 };
 
@@ -119,7 +118,7 @@ export default function ShowExpenses() {
   });
 
   const person_option = Array.from(
-    new Set(allExpenses.flat().map((x) => x.Person_name))
+    new Set(allExpenses.flat().map((x) => x.Person_name)),
   );
 
   const [filterValues, setFilterValues] = useState({
@@ -142,7 +141,7 @@ export default function ShowExpenses() {
 
   const handleSave = async () => {
     setRenderCustomExpense(false);
-    const res = await ipcRenderer.invoke("add-new-expense", fields);
+    const res = await window.api.invoke("add-new-expense", fields);
     alert(res.message);
   };
 
@@ -255,7 +254,7 @@ export default function ShowExpenses() {
               options={generateDropDownList(person_option)}
               isInput={false}
               handle={(values) => {
-                handleFilterChange("Person", values.select);
+                handleFilterChange("Person", values);
               }}
             />
           </div>
@@ -287,7 +286,7 @@ export default function ShowExpenses() {
               placeholder="Type"
               options={generateDropDownList(expense_options)}
               handle={(values) => {
-                handleFilterChange("Type", values.select);
+                handleFilterChange("Type", values);
               }}
             />
           </div>
@@ -362,10 +361,10 @@ export default function ShowExpenses() {
                     label="Expense Type"
                     placeholder="Expense Type"
                     handle={(values) => {
-                      if (values.select === "Other") {
+                      if (values === "Other") {
                         setRenderCustomExpense(true);
                       } else {
-                        handleFieldChange("Expense_type", values.select);
+                        handleFieldChange("Expense_type", values);
                       }
                     }}
                   />

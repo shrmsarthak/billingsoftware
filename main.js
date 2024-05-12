@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require('path');
 const { DBManager } = require("./utils/DBManager");
 const { CompanyModel } = require("./models/Company");
 const { Client } = require("./models/Client");
@@ -35,9 +36,10 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true,
-      worldSafeExecuteJavaScript: true,
-      contextIsolation: false,
+      nodeIntegration: true, // is default value after Electron v5
+      contextIsolation: true, // protect against prototype pollution
+      enableRemoteModule: false,
+      preload: path.join(__dirname, "preload.js"),
     },
     title: "Billing System",
   });
@@ -45,6 +47,7 @@ function createWindow() {
   if (!DBManager.isInitialized) {
     DBManager.initialize().then((v) => {
       mainWindow.loadURL(startURL);
+      // mainWindow.loadFile(path.join(__dirname, 'ui/build/index.html'));
     });
   }
   mainWindow.on("closed", () => (mainWindow = null));

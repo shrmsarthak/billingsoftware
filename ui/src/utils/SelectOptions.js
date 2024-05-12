@@ -1,4 +1,3 @@
-const { ipcRenderer } = window.require("electron");
 export const uom_type = () => {
   return [
     {
@@ -67,8 +66,8 @@ export const tax_type = () => {
 
 export const get_all_client_option = async () => {
   let option = [{ text: "Add new Client", value: "*" }];
-  var res = await ipcRenderer.invoke("get-all-client");
-  res.data.map((c, idx) => {
+  var res = await window.api.invoke("get-all-client");
+  res?.data.map((c, idx) => {
     option.push({
       text: c.client_name,
       value: c.id,
@@ -78,10 +77,10 @@ export const get_all_client_option = async () => {
 };
 
 export const get_all_product_option = async () => {
-  var res = await ipcRenderer.invoke("get-all-product");
+  var res = await window.api.invoke("get-all-product");
   let product_option = [{ text: "Add New Product", value: "*" }];
 
-  res.data.map((c, idx) => {
+  res?.data.map((c, idx) => {
     product_option.push({
       text: c.product_name,
       value: c.id,
@@ -95,9 +94,9 @@ export const get_all_product_option = async () => {
 };
 
 export const get_all_vendor_option = async () => {
-  var res = await ipcRenderer.invoke("get-all-vendors");
+  var res = await window.api.invoke("get-all-vendors");
   let product_option = [{ text: "Add New Vendor", value: "Add New Vendor" }];
-  res.data.map((c, idx) => {
+  res?.data.map((c, idx) => {
     product_option.push({
       text: c.Vendor,
       value: c.id,
@@ -112,66 +111,66 @@ export const get_all_vendor_option = async () => {
 };
 
 export const get_all_invoices = async () => {
-  var res = await ipcRenderer.invoke("get-all-invoice");
-  return [res.data];
+  var res = await window.api.invoke("get-all-invoice");
+  return [res?.data];
 };
 
 export const get_all_expenses = async () => {
-  var res = await ipcRenderer.invoke("get-all-expenses");
-  return [res.data];
+  var res = await window.api.invoke("get-all-expenses");
+  return [res?.data];
 };
 
 export const get_all_employee = async () => {
-  var res = await ipcRenderer.invoke("get-all-employee");
-  return [res.data];
+  var res = await window.api.invoke("get-all-employee");
+  return [res?.data];
 };
 
 export const get_all_employee_payments = async () => {
-  var res = await ipcRenderer.invoke("get-all-employee-payments");
-  return res.data;
+  var res = await window.api.invoke("get-all-employee-payments");
+  return res?.data;
 };
 
 export const get_all_employee_leaves = async () => {
-  var res = await ipcRenderer.invoke("get-all-employee-leaves");
-  return res.data;
+  var res = await window.api.invoke("get-all-employee-leaves");
+  return res?.data;
 };
 
 export const get_all_purchase_orders = async () => {
-  var res = await ipcRenderer.invoke("get-all-purchase-orders");
-  return [res.data];
+  var res = await window.api.invoke("get-all-purchase-orders");
+  return [res?.data];
 };
 
 export const get_all_payment_details = async () => {
-  var res = await ipcRenderer.invoke("get-all-payment-receipts");
-  return [res.data];
+  var res = await window.api.invoke("get-all-payment-receipts");
+  return [res?.data];
 };
 
 export const get_all_debit_notes = async () => {
-  var res = await ipcRenderer.invoke("get-all-debit-notes");
-  return [res.data];
+  var res = await window.api.invoke("get-all-debit-notes");
+  return [res?.data];
 };
 
 export const get_all_credit_notes = async () => {
-  var res = await ipcRenderer.invoke("get-all-credit-notes");
-  return [res.data];
+  var res = await window.api.invoke("get-all-credit-notes");
+  return [res?.data];
 };
 
 export const get_all_quotation = async () => {
-  var res = await ipcRenderer.invoke("get-all-quotation");
-  return [res.data];
+  var res = await window.api.invoke("get-all-quotation");
+  return [res?.data];
 };
 
 export const get_company_details = async () => {
-  var res = await ipcRenderer.invoke("get-company-details");
+  var res = await window.api.invoke("get-company-details");
   return res;
 };
 
 export const get_invoice_count = async () => {
-  var res = await ipcRenderer.invoke("get-invoice-count");
+  var res = await window.api.invoke("get-invoice-count");
   return res;
 };
 
 export const get_todo_data = async () => {
-  var res = await ipcRenderer.invoke("get-todo-data");
+  var res = await window.api.invoke("get-todo-data");
   return res;
 };

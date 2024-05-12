@@ -24,7 +24,6 @@ import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -134,7 +133,7 @@ export default function NewQuotationPage() {
 
     // Calculate the due date by adding days to the issue date
     const dueDate = new Date(
-      issueDate.setDate(issueDate.getDate() + daysToAdd)
+      issueDate.setDate(issueDate.getDate() + daysToAdd),
     );
 
     // Check if dueDate is a valid date
@@ -170,14 +169,14 @@ export default function NewQuotationPage() {
 
   useEffect(() => {
     setSelectedClient(
-      allClient.filter((x) => x.client_name === formData.Client)
+      allClient.filter((x) => x.client_name === formData.Client),
     );
   }, [formData.Client]);
 
   const getAllClients = async () => {
     let page = 1;
     let limit = 50;
-    let res = await ipcRenderer.invoke("get-all-clients-list", {
+    let res = await window.api.invoke("get-all-clients-list", {
       page,
       limit,
     });
@@ -192,7 +191,7 @@ export default function NewQuotationPage() {
           " " +
           selectedClient[0]?.city +
           "-" +
-          selectedClient[0]?.pincode
+          selectedClient[0]?.pincode,
       );
       handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
     }
@@ -257,8 +256,8 @@ export default function NewQuotationPage() {
       discountValue !== -1
         ? discountValue + "%"
         : item.Discount
-        ? item.Discount + "%"
-        : "0%",
+          ? item.Discount + "%"
+          : "0%",
     CGST: (
       (((item.Discount === ""
         ? item.Unit_Price * (item.Qty || 1)
@@ -405,7 +404,7 @@ export default function NewQuotationPage() {
         Total_Tax: formData.Total_Tax,
       };
 
-      const res = await ipcRenderer.invoke("add-new-quotation", invoiceData);
+      const res = await window.api.invoke("add-new-quotation", invoiceData);
       alert(res.message); // Handle the response as needed
     };
 
@@ -520,7 +519,7 @@ export default function NewQuotationPage() {
                   Shipping_Charges:
                     Number(formData.Shipping_Charges) +
                     Number(
-                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax,
                     ),
                   Shipping_Tax: formData.Shipping_Tax,
                   Discount_on_all: formData.Discount_on_all,
@@ -555,14 +554,11 @@ export default function NewQuotationPage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
+                if (values == "Add new Client") {
                   api_show_client();
                   return;
                 } else {
-                  handleFieldChange(
-                    "Client",
-                    getTextForValue(client_option, values.select)
-                  );
+                  handleFieldChange("Client", values);
                 }
               }}
             />
@@ -614,7 +610,7 @@ export default function NewQuotationPage() {
               handle={(values) => {
                 handleFieldChange(
                   "Payment_Term",
-                  getTextForValue(payemnt_options, values.select)
+                  getTextForValue(payemnt_options, values),
                 );
               }}
             />
@@ -652,41 +648,35 @@ export default function NewQuotationPage() {
       </div>
       <hr />
       <div className="my-2 ">
-        <div className="flex my-2">
+        <div className="contain-overflow">
           <div className="mr-12">
             <SelectComp
               label="Product"
               options={product_option}
               isinput={false}
               handle={(values) => {
-                if (values.select == "*") {
+                if (values == "Add New Product") {
                   api_show_product();
                   return;
                 } else {
-                  handleFieldChange(
-                    "Product",
-                    getTextForValue(product_option, values.select)
-                  );
+                  handleFieldChange("Product", values);
                   handleFieldChange(
                     "Unit_Price",
-                    getProductPrice(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                    getProductPrice(values, product_option),
                   );
                   handleFieldChange(
                     "UoM",
                     getProductUOM(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                      getTextForValue(product_option, values),
+                      product_option,
+                    ),
                   );
                   handleFieldChange(
                     "Description",
                     getProductDescription(
-                      getTextForValue(product_option, values.select),
-                      product_option
-                    )
+                      getTextForValue(product_option, values),
+                      product_option,
+                    ),
                   );
                 }
               }}
@@ -750,10 +740,7 @@ export default function NewQuotationPage() {
               options={tax_option}
               isinput={false}
               handle={(values) => {
-                handleFieldChange(
-                  "Tax",
-                  getTextForValue(tax_option, values.select)
-                );
+                handleFieldChange("Tax", getTextForValue(tax_option, values));
               }}
             />
           </div>
@@ -830,8 +817,8 @@ export default function NewQuotationPage() {
                         handleFieldChange(
                           "Shipping_Tax",
                           getIntegerFromPercentageString(
-                            getTextForValue(tax_option, values.select)
-                          )
+                            getTextForValue(tax_option, values),
+                          ),
                         );
                       }}
                     />
@@ -935,7 +922,7 @@ export default function NewQuotationPage() {
                   Number(totalTax) +
                   Number(formData.Shipping_Charges) +
                   Number(
-                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax,
                   )
                 ).toFixed(2)}
               </div>

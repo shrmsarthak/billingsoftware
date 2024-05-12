@@ -6580,6 +6580,14 @@ video {
   flex-wrap: wrap;
 }
 
-.selectComp{
+.selectComp {
   min-width: 200px;
+}
+
+.balanceClass {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: baseline;
+  margin-bottom: 20px;
 }

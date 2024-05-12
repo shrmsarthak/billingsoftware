@@ -23,7 +23,6 @@ import {
 } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -148,7 +147,7 @@ export default function Inventory() {
 
       if (documentNo.startsWith("PUR")) {
         const purchaseData = item.rowsData.find(
-          (row) => row.Product === product
+          (row) => row.Product === product,
         );
         if (purchaseData) {
           purchaseQty += parseInt(purchaseData.Qty);
@@ -194,7 +193,7 @@ export default function Inventory() {
   };
   const productQtyByDocument = getProductQtyByDocument(
     combinedArray,
-    selectedProduct.Product
+    selectedProduct.Product,
   );
   //console.log(selectedProduct);
   const nonEmptyValues = () => {
@@ -335,10 +334,7 @@ export default function Inventory() {
               options={product_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Product",
-                  getTextForValue(product_option, values.select)
-                );
+                handleFilterChange("Product", values);
               }}
             />
           </div>
@@ -350,7 +346,7 @@ export default function Inventory() {
               options={convertDropdownData(getUomOptions(product_option))}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Type", values.select);
+                handleFilterChange("Type", values);
               }}
             />
           </div>

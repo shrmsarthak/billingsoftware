@@ -20,7 +20,6 @@ import { saveAs } from "file-saver";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD_THREE = [
   "No",
@@ -379,10 +378,7 @@ export default function ShowLedgerPage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFilterChange("Client", values);
               }}
             />
           </div>

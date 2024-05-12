@@ -36,8 +36,8 @@ export function AddEditViewProductModal({
   const title = isView
     ? "View Product/Service"
     : editId
-    ? "Edit Product/Service"
-    : "Add Product/Service";
+      ? "Edit Product/Service"
+      : "Add Product/Service";
 
   const renderErrorMessage = (fieldName, message) => {
     return (
@@ -80,7 +80,7 @@ export function AddEditViewProductModal({
                 options={typeOptions}
                 defaultValue={data.p_type}
                 handle={(values) => {
-                  const selectedType = values.select;
+                  const selectedType = values;
                   setData({ ...data, p_type: selectedType });
                   // Set visibility for Unit and SKU fields based on the selected type
                   setShowProductsModule(selectedType === "Product");
@@ -95,7 +95,7 @@ export function AddEditViewProductModal({
                   isinput={false}
                   defaultValue={data.uom}
                   handle={(values) => {
-                    setData({ ...data, uom: values.select });
+                    setData({ ...data, uom: values });
                   }}
                   disabled={isView}
                 />
@@ -132,7 +132,7 @@ export function AddEditViewProductModal({
                 />
                 {renderErrorMessage(
                   "product_name",
-                  "Product name is required."
+                  "Product name is required.",
                 )}
               </div>
               {showProductsModule && (
@@ -179,12 +179,12 @@ export function AddEditViewProductModal({
                   defaultValue={data.category}
                   disabled={isView}
                   handle={(values) => {
-                    if (values.select === "*") {
+                    if (values === "*") {
                       // api_new_client();
                       return;
                     }
-                    setCategoryId(values.select);
-                    setData({ ...data, category: values.select });
+                    setCategoryId(values);
+                    setData({ ...data, category: values });
                   }}
                 />
               )}
@@ -196,7 +196,7 @@ export function AddEditViewProductModal({
                   defaultValue={data.sub_category}
                   disabled={isView}
                   handle={(values) => {
-                    setData({ ...data, sub_category: values.select });
+                    setData({ ...data, sub_category: values });
                   }}
                 />
               )}
@@ -266,7 +266,7 @@ export function AddEditViewProductModal({
                 defaultValue={data.tax}
                 disabled={isView}
                 handle={(values) => {
-                  setData({ ...data, tax: values.select });
+                  setData({ ...data, tax: values });
                 }}
               />
               {showProductsModule && (
@@ -375,8 +375,8 @@ export function AddEditViewProductModal({
                     isinput={false}
                     defaultValue={data.currency}
                     disabled={isView}
-                  handle={(values) => {
-                      const value = values.select;
+                    handle={(values) => {
+                      const value = values;
                       setData({ ...data, currency: value });
                     }}
                   />

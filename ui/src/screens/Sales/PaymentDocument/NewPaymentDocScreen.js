@@ -29,7 +29,6 @@ import PaymentReceipt from "../components/Receipts/PaymentReceipt";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -78,7 +77,7 @@ export default function NewPaymentPage() {
   const getAllClients = async () => {
     let page = 1;
     let limit = 50;
-    let res = await ipcRenderer.invoke("get-all-clients-list", {
+    let res = await window.api.invoke("get-all-clients-list", {
       page,
       limit,
     });
@@ -123,9 +122,9 @@ export default function NewPaymentPage() {
         Amount_Received: formData.Amount_Received,
       };
 
-      const res = await ipcRenderer.invoke(
+      const res = await window.api.invoke(
         "add-new-payment-data",
-        paymentReceiptData
+        paymentReceiptData,
       );
       alert(res.message); // Handle the response as needed
     };
@@ -333,10 +332,7 @@ export default function NewPaymentPage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFieldChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFieldChange("Client", values);
               }}
             />
           </div>
@@ -369,7 +365,7 @@ export default function NewPaymentPage() {
               options={convertDropdownData(payment_type)}
               isinput={false}
               handle={(values) => {
-                handleFieldChange("Payment_Type", values.select);
+                handleFieldChange("Payment_Type", values);
               }}
             />
           </div>
@@ -392,7 +388,7 @@ export default function NewPaymentPage() {
               options={convertDropdownData(payment_options)}
               isinput={false}
               handle={(values) => {
-                handleFieldChange("Payment_Mode", values.select);
+                handleFieldChange("Payment_Mode", values);
               }}
             />
           </div>
@@ -400,12 +396,6 @@ export default function NewPaymentPage() {
       </div>
       <hr />
 
-      {/* <div className="flex flex-1 mb-2">
-        <ProductInvoiceTable
-          TABLE_HEAD={TABLE_HEAD}
-          TABLE_ROWS={filteredArray}
-        />
-      </div> */}
       <div className="py-2 self-end" style={{ marginRight: 40 }}>
         <div style={{ textAlign: "left", marginRight: "auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end" }}>

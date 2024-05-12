@@ -20,7 +20,6 @@ import { saveAs } from "file-saver";
 import PaymentReceipt from "../components/Receipts/PaymentReceipt";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const TABLE_HEAD = [
   "No",
@@ -314,9 +313,9 @@ export default function ShowPaymentDocScreen() {
 
   const nonEmptyFields = nonEmptyValues();
   const handleDeleteInvoice = async (obj) => {
-    const res = await ipcRenderer.invoke(
+    const res = await window.api.invoke(
       "delete-payment-by-Document-no",
-      obj.Document_No
+      obj.Document_No,
     );
     alert(res.message);
   };
@@ -337,11 +336,11 @@ export default function ShowPaymentDocScreen() {
 
   const exportInvoicesToExcel = async () => {
     try {
-      const response = await ipcRenderer.invoke(
+      const response = await window.api.invoke(
         "export-payment_report-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData)
+          : removeStatusField(filterData),
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -463,10 +462,7 @@ export default function ShowPaymentDocScreen() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange(
-                  "Client",
-                  getTextForValue(client_option, values.select)
-                );
+                handleFilterChange("Client", values);
               }}
             />
           </div>
@@ -507,7 +503,7 @@ export default function ShowPaymentDocScreen() {
               options={convertDropdownData(payment_type)}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Transaction_type", values.select);
+                handleFilterChange("Transaction_type", values);
               }}
             />
           </div>

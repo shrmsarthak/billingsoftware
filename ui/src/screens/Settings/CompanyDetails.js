@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Button, Input } from "@material-tailwind/react";
 import HomeButton from "../../assets/Buttons/HomeButton";
-const { ipcRenderer } = window.require("electron");
 
 const initialValues = {
   CompanyName: "",
@@ -29,7 +28,7 @@ export default function AddCompanyDetails() {
   };
 
   const handleSubmit = async () => {
-    const res = await ipcRenderer.invoke("add-company-details", formData);
+    const res = await window.api.invoke("add-company-details", formData);
     alert(res.message);
   };
 
