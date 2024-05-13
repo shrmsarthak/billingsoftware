@@ -46,8 +46,8 @@ function createWindow() {
   const startURL = "http://localhost:3000";
   if (!DBManager.isInitialized) {
     DBManager.initialize().then((v) => {
-      mainWindow.loadURL(startURL);
-      // mainWindow.loadFile(path.join(__dirname, 'ui/build/index.html'));
+      // mainWindow.loadURL(startURL);
+      mainWindow.loadFile(path.join(__dirname, 'ui/build/index.html'));
     });
   }
   mainWindow.on("closed", () => (mainWindow = null));
