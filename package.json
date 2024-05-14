@@ -1,7 +1,7 @@
 {
   "name": "billingsystem",
   "version": "1.0.0",
-  "description": "Billing App",
+  "description": "A comprehensive billing software solution designed to streamline business operations by centralizing record management. This software facilitates invoicing, quotation generation, inventory management, purchase order tracking, and ledger maintenance. Additionally, it includes an integrated employee management system for efficient personnel administration.",
   "main": "main.js",
   "type": "commonjs",
   "scripts": {
@@ -10,7 +10,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
-  "author": "Umansh",
+  "author": "Umansh Sarabhai",
   "license": "ISC",
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
@@ -36,10 +36,10 @@
     "xlsx": "^0.18.5"
   },
   "build": {
-    "appId": "com.test.app",
+    "appId": "GIT-RE-01",
     "productName": "Umansh Billing Software",
     "directories": {
-      "output": "C:\\Users\\usara\\OneDrive\\Desktop\\Test"
+      "output": "dist"
     },
     "win": {
       "target": "nsis"
