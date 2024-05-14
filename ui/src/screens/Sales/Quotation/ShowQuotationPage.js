@@ -76,8 +76,6 @@ let companyDetails = await get_company_details();
 let client_option = await get_all_client_option();
 client_option.shift();
 
-console.log(invoices);
-
 export default function ShowQuotationPage() {
   useEffect(() => {
     document.title = "Show Quotation";
@@ -477,7 +475,6 @@ export default function ShowQuotationPage() {
     });
   }
 
-  // console.log(removeStatusField(filteredArray));
   const exportInvoicesToExcel = async () => {
     try {
       const response = await window.api.invoke(

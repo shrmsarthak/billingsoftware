@@ -1,5 +1,5 @@
-import SelectComp from "../../screens/Sales/components/SelectComp";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
+import Select from "react-select";
 
 export default function ReportsDropDown() {
   const location = useLocation();
@@ -20,35 +20,75 @@ export default function ReportsDropDown() {
     return "Show " + titleCaseMiddlePart;
   }
 
-  const navigateOptions = [
-    "Show Invoice",
-    "Show Quotation",
-    "Show Debit",
-    "Show Credit",
-    "Show Purchase",
-    "Show Payment",
+  function ListItemsOptions({ title, to }) {
+    const renderTitle = () => {
+      if (!title) return null;
+      return (
+        <h1
+          className="font-bold text-black"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            fontSize: "small",
+          }}
+        >
+          {title}
+        </h1>
+      );
+    };
+
+    return (
+      <Link to={to}>
+        <div
+          style={{
+            justifyContent: "center",
+            border: "none",
+          }}
+        >
+          <div>{renderTitle()}</div>
+        </div>
+      </Link>
+    );
+  }
+
+  const options = [
+    {
+      value: "1",
+      label: <ListItemsOptions title="Show Invoice" to="/sales/invoice/show" />,
+    },
+    {
+      value: "2",
+      label: (
+        <ListItemsOptions title="Show Quotation" to="/sales/quotation/show" />
+      ),
+    },
+    {
+      value: "3",
+      label: <ListItemsOptions title="Show Debit" to="/sales/debit/show" />,
+    },
+    {
+      value: "4",
+      label: <ListItemsOptions title="Show Credit" to="/sales/credit/show" />,
+    },
+    {
+      value: "5",
+      label: (
+        <ListItemsOptions title="Show Purchase" to="/sales/purchase/show" />
+      ),
+    },
+    {
+      value: "6",
+      label: <ListItemsOptions title="Show Payment" to="/sales/payment/show" />,
+    },
+    {
+      value: "7",
+      label: <ListItemsOptions title="Show Vendors" to="/sales/vendors/show" />,
+    },
   ];
   return (
-    <div style={{ maxWidth: 300, marginLeft: 20 }}>
-      <SelectComp
-        options={convertDropdownData(navigateOptions)}
-        handle={(value) => {
-          if (value === "Show Invoice") {
-            window.location.href = "/sales/invoice/show";
-          } else if (value === "Show Quotation") {
-            window.location.href = "/sales/quotation/show";
-          } else if (value === "Show Debit") {
-            window.location.href = "/sales/debit/show";
-          } else if (value === "Show Credit") {
-            window.location.href = "/sales/credit/show";
-          } else if (value === "Show Payment") {
-            window.location.href = "/sales/payment/show";
-          } else {
-            window.location.href = "/sales/purchase/show";
-          }
-        }}
-        label="Module"
-        isinput={false}
+    <div style={{ width: 200, marginLeft: 20 }}>
+      <Select
+        options={options}
         placeholder={extractMiddleTitleCase(location.pathname)}
       />
     </div>

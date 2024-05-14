@@ -68,7 +68,6 @@ const generateDropDownList = (data) => {
 };
 
 const allExpenses = await get_all_expenses();
-console.log(allExpenses);
 const handleDeleteExpense = async (obj) => {
   const res = await window.api.invoke("delete-expense-by-id", obj.id);
   alert(res.message);

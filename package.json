@@ -1,7 +1,7 @@
 {
   "name": "billingsystem",
   "version": "1.0.0",
-  "description": "",
+  "description": "Billing App",
   "main": "main.js",
   "type": "commonjs",
   "scripts": {
@@ -14,13 +14,20 @@
   "license": "ISC",
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-rpm": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/plugin-fuses": "^7.4.0",
+    "@electron/fuses": "^1.8.0",
     "@types/node": "^20.11.19",
     "electron": "^28.2.2",
-    "electron-builder": "^24.13.3",
     "electron-is-dev": "^3.0.1"
   },
   "dependencies": {
     "electron-reload": "^2.0.0-alpha.1",
+    "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "reflect-metadata": "^0.2.1",
@@ -32,7 +39,7 @@
     "appId": "com.test.app",
     "productName": "Umansh Billing Software",
     "directories": {
-      "output": "dist"
+      "output": "C:\\Users\\usara\\OneDrive\\Desktop\\Test"
     },
     "win": {
       "target": "nsis"

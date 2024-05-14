@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
-const path = require('path');
+const path = require("path");
 const { DBManager } = require("./utils/DBManager");
 const { CompanyModel } = require("./models/Company");
 const { Client } = require("./models/Client");
@@ -36,7 +36,7 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true, // is default value after Electron v5
+      nodeIntegration: false, // is default value after Electron v5
       contextIsolation: true, // protect against prototype pollution
       enableRemoteModule: false,
       preload: path.join(__dirname, "preload.js"),
@@ -46,10 +46,12 @@ function createWindow() {
   const startURL = "http://localhost:3000";
   if (!DBManager.isInitialized) {
     DBManager.initialize().then((v) => {
-      // mainWindow.loadURL(startURL);
-      mainWindow.loadFile(path.join(__dirname, 'ui/build/index.html'));
+      mainWindow.loadURL(startURL);
+      // mainWindow.loadFile(path.join(__dirname, 'ui/build/index.html'));
     });
   }
+  mainWindow.webContents.setZoomFactor(0.9);
+
   mainWindow.on("closed", () => (mainWindow = null));
 }
 
@@ -1464,6 +1466,7 @@ ipcMain.handle("add-new-debit-note", async (ev, args) => {
 ipcMain.handle("add-new-vendor", async (ev, args) => {
   try {
     const response = await addNewVendor(args);
+    console.log(response);
     return response;
   } catch (error) {
     console.log(error);
@@ -1824,11 +1827,9 @@ async function addNewVendor(vendorData) {
       .values(vendorDetailsObj)
       .execute();
 
-    if (result.raw.insertId) {
-      // Return the ID of the inserted entity along with success message
+    if (result) {
       return {
         success: true,
-        id: result.raw.insertId,
         message: "New vendor details added successfully!",
       };
     } else {
