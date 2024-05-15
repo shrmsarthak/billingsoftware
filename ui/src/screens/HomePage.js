@@ -11,39 +11,8 @@ import {
   Textarea,
   Button,
 } from "@material-tailwind/react";
-
-import {
-  api_show_invoice,
-  api_show_client,
-  api_show_product,
-  api_add_company,
-  api_show_quotation,
-  api_show_debit,
-  api_show_vendor,
-  api_show_payment,
-  api_new_purchase,
-  api_new_invoice,
-  api_new_quotation,
-  api_show_expense,
-  api_add_credit,
-  api_add_debit,
-} from "../utils/PageApi";
 import { get_invoice_count, get_todo_data } from "../utils/SelectOptions";
 import { Link, useLocation } from "react-router-dom";
-
-const options = {
-  sales: [
-    { title: "New Invoice", onClick: api_new_invoice },
-    { title: "New Quotations", onClick: api_new_quotation },
-    { title: "New Credit Notes", onClick: api_add_credit },
-    { title: "New Debit Notes", onClick: api_add_debit },
-  ],
-  purchase: [
-    { title: "New Purchase Orders", onClick: api_new_purchase },
-    { title: "Expenses", onClick: api_show_expense },
-  ],
-  settings: [{ title: "Company Details", onClick: api_add_company }],
-};
 
 const Icon = ({ id, open }) => (
   <svg
@@ -72,21 +41,12 @@ const MyAccordion = ({ title, options, defaultOpen }) => {
     <div className="px-5">
       <Accordion open={open === 1} icon={<Icon id={1} open={open} />}>
         <AccordionHeader
-          // className="text-xs text-white font-normal"
           onClick={() => handleOpen(1)}
-          style={{ color: "white" }} // Add hover color here
+          style={{ color: "white" }}
         >
           {title}
         </AccordionHeader>
-        <AccordionBody>
-          <List className="text-xs text-white font-normal">
-            {options.map((value, idx) => (
-              <ListItem key={idx} onClick={value.onClick}>
-                {value.title}
-              </ListItem>
-            ))}
-          </List>
-        </AccordionBody>
+        <AccordionBody>{options}</AccordionBody>
       </Accordion>
     </div>
   );
@@ -132,6 +92,71 @@ function ShortCutCard({ title, to, color, icon }) {
     </Link>
   );
 }
+
+function ListItemsHeading({ title, to }) {
+  const renderTitle = () => {
+    if (!title) return null;
+    return (
+      <h1
+        className="font-bold text-white"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          fontSize: "large",
+        }}
+      >
+        {title}
+      </h1>
+    );
+  };
+
+  return (
+    <Link to={to}>
+      <div
+        style={{
+          justifyContent: "center",
+          background: "transparent",
+          border: "none",
+        }}
+      >
+        <div className="hover-menu-list">{renderTitle()}</div>
+      </div>
+    </Link>
+  );
+}
+
+function ListItemsOptions({ title, to }) {
+  const renderTitle = () => {
+    if (!title) return null;
+    return (
+      <h1
+        className="font-bold text-white"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          fontSize: "small",
+        }}
+      >
+        {title}
+      </h1>
+    );
+  };
+
+  return (
+    <Link to={to}>
+      <div
+        style={{
+          justifyContent: "center",
+          background: "transparent",
+          border: "none",
+        }}
+      >
+        <div className="hover-menu-list">{renderTitle()}</div>
+      </div>
+    </Link>
+  );
+}
+
 function GenericCard({ title, value, backgroundColor, shadowColor }) {
   return (
     <div
@@ -200,7 +225,6 @@ export default function HomePage() {
     };
   }, []);
 
-  const [open, setOpen] = useState(true);
   const [text, setText] = useState("");
 
   const handleSave = async () => {
@@ -222,26 +246,101 @@ export default function HomePage() {
         }}
       >
         <div className="flex gap-x-4 items-center p-5">
-          <img
-            src={User}
-            className={`cursor-pointer duration-500`}
-            // onClick={() => setOpen(!open)}
-          />
+          <img src={User} className={`cursor-pointer duration-500`} />
           <h1
-            className={`text-white origin-left font-medium text-xl duration-200 ${
-              !open && "scale-0"
-            }`}
+            className={`text-white origin-left font-medium text-xl duration-200 scale-0`}
           >
             Billing System
           </h1>
         </div>
+        <>
+          <List className="text-xs text-white font-normal flex justify-center">
+            <ListItemsHeading
+              title={
+                <>
+                  <svg
+                    className="w-[30px] h-[30px] text-white dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    style={{ marginRight: "2px" }}
+                  >
+                    <path
+                      stroke="white"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                      d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"
+                    />
+                  </svg>
+                  Home
+                </>
+              }
+              to="/"
+            />
 
-        {open ? (
-          <>
-            <List className="text-xs text-white font-normal flex justify-center">
-              <ListItem
+            <ListItemsHeading
+              title={
+                <>
+                  <svg
+                    className="w-[30px] h-[30px] text-white dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    style={{ marginRight: "2px" }}
+                  >
+                    <path
+                      stroke="white"
+                      strokeWidth="1.5"
+                      d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                    />
+                  </svg>
+                  Client
+                </>
+              }
+              to="/sales/client/show"
+            />
+            <ListItemsHeading
+              title={
+                <>
+                  <svg
+                    className="w-[30px] h-[30px] text-white dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    style={{ marginRight: "2px" }}
+                  >
+                    <path
+                      stroke="white"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                      d="M14 17h6m-3 3v-6M4.857 4h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 9.143V4.857C4 4.384 4.384 4 4.857 4Zm10 0h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857h-4.286A.857.857 0 0 1 14 9.143V4.857c0-.473.384-.857.857-.857Zm-10 10h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 19.143v-4.286c0-.473.384-.857.857-.857Z"
+                    />
+                  </svg>
+                  Product
+                </>
+              }
+              to="/sales/product_service/show"
+            />
+          </List>
+
+          <MyAccordion
+            title={
+              <div
                 style={{
                   fontSize: "large",
+                  alignItems: "center",
+                  display: "flex",
                 }}
               >
                 <svg
@@ -259,40 +358,38 @@ export default function HomePage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="1.5"
-                    d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5"
+                    d="M5 19V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v13H7a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h12M9 3v14m7 0v4"
                   />
-                </svg>
-                Home
-              </ListItem>
-              <ListItem
+                </svg>{" "}
+                Sales
+              </div>
+            }
+            options={
+              <>
+                {[
+                  { title: "New Invoice", route: "/sales/invoice/new" },
+                  { title: "New Quotations", route: "/sales/quotation/new" },
+                  { title: "New Credit Notes", route: "/sales/credit/new" },
+                  { title: "New Debit Notes", route: "/sales/debit/new" },
+                ].map((option, idx) => (
+                  <ListItemsOptions
+                    key={idx}
+                    title={option.title}
+                    to={option.route}
+                  />
+                ))}
+              </>
+            }
+            defaultOpen={1}
+          />
+          <MyAccordion
+            title={
+              <div
                 style={{
                   fontSize: "large",
+                  alignItems: "center",
+                  display: "flex",
                 }}
-                onClick={api_show_client}
-              >
-                <svg
-                  className="w-[30px] h-[30px] text-white dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  style={{ marginRight: "2px" }}
-                >
-                  <path
-                    stroke="white"
-                    strokeWidth="1.5"
-                    d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                  />
-                </svg>
-                Client
-              </ListItem>
-              <ListItem
-                style={{
-                  fontSize: "large",
-                }}
-                onClick={api_show_product}
               >
                 <svg
                   className="w-[30px] h-[30px] text-white dark:text-white"
@@ -309,112 +406,60 @@ export default function HomePage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="1.5"
-                    d="M14 17h6m-3 3v-6M4.857 4h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 9.143V4.857C4 4.384 4.384 4 4.857 4Zm10 0h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857h-4.286A.857.857 0 0 1 14 9.143V4.857c0-.473.384-.857.857-.857Zm-10 10h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 19.143v-4.286c0-.473.384-.857.857-.857Z"
+                    d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"
                   />
                 </svg>
-                Product
-              </ListItem>
-            </List>
-
-            <MyAccordion
-              title={
-                <div
-                  style={{
-                    fontSize: "large",
-                    alignItems: "center",
-                    display: "flex",
-                  }}
+                Purchase
+              </div>
+            }
+            options={
+              <>
+                <ListItemsOptions
+                  title="New Purchase Orders"
+                  to="/sales/purchase/new"
+                />
+                <ListItemsOptions title="Expenses" to="/sales/expense/show" />
+              </>
+            }
+          />
+          <MyAccordion
+            title={
+              <div
+                style={{
+                  fontSize: "large",
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <svg
+                  className="w-[30px] h-[30px] text-white dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  style={{ marginRight: "2px" }}
                 >
-                  <svg
-                    className="w-[30px] h-[30px] text-white dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    style={{ marginRight: "2px" }}
-                  >
-                    <path
-                      stroke="white"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M5 19V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v13H7a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h12M9 3v14m7 0v4"
-                    />
-                  </svg>{" "}
-                  Sales
-                </div>
-              }
-              options={options.sales}
-              defaultOpen={1}
-            />
-            <MyAccordion
-              title={
-                <div
-                  style={{
-                    fontSize: "large",
-                    alignItems: "center",
-                    display: "flex",
-                  }}
-                >
-                  <svg
-                    className="w-[30px] h-[30px] text-white dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    style={{ marginRight: "2px" }}
-                  >
-                    <path
-                      stroke="white"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"
-                    />
-                  </svg>
-                  Purchase
-                </div>
-              }
-              options={options.purchase}
-            />
-            <MyAccordion
-              title={
-                <div
-                  style={{
-                    fontSize: "large",
-                    alignItems: "center",
-                    display: "flex",
-                  }}
-                >
-                  <svg
-                    className="w-[30px] h-[30px] text-white dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    style={{ marginRight: "2px" }}
-                  >
-                    <path
-                      stroke="white"
-                      strokeLinecap="square"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                    />
-                  </svg>
-                  Settings
-                </div>
-              }
-              options={options.settings}
-            />
-          </>
-        ) : null}
+                  <path
+                    stroke="white"
+                    strokeLinecap="square"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                </svg>
+                Settings
+              </div>
+            }
+            options={
+              <ListItemsOptions
+                title="Company Details"
+                to="/settings/company/new"
+              />
+            }
+          />
+        </>
       </div>
 
       <div className="flex flex-col items-center p-4 h-screen w-full m-4">

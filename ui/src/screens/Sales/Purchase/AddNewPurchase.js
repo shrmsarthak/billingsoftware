@@ -11,7 +11,6 @@ import React, { useState, useEffect } from "react";
 import { ProductInvoiceTable } from "../components/ProductInvoiceTable";
 import SelectComp from "../components/SelectComp";
 import {
-  get_all_client_option,
   get_all_product_option,
   tax_type,
   uom_type,
@@ -47,7 +46,6 @@ let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
 let tax_option = tax_type();
 let uom_option = uom_type();
-console.log(product_option);
 export default function NewPurchasePage() {
   useEffect(() => {
     document.title = "New Purchase Order";
@@ -161,7 +159,6 @@ export default function NewPurchasePage() {
 
   useEffect(() => {
     if (formData.Vendor.length > 1) {
-      console.log("inside if", selectedClient);
       handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
     }
   }, [selectedClient]);
@@ -347,8 +344,6 @@ export default function NewPurchasePage() {
   const closeInvoicePreviewWindow = () => {
     setIsInvoicePreviewOpen(false);
   };
-
-  console.log(formData);
 
   const renderInvoicePreview = () => {
     const handleSave = async () => {

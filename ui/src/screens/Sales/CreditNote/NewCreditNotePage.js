@@ -82,6 +82,7 @@ const payemnt_options = [
 ];
 
 let client_option = await get_all_client_option();
+client_option.shift();
 let shiping_option = [];
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
@@ -120,8 +121,6 @@ export default function NewCreditNotePage() {
     Total_Tax: 0,
   };
   const [formData, setFormData] = useState(initialValues);
-
-  console.log(formData);
 
   useEffect(() => {
     // Convert the issue date to a Date object

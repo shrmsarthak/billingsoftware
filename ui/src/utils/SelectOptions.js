@@ -65,7 +65,7 @@ export const tax_type = () => {
 };
 
 export const get_all_client_option = async () => {
-  let option = [{ text: "Add new Client", value: "*" }];
+  let option = [{ text: "Add New Client", value: "*" }];
   var res = await window.api.invoke("get-all-client");
   res?.data.map((c, idx) => {
     option.push({
@@ -78,7 +78,7 @@ export const get_all_client_option = async () => {
 
 export const get_all_product_option = async () => {
   var res = await window.api.invoke("get-all-product");
-  let product_option = [{ text: "Add New Product", value: "*" }];
+  let product_option = [];
 
   res?.data.map((c, idx) => {
     product_option.push({
@@ -95,7 +95,7 @@ export const get_all_product_option = async () => {
 
 export const get_all_vendor_option = async () => {
   var res = await window.api.invoke("get-all-vendors");
-  let product_option = [{ text: "Add New Vendor", value: "Add New Vendor" }];
+  let product_option = [];
   res?.data.map((c, idx) => {
     product_option.push({
       text: c.Vendor,

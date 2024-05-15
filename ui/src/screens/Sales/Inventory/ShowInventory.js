@@ -47,8 +47,6 @@ let product_option = await get_all_product_option();
 let invoices = await get_all_invoices();
 let purchaseOrders = await get_all_purchase_orders();
 
-console.log(product_option);
-
 const getUomOptions = (data) => {
   let types = data.map((x) => x.uom).filter((y) => y !== undefined);
   let uniqueTypes = Array.from(new Set(types));
@@ -61,8 +59,6 @@ function convertDropdownData(data) {
     value: item,
   }));
 }
-
-console.log(getUomOptions(product_option));
 
 function adjustQuantities(purchaseData, invoiceData) {
   const soldQuantities = {};
@@ -173,13 +169,11 @@ export default function Inventory() {
     return result;
   }
 
-  //console.log(JSON.stringify(combinedArray));
   const [filterValues, setFilterValues] = useState({
     Product: "",
     Type: "",
     Location: "",
   });
-  //console.log(filterValues);
   const [filterData, setFilterData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -195,7 +189,6 @@ export default function Inventory() {
     combinedArray,
     selectedProduct.Product,
   );
-  //console.log(selectedProduct);
   const nonEmptyValues = () => {
     return Object.keys(filterValues).filter((key) => filterValues[key] !== "");
   };
@@ -253,7 +246,6 @@ export default function Inventory() {
     let filteredData = adjustedData
       .flat()
       .filter((object) => {
-        //console.log(object);
         return nonEmptyFields.every((field) => {
           if (field !== "Product") {
             return object[field]?.includes(filterValues[field]);

@@ -381,7 +381,6 @@ export default function ShowInvoicePage() {
       console.error("Export error:", error);
     }
   };
-  console.log(invoices);
   const renderInvoicePreview = () => {
     if (isInvoicePreviewOpen) {
       return (

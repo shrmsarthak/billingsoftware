@@ -107,8 +107,6 @@ const uniqueLeaveMonths = [
   ...new Set(allLeaves.map((doc) => new Date(doc.leaveDate).getMonth() + 1)),
 ];
 
-console.log(uniqueLeaveMonths);
-
 const LEAVE_ROWS = allLeaves.map((item) => {
   return {
     "Employee Name": item.employeeName,
@@ -199,7 +197,6 @@ export default function ShowEmployee() {
       const paymentMonth = new Date(doc["Payment Date"]).getMonth() + 1;
       return paymentMonth === getMonthNumber(month);
     });
-    console.log(filteredDocs);
     return filteredDocs;
   }
 
@@ -228,7 +225,6 @@ export default function ShowEmployee() {
       const paymentMonth = new Date(doc["Leave Date"]).getMonth() + 1;
       return paymentMonth === getMonthNumber(month);
     });
-    console.log("log", filteredDocs);
     return filteredDocs;
   }
 
@@ -600,8 +596,6 @@ export default function ShowEmployee() {
     window.location.reload();
   };
 
-  console.log(monthWisePayment);
-  console.log(EXPENSES_ROWS);
   let salaryToRender = EXPENSES_ROWS.filter(
     (item) => item["Employee Name"] === monthWisePayment[0]?.Employee,
   )[0]?.Salary;

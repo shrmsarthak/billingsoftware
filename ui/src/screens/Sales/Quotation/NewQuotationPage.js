@@ -75,6 +75,7 @@ const payemnt_options = [
 ];
 
 let client_option = await get_all_client_option();
+client_option.shift();
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
 let tax_option = tax_type();
@@ -292,8 +293,6 @@ export default function NewQuotationPage() {
           ).toFixed(2),
     Action: "DELETE",
   }));
-
-  console.log(JSON.stringify(companyDetails.data[0]));
 
   // Calculate total value
   const totalValue = rowData
@@ -685,18 +684,6 @@ export default function NewQuotationPage() {
           <div className="mr-12">
             <Input
               variant="outlined"
-              label="Description"
-              placeholder="Description"
-              value={
-                formData.Description !== ""
-                  ? getProductDescription(formData.Product, product_option)
-                  : ""
-              }
-            />
-          </div>
-          <div className="mr-12">
-            <Input
-              variant="outlined"
               label="UoM"
               placeholder="UoM"
               value={
@@ -704,6 +691,7 @@ export default function NewQuotationPage() {
                   ? getProductUOM(formData.Product, product_option)
                   : ""
               }
+              disabled
             />
           </div>
           <div className="mr-12">
@@ -724,6 +712,7 @@ export default function NewQuotationPage() {
                   ? getProductPrice(formData.Product, product_option)
                   : ""
               }
+              disabled
             />
           </div>
           <div className=" mr-12">

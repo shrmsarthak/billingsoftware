@@ -24,6 +24,7 @@ import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
+import { Link } from "react-router-dom";
 
 const customLabelStyles = {
   label: {
@@ -81,6 +82,7 @@ const payment_options = [
 ];
 
 let client_option = await get_all_client_option();
+client_option.shift();
 let shiping_option = [];
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
@@ -412,6 +414,7 @@ export default function NewInvoicePage() {
 
       const res = await window.api.invoke("add-new-invoice", invoiceData);
       alert(res.message); // Handle the response as needed
+      window.location.reload();
     };
 
     if (isInvoicePreviewOpen) {
@@ -561,7 +564,6 @@ export default function NewInvoicePage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                console.log(values);
                 if (values === "Add New Client") {
                   api_show_client();
                   return;
@@ -617,7 +619,6 @@ export default function NewInvoicePage() {
               isinput={false}
               value={formData.Payment_Term}
               handle={(values) => {
-                console.log(values);
                 handleFieldChange("Payment_Term", values);
               }}
             />
@@ -664,8 +665,6 @@ export default function NewInvoicePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Product") {
-                  api_show_product();
-                  return;
                 } else {
                   handleFieldChange("Product", values);
                   handleFieldChange(
@@ -828,7 +827,6 @@ export default function NewInvoicePage() {
                       options={tax_option}
                       isinput={false}
                       handle={(values) => {
-                        console.log(values);
                         handleFieldChange(
                           "Shipping_Tax",
                           getIntegerFromPercentageString(
