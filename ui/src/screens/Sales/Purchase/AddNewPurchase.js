@@ -23,6 +23,7 @@ import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
+import { useNavigate } from "react-router-dom";
 
 const TABLE_HEAD = [
   "No",
@@ -41,7 +42,6 @@ const TABLE_HEAD = [
 ];
 
 const vendor_option = await get_all_vendor_option();
-
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
 let tax_option = tax_type();
@@ -82,7 +82,7 @@ export default function NewPurchasePage() {
     Total_Tax: 0,
   };
   const [formData, setFormData] = useState(initialValues);
-
+  const navigate = useNavigate();
   useEffect(() => {
     // Convert the issue date to a Date object
     const issueDate = new Date(formData.Issue_Date);
@@ -519,8 +519,7 @@ export default function NewPurchasePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Vendor") {
-                  api_show_vendor();
-                  return;
+                  navigate("/sales/vendors/show")
                 } else {
                   handleFieldChange("Vendor", values);
                 }

@@ -24,7 +24,7 @@ import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const customLabelStyles = {
   label: {
@@ -82,7 +82,6 @@ const payment_options = [
 ];
 
 let client_option = await get_all_client_option();
-client_option.shift();
 let shiping_option = [];
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
@@ -92,6 +91,8 @@ export default function NewInvoicePage() {
   useEffect(() => {
     document.title = "New Invoice";
   });
+
+  const navigate = useNavigate();
 
   const initialValues = {
     Client: "",
@@ -565,8 +566,7 @@ export default function NewInvoicePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Client") {
-                  api_show_client();
-                  return;
+                  navigate("/sales/client/show");
                 } else {
                   handleFieldChange("Client", values);
                 }
@@ -665,6 +665,7 @@ export default function NewInvoicePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Product") {
+                  navigate("/sales/product_service/show");
                 } else {
                   handleFieldChange("Product", values);
                   handleFieldChange(
