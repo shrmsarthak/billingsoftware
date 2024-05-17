@@ -2796,11 +2796,10 @@ ipcMain.handle("add-company-details", async (ev, args) => {
 async function addCompanyDetails(companyDetailsData) {
   try {
     const companyDetailsRepo = DBManager.getRepository(CompanyDetails);
-
-    // Check if company details already exist
-    // const existingDetails = await companyDetailsRepo.find();
-
-    // Prepare the company details object
+    
+    // Check if company details already exist (assuming there is only one record or a unique key to identify the record)
+    let existingCompanyDetails = await companyDetailsRepo.find();
+    
     const companyDetailsObj = {
       companyName: companyDetailsData.CompanyName,
       address: companyDetailsData.Address,
@@ -2814,21 +2813,23 @@ async function addCompanyDetails(companyDetailsData) {
       PAN: companyDetailsData.PAN,
       GSTNO: companyDetailsData.GSTNO,
       TIN: companyDetailsData.TIN,
-      created_at: new Date(), // Assuming current timestamp
+      KEY: companyDetailsData.KEY,
+      updated_at: new Date(), // Assuming current timestamp for update
     };
 
-    // if (existingDetails) {
-    //   // Update the existing company details entry
-    //   await companyDetailsRepo.update(existingDetails.id, companyDetailsObj);
-    //   return { success: true, message: "Company details updated successfully!" };
-    // } else {
-    // Add the new company details entry
-    await companyDetailsRepo.save(companyDetailsObj);
-    return {
-      success: true,
-      message: "New company details added successfully!",
-    };
-    // }
+    if (existingCompanyDetails.length > 0) {
+      // Update the existing company details (assuming only one record exists)
+      const companyDetails = existingCompanyDetails[0];
+      Object.assign(companyDetails, companyDetailsObj);
+      await companyDetailsRepo.save(companyDetails);
+      return { success: true, message: "Company details updated successfully!" };
+    } else {
+      // Create new company details
+      companyDetailsObj.created_at = new Date(); // Adding created_at timestamp for new record
+      const newCompanyDetails = companyDetailsRepo.create(companyDetailsObj);
+      await companyDetailsRepo.save(newCompanyDetails);
+      return { success: true, message: "New company details added successfully!" };
+    }
   } catch (error) {
     console.error("Error adding or updating company details:", error);
     return {
@@ -2837,6 +2838,7 @@ async function addCompanyDetails(companyDetailsData) {
     };
   }
 }
+
 
 ipcMain.handle("get-company-details", async (event, args) => {
   try {

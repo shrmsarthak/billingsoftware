@@ -78,8 +78,7 @@ export const get_all_client_option = async () => {
 
 export const get_all_product_option = async () => {
   var res = await window.api.invoke("get-all-product");
-  let product_option = [];
-
+  let product_option = [{ text: "Add New Product" }];
   res?.data.map((c, idx) => {
     product_option.push({
       text: c.product_name,
@@ -95,7 +94,7 @@ export const get_all_product_option = async () => {
 
 export const get_all_vendor_option = async () => {
   var res = await window.api.invoke("get-all-vendors");
-  let product_option = [];
+  let product_option = [{ text: "Add New Vendor" }];
   res?.data.map((c, idx) => {
     product_option.push({
       text: c.Vendor,

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Button, Input } from "@material-tailwind/react";
 import HomeButton from "../../assets/Buttons/HomeButton";
+import { get_company_details } from "../../utils/SelectOptions";
+import { Link, useNavigate } from "react-router-dom";
 
 const initialValues = {
   CompanyName: "",
@@ -15,7 +17,13 @@ const initialValues = {
   PAN: "",
   GSTNO: "",
   TIN: "",
+  KEY: "",
 };
+
+const KEY = "HSNAMU-4444-KAHTRAS-8888";
+let companyDetails = await get_company_details();
+let keyToCompare = companyDetails.data[0].KEY;
+console.log(companyDetails.data[0]);
 
 export default function AddCompanyDetails() {
   const [formData, setFormData] = useState(initialValues);
@@ -30,12 +38,23 @@ export default function AddCompanyDetails() {
   const handleSubmit = async () => {
     const res = await window.api.invoke("add-company-details", formData);
     alert(res.message);
+    window.location.reload();
   };
+
+  // const navigate = useNavigate();
+
+  // React.useEffect(() => {
+  //   if (KEY === keyToCompare ){
+  //   const timer = setTimeout(() => {
+  //     navigate('/dashboard');
+  //   }, 3000);
+
+  //   return () => clearTimeout(timer);}
+  // }, [keyToCompare])
 
   return (
     <>
       <div style={{ position: "absolute" }}>
-        {" "}
         <HomeButton />
       </div>
       <div
@@ -59,11 +78,25 @@ export default function AddCompanyDetails() {
                   placeholder={key}
                   label={key}
                   value={value}
+                  defaultValue={companyDetails.data[0].companyName}
                   onChange={(e) => handleFieldChange(key, e.target.value)}
                   style={{ width: "100%" }}
                   className="mb-4"
                 />
               ))}
+              <>
+                {KEY !== keyToCompare ? (
+                  <div style={{ color: "red", marginTop: 10 }}>
+                    ERR: Please Enter Correct KEY
+                  </div>
+                ) : (
+                  <Link to="/dashboard">
+                    <Button className="rounded-full" color="green">
+                      Happy Invoicing ❤️
+                    </Button>
+                  </Link>
+                )}
+              </>
             </div>
             <div style={{ display: "flex", justifyContent: "center" }}>
               <Button
@@ -75,7 +108,8 @@ export default function AddCompanyDetails() {
                   formData.City === "" ||
                   formData.State === "" ||
                   formData.Country === "" ||
-                  formData.Phone === ""
+                  formData.Phone === "" ||
+                  formData.KEY === ""
                 }
                 style={{ width: "-webkit-fill-available" }}
               >
