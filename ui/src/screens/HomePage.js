@@ -186,7 +186,7 @@ const todo = await get_todo_data();
 const todoData = todo?.data[0]?.todo;
 const KEY = "HSNAMU-4444-KAHTRAS-8888";
 let companyDetails = await get_company_details();
-let keyToCompare = companyDetails.data[0].KEY;
+let keyToCompare = companyDetails.data[0]?.KEY;
 
 export default function HomePage() {
   useEffect(() => {

@@ -88,7 +88,7 @@ let companyDetails = await get_company_details();
 let tax_option = tax_type();
 let uom_option = uom_type();
 let invoices = await get_all_invoices();
-export default function NewInvoicePage() {
+export default function NewDebitNotePage() {
   useEffect(() => {
     document.title = "New Debit Note";
   });

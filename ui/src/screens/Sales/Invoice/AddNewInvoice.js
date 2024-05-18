@@ -25,6 +25,8 @@ import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
 import { useNavigate } from "react-router-dom";
+import AddNewClientModal from "../Client/NewClientModal";
+import AddNewProductModal from "../ProductService/NewProductModal";
 
 const customLabelStyles = {
   label: {
@@ -87,7 +89,7 @@ let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
 let tax_option = tax_type();
 let uom_option = uom_type();
-export default function NewInvoicePage() {
+export default function () {
   useEffect(() => {
     document.title = "New Invoice";
   });
@@ -178,6 +180,8 @@ export default function NewInvoicePage() {
     getAllClients();
   }, []);
 
+  console.log(selectedClient);
+
   useEffect(() => {
     setSelectedClient(
       allClient.filter((x) => x.client_name === formData.Client),
@@ -207,6 +211,15 @@ export default function NewInvoicePage() {
       handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
     }
   }, [selectedClient]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+
+  const handleOpen = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
+
+  const handleProductOpen = () => setIsProductModalOpen(true);
+  const handleProductClose = () => setIsProductModalOpen(false);
 
   const updateRowsWithDiscount = (discount) => {
     const updatedRows = rows.map((item) => {
@@ -566,7 +579,8 @@ export default function NewInvoicePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Client") {
-                  navigate("/sales/client/show");
+                  // navigate("/sales/client/show");
+                  handleOpen();
                 } else {
                   handleFieldChange("Client", values);
                 }
@@ -626,7 +640,7 @@ export default function NewInvoicePage() {
         </div>
 
         <div className="flex flex-row w-full justify-between my-2">
-          <div className=" mr-12">
+          <div className="mr-12">
             <Input
               variant="outlined"
               label="PO Date"
@@ -665,7 +679,8 @@ export default function NewInvoicePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Product") {
-                  navigate("/sales/product_service/show");
+                  // navigate("/sales/product_service/show");
+                  handleProductOpen();
                 } else {
                   handleFieldChange("Product", values);
                   handleFieldChange(
@@ -950,6 +965,20 @@ export default function NewInvoicePage() {
             Preview
           </Button>
           {renderInvoicePreview()}
+          {
+            <AddNewClientModal
+              isOpen={isModalOpen}
+              handleOpen={handleOpen}
+              handleClose={handleClose}
+            />
+          }
+          {
+            <AddNewProductModal
+              isOpen={isProductModalOpen}
+              handleOpen={handleProductOpen}
+              handleClose={handleProductClose}
+            />
+          }
         </div>
       </div>
     </div>

@@ -62,10 +62,10 @@ const type_options = [
     text: "Product",
     value: "Product",
   },
-  {
-    text: "Service",
-    value: "Service",
-  },
+  // {
+  //   text: "Service",
+  //   value: "Service",
+  // },
 ];
 
 const unit_options = [
