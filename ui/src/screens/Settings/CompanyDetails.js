@@ -22,8 +22,7 @@ const initialValues = {
 
 const KEY = "HSNAMU-4444-KAHTRAS-8888";
 let companyDetails = await get_company_details();
-let keyToCompare = companyDetails.data[0].KEY;
-console.log(companyDetails.data[0]);
+let keyToCompare = companyDetails.data[0]?.KEY;
 
 export default function AddCompanyDetails() {
   const [formData, setFormData] = useState(initialValues);
@@ -78,7 +77,7 @@ export default function AddCompanyDetails() {
                   placeholder={key}
                   label={key}
                   value={value}
-                  defaultValue={companyDetails.data[0].companyName}
+                  defaultValue={companyDetails.data[0]?.companyName}
                   onChange={(e) => handleFieldChange(key, e.target.value)}
                   style={{ width: "100%" }}
                   className="mb-4"

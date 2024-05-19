@@ -1,6 +1,5 @@
 import { Routes, Route, HashRouter } from "react-router-dom";
 import HomePage from "./screens/HomePage";
-import ModuleSalePage from "./screens/Sales/moduleSalePage";
 import Signup from "./screens/Login/Signup";
 import SignIn from "./screens/Login/SignIn";
 import ShowClientPage from "./screens/Sales/Client/ShowClients";
@@ -22,6 +21,7 @@ import Inventory from "./screens/Sales/Inventory/ShowInventory";
 import ShowVendors from "./screens/Sales/Vendor/ShowVendor";
 import ShowExpenses from "./screens/Sales/Expense/ShowExpenses";
 import ShowEmployee from "./screens/Management/ShowEmployee";
+import NewInvoicePage from "./screens/Sales/Invoice/AddNewInvoice";
 
 function App() {
   return (
@@ -31,10 +31,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<HomePage />} />
-          <Route
-            path="/sales/invoice/new"
-            element={<ModuleSalePage page="newinvoice" />}
-          />
+          <Route path="/sales/invoice/new" element={<NewInvoicePage />} />
           <Route path="/sales/invoice/show" element={<ShowInvoicePage />} />
           <Route path="/sales/client/show" element={<ShowClientPage />} />
           <Route

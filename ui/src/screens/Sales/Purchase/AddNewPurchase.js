@@ -519,7 +519,7 @@ export default function NewPurchasePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Vendor") {
-                  navigate("/sales/vendors/show")
+                  navigate("/sales/vendors/show");
                 } else {
                   handleFieldChange("Vendor", values);
                 }
