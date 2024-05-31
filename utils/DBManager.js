@@ -27,7 +27,7 @@ const {
 const DBManager = new DataSource({
   name: "maindb",
   type: "sqlite",
-  database: "./db/main.sqlite",
+  database: "./db/test.sqlite",
   entities: [
     Address,
     Client,

@@ -24,7 +24,7 @@ import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import BackButton from "../../../assets/Buttons/BackButton";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AddNewClientModal from "../Client/NewClientModal";
 import AddNewProductModal from "../ProductService/NewProductModal";
 
@@ -95,6 +95,10 @@ export default function () {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const { data } = location.state || {};
+
+  console.log("The Data:", JSON.stringify(data));
 
   const initialValues = {
     Client: "",
@@ -121,6 +125,8 @@ export default function () {
     Total_Tax: 0,
   };
   const [formData, setFormData] = useState(initialValues);
+
+  console.log(formData);
 
   useEffect(() => {
     // Convert the issue date to a Date object

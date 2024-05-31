@@ -53,7 +53,7 @@ export default function AddCompanyDetails() {
 
   return (
     <>
-      <div style={{ position: "absolute" }}>
+      <div style={{ position: "absolute", marginLeft: -15 }}>
         <HomeButton />
       </div>
       <div
