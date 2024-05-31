@@ -27,6 +27,7 @@ import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
+import { useNavigate } from "react-router-dom";
 
 const TABLE_HEAD = [
   "No",
@@ -84,6 +85,8 @@ export default function ShowInvoicePage() {
     document.title = "Show Invoice";
   });
 
+  const navigate = useNavigate();
+
   const [open, setOpen] = React.useState(false);
   const [modalData, setModalData] = useState(null);
   const [formValues, setFormValues] = useState({
@@ -137,6 +140,12 @@ export default function ShowInvoicePage() {
     const res = await window.api.invoke("update-invoice", formValues);
   };
 
+  const handleNavigate = (data) => {
+    navigate("/sales/invoice/new", { state: { data } });
+  };
+
+  console.log(JSON.stringify(invoices.flat()[0]));
+
   let filteredArray = invoices.flat().map((obj) => {
     const dueDate = new Date(obj.Due_Date);
 
@@ -181,7 +190,6 @@ export default function ShowInvoicePage() {
       Type: obj.Transaction_type,
       ActionButton: (
         <>
-          {" "}
           <Tooltip content="Pay">
             <Button
               size="xs"
@@ -213,6 +221,7 @@ export default function ShowInvoicePage() {
               size="xs"
               className="py-1 px-2"
               style={{ background: "none" }}
+              onClick={() => handleNavigate(obj)}
             >
               <svg
                 class="w-6 h-6 text-gray-800 dark:text-white"
