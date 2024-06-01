@@ -9,6 +9,7 @@ const { Category } = require("./models/Category");
 const { SubCategory } = require("./models/SubCategory");
 const { Tax } = require("./models/Tax");
 const electronReload = require("electron-reload");
+const chokidar = require("chokidar");
 const ExcelJS = require("exceljs");
 const XLSX = require("xlsx");
 const { Invoice } = require("./models/Invoice");
@@ -28,7 +29,7 @@ const {
   EmployeeAttendanceDetails,
 } = require("./models/EmployeeAttendanceDetails");
 
-electronReload(__dirname);
+// electronReload(__dirname);
 
 let mainWindow;
 function createWindow() {
@@ -43,14 +44,26 @@ function createWindow() {
     },
     title: "Billing System",
   });
+
   const startURL = "http://localhost:3000";
+
+  const isDevelopment = false;
+
   if (!DBManager.isInitialized) {
     DBManager.initialize().then((v) => {
-      mainWindow.loadURL(startURL);
-      // mainWindow.loadFile(path.join(__dirname, 'ui/build/index.html'));
+      // mainWindow.loadURL(startURL);
+      mainWindow.loadFile(path.join(__dirname, "ui/build/index.html"));
     });
   }
-  mainWindow.webContents.setZoomFactor(0.9);
+  if (isDevelopment) {
+    electronReload(__dirname);
+  } else {
+    const watcher = chokidar.watch("db/test.sqlite");
+    watcher.on("change", () => {
+      console.log("DB file changed. Reloading...");
+      mainWindow.reload();
+    });
+  }
 
   mainWindow.on("closed", () => (mainWindow = null));
 }
@@ -2796,10 +2809,10 @@ ipcMain.handle("add-company-details", async (ev, args) => {
 async function addCompanyDetails(companyDetailsData) {
   try {
     const companyDetailsRepo = DBManager.getRepository(CompanyDetails);
-    
+
     // Check if company details already exist (assuming there is only one record or a unique key to identify the record)
     let existingCompanyDetails = await companyDetailsRepo.find();
-    
+
     const companyDetailsObj = {
       companyName: companyDetailsData.CompanyName,
       address: companyDetailsData.Address,
@@ -2822,13 +2835,19 @@ async function addCompanyDetails(companyDetailsData) {
       const companyDetails = existingCompanyDetails[0];
       Object.assign(companyDetails, companyDetailsObj);
       await companyDetailsRepo.save(companyDetails);
-      return { success: true, message: "Company details updated successfully!" };
+      return {
+        success: true,
+        message: "Company details updated successfully!",
+      };
     } else {
       // Create new company details
       companyDetailsObj.created_at = new Date(); // Adding created_at timestamp for new record
       const newCompanyDetails = companyDetailsRepo.create(companyDetailsObj);
       await companyDetailsRepo.save(newCompanyDetails);
-      return { success: true, message: "New company details added successfully!" };
+      return {
+        success: true,
+        message: "New company details added successfully!",
+      };
     }
   } catch (error) {
     console.error("Error adding or updating company details:", error);
@@ -2838,7 +2857,6 @@ async function addCompanyDetails(companyDetailsData) {
     };
   }
 }
-
 
 ipcMain.handle("get-company-details", async (event, args) => {
   try {
