@@ -30,7 +30,7 @@ const {
   EmployeeAttendanceDetails,
 } = require("./models/EmployeeAttendanceDetails");
 
-electronReload(__dirname);
+// electronReload(__dirname);
 
 let mainWindow;
 function createWindow() {
@@ -48,7 +48,7 @@ function createWindow() {
 
   const startURL = "http://localhost:3000";
 
-  const isDevelopment = true;
+  const isDevelopment = false;
 
   if (!DBManager.isInitialized) {
     DBManager.initialize().then((v) => {
