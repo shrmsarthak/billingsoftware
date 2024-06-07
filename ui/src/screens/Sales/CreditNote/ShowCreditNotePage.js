@@ -27,6 +27,7 @@ import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
+import { useNavigate } from "react-router-dom";
 
 const TABLE_HEAD = [
   "No",
@@ -84,6 +85,8 @@ export default function ShowCreditNotePage() {
   useEffect(() => {
     document.title = "Credit Notes Report";
   });
+
+  const navigate = useNavigate();
 
   const [open, setOpen] = React.useState(false);
   const [modalData, setModalData] = useState(null);
@@ -185,8 +188,7 @@ export default function ShowCreditNotePage() {
       Type: obj.Transaction_type,
       ActionButton: (
         <>
-          {" "}
-          <Tooltip content="Pay">
+          {/* <Tooltip content="Pay">
             <Button
               size="xs"
               className="py-1 px-2"
@@ -211,7 +213,7 @@ export default function ShowCreditNotePage() {
                 />
               </svg>
             </Button>
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip content="Edit">
             <Button
               size="xs"
@@ -376,8 +378,7 @@ export default function ShowCreditNotePage() {
           Type: obj.Transaction_type,
           ActionButton: (
             <>
-              {" "}
-              <Tooltip content="Pay">
+              {/* <Tooltip content="Pay">
                 <Button
                   size="xs"
                   className="py-1 px-2"
@@ -402,7 +403,7 @@ export default function ShowCreditNotePage() {
                     />
                   </svg>
                 </Button>
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip content="Edit">
                 <Button
                   size="xs"
@@ -739,7 +740,9 @@ export default function ShowCreditNotePage() {
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
         <div className="mx-3">
-          <Button onClick={api_add_credit}>New Credit Note</Button>
+          <Button onClick={() => navigate("/sales/credit/new")}>
+            New Credit Note
+          </Button>
         </div>
       </div>
 

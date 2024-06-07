@@ -300,6 +300,10 @@ export default function NewPurchasePage() {
     const product = data.find((item) => item.text === productText);
     return product ? product.purchase_price : null;
   };
+  const getProductTax = (productText, data) => {
+    const product = data.find((item) => item.text === productText);
+    return product ? product.tax : null;
+  };
   const generateFieldValue = () => {
     const today = new Date();
     const day = ("0" + today.getDate()).slice(-2); // Get day with leading zero if needed
@@ -583,8 +587,7 @@ export default function NewPurchasePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Product") {
-                  api_show_product();
-                  return;
+                  navigate("/sales/product_service/show");
                 } else {
                   handleFieldChange("Product", values);
                   handleFieldChange(
@@ -601,6 +604,10 @@ export default function NewPurchasePage() {
                   handleFieldChange(
                     "Description",
                     getProductDescription(values, product_option),
+                  );
+                  handleFieldChange(
+                    "Tax",
+                    getProductTax(values, product_option),
                   );
                 }
               }}
@@ -638,13 +645,15 @@ export default function NewPurchasePage() {
             />
           </div>
           <div className="mr-12">
-            <SelectComp
+            <Input
               label="Tax"
-              options={tax_option}
-              isinput={false}
-              handle={(values) => {
-                handleFieldChange("Tax", getTextForValue(tax_option, values));
-              }}
+              placeholder="Tax"
+              value={
+                formData.Product !== ""
+                  ? getProductTax(formData.Product, product_option)
+                  : ""
+              }
+              disabled
             />
           </div>
           <div className="mr-12">
@@ -729,9 +738,7 @@ export default function NewPurchasePage() {
                       handle={(values) => {
                         handleFieldChange(
                           "Shipping_Tax",
-                          getIntegerFromPercentageString(
-                            getTextForValue(tax_option, values),
-                          ),
+                          getIntegerFromPercentageString(values),
                         );
                       }}
                     />

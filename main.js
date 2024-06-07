@@ -2621,9 +2621,8 @@ async function updateCreditNote(invoiceData) {
   }
 }
 
+
 ipcMain.handle("export-invoices-to-excel", async (ev, args) => {
-  console.log("ev", ev);
-  console.log("args", args);
   try {
     // Call the API to get all products with pagination and search query
     const invoices = args;
@@ -2682,6 +2681,7 @@ ipcMain.handle("export-invoices-to-excel", async (ev, args) => {
     return null;
   }
 });
+
 
 ipcMain.handle("export-quotation-to-excel", async (ev, args) => {
   console.log("ev", ev);

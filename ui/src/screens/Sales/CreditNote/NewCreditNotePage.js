@@ -22,7 +22,7 @@ import { api_show_client, api_show_product } from "../../../utils/PageApi";
 import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
-import BackButton from "../../../assets/Buttons/BackButton";
+import { useNavigate } from "react-router-dom";
 import ModuleDropDown from "../../../assets/DropDown/ModuleDropDown";
 
 const TABLE_HEAD = [
@@ -82,7 +82,6 @@ const payemnt_options = [
 ];
 
 let client_option = await get_all_client_option();
-client_option.shift();
 let shiping_option = [];
 let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
@@ -93,6 +92,8 @@ export default function NewCreditNotePage() {
   useEffect(() => {
     document.title = "New Credit Note";
   });
+
+  const navigate = useNavigate();
 
   const initialValues = {
     Client: "",
@@ -361,6 +362,10 @@ export default function NewCreditNotePage() {
     const product = data.find((item) => item.text === productText);
     return product ? product.price : null;
   };
+  const getProductTax = (productText, data) => {
+    const product = data.find((item) => item.text === productText);
+    return product ? product.tax : null;
+  };
   useEffect(() => {
     if (!shippingChecked) {
       handleFieldChange("Shipping_Charges", 0);
@@ -582,9 +587,8 @@ export default function NewCreditNotePage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                if (values == "*") {
-                  api_show_client();
-                  return;
+                if (values == "Add New Client") {
+                  navigate("/sales/client/show");
                 } else {
                   handleFieldChange(
                     "Client",
@@ -694,8 +698,7 @@ export default function NewCreditNotePage() {
               isinput={false}
               handle={(values) => {
                 if (values === "Add New Product") {
-                  api_show_product();
-                  return;
+                  navigate("/sales/product_service/show");
                 } else {
                   handleFieldChange("Product", values);
                   handleFieldChange(
@@ -709,6 +712,10 @@ export default function NewCreditNotePage() {
                   handleFieldChange(
                     "Description",
                     getProductDescription(values, product_option),
+                  );
+                  handleFieldChange(
+                    "Tax",
+                    getProductTax(values, product_option),
                   );
                 }
               }}
@@ -757,13 +764,15 @@ export default function NewCreditNotePage() {
             />
           </div>
           <div className="mr-12">
-            <SelectComp
+            <Input
               label="Tax"
-              options={tax_option}
-              isinput={false}
-              handle={(values) => {
-                handleFieldChange("Tax", getTextForValue(tax_option, values));
-              }}
+              placeholder="Tax"
+              value={
+                formData.Product !== ""
+                  ? getProductTax(formData.Product, product_option)
+                  : ""
+              }
+              disabled
             />
           </div>
 
@@ -838,9 +847,7 @@ export default function NewCreditNotePage() {
                       handle={(values) => {
                         handleFieldChange(
                           "Shipping_Tax",
-                          getIntegerFromPercentageString(
-                            getTextForValue(tax_option, values),
-                          ),
+                          getIntegerFromPercentageString(values),
                         );
                       }}
                     />

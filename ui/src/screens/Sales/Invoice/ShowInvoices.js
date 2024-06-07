@@ -144,8 +144,6 @@ export default function ShowInvoicePage() {
     navigate("/sales/invoice/new", { state: { data } });
   };
 
-  console.log(JSON.stringify(invoices.flat()[0]));
-
   let filteredArray = invoices.flat().map((obj) => {
     const dueDate = new Date(obj.Due_Date);
 
@@ -155,11 +153,8 @@ export default function ShowInvoicePage() {
       "Client Name": obj.Client,
       "Invoice No": obj.Document_No,
       "Issue Date": obj.Issue_Date,
-      "Due Date": (
-        <p style={{ color: dueDate <= today ? "red" : "inherit" }}>
-          {obj.Due_Date}
-        </p>
-      ),
+      "Due Date": obj.Due_Date,
+
       Amount: obj.Total_BeforeTax,
       Tax: obj.Total_Tax,
       "Shipping Cost": obj.Shipping_Charges,
@@ -190,7 +185,7 @@ export default function ShowInvoicePage() {
       Type: obj.Transaction_type,
       ActionButton: (
         <>
-          <Tooltip content="Pay">
+          {/* <Tooltip content="Pay">
             <Button
               size="xs"
               className="py-1 px-2"
@@ -215,7 +210,7 @@ export default function ShowInvoicePage() {
                 />
               </svg>
             </Button>
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip content="Edit">
             <Button
               size="xs"
@@ -380,8 +375,7 @@ export default function ShowInvoicePage() {
           Type: obj.Transaction_type,
           ActionButton: (
             <>
-              {" "}
-              <Tooltip content="Pay">
+              {/* <Tooltip content="Pay">
                 <Button
                   size="xs"
                   className="py-1 px-2"
@@ -406,7 +400,7 @@ export default function ShowInvoicePage() {
                     />
                   </svg>
                 </Button>
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip content="Edit">
                 <Button
                   size="xs"
@@ -523,7 +517,6 @@ export default function ShowInvoicePage() {
       return rest;
     });
   }
-
   const exportInvoicesToExcel = async () => {
     try {
       const response = await window.api.invoke(
@@ -538,7 +531,6 @@ export default function ShowInvoicePage() {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
         saveAs(blob, "export_invoices.xlsx");
-        alert("yo");
       } else {
         console.error("Error:", response?.error);
       }
@@ -547,6 +539,7 @@ export default function ShowInvoicePage() {
       console.error("Export error:", error);
     }
   };
+
   const renderInvoicePreview = () => {
     if (isInvoicePreviewOpen) {
       return (
@@ -745,7 +738,9 @@ export default function ShowInvoicePage() {
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
         <div className="mx-3">
-          <Button onClick={api_new_invoice}>New Invoice</Button>
+          <Button onClick={() => navigate("/sales/invoice/new")}>
+            New Invoice
+          </Button>
         </div>
       </div>
 

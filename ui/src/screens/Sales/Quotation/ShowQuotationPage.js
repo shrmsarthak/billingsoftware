@@ -27,6 +27,7 @@ import Invoice from "../components/Invoice";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
+import { useNavigate } from "react-router-dom";
 
 const TABLE_HEAD = [
   "No",
@@ -74,12 +75,13 @@ const status_options = [
 let invoices = await get_all_quotation();
 let companyDetails = await get_company_details();
 let client_option = await get_all_client_option();
-client_option.shift();
 
 export default function ShowQuotationPage() {
   useEffect(() => {
     document.title = "Show Quotation";
   });
+
+  const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
     Quotation_No: "",
@@ -614,7 +616,11 @@ export default function ShowQuotationPage() {
               options={client_option}
               isinput={false}
               handle={(values) => {
-                handleFilterChange("Client", values);
+                if ((values = "Add New Client")) {
+                  navigate("/sales/client/show");
+                } else {
+                  handleFilterChange("Client", values);
+                }
               }}
             />
           </div>
@@ -677,7 +683,9 @@ export default function ShowQuotationPage() {
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
         <div className="mx-3">
-          <Button onClick={api_new_quotation}>New Quotation</Button>
+          <Button onClick={() => navigate("/sales/quotation/new")}>
+            New Quotation
+          </Button>
         </div>
       </div>
 
