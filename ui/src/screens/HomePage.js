@@ -15,8 +15,27 @@ import {
   get_invoice_count,
   get_todo_data,
   get_company_details,
+  get_all_invoices,
+  get_all_purchase_orders,
 } from "../utils/SelectOptions";
 import { Link, useNavigate, Navigate } from "react-router-dom";
+import adjustQuantities from "./Sales/Inventory/InventoryLogic";
+
+let invoices = await get_all_invoices();
+let purchaseOrders = await get_all_purchase_orders();
+
+const adjustedData = adjustQuantities(purchaseOrders.flat(), invoices.flat());
+
+console.log(adjustedData);
+
+const current_stock = adjustedData.map((x) => {
+  return {
+    Product: x.Product,
+    Quantity: x.Quantity,
+  };
+});
+
+console.log(current_stock);
 
 const Icon = ({ id, open }) => (
   <svg
@@ -193,6 +212,15 @@ export default function HomePage() {
     document.title = "Billing System";
   });
 
+  useEffect(() => {
+    const updateProductQuantity = async () => {
+      const res = await window.api.invoke(
+        "update-product-quantity",
+        current_stock,
+      );
+    };
+    updateProductQuantity();
+  }, [current_stock]);
   const navigate = useNavigate();
   useEffect(() => {
     const handleKeyPress = (event) => {

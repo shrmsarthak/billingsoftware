@@ -39,6 +39,23 @@ export default function AddNewClientModal({ isOpen, handleOpen, handleClose }) {
     alert(res.message);
     handleClose();
   };
+  const requiredFields = [
+    "client_name",
+    "contact_name",
+    "phone",
+    "email",
+    "gstin",
+    "billing_address",
+    "address",
+    "city",
+    "state",
+    "pincode",
+    "country",
+  ];
+
+  const isFormIncomplete = requiredFields.some(
+    (field) => clientData[field] === "",
+  );
 
   return (
     <Dialog size="md" open={isOpen} handler={handleOpen}>
@@ -152,6 +169,7 @@ export default function AddNewClientModal({ isOpen, handleOpen, handleClose }) {
         <Button
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           onClick={handleSave}
+          disabled={isFormIncomplete}
         >
           Save
         </Button>

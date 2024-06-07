@@ -25,11 +25,12 @@ const { Employee } = require("./models/Employee");
 const { EmployeePaymentDetails } = require("./models/EmployeePaymentDetails");
 const { Todo } = require("./models/Todo");
 const { EmployeeLeaveDetails } = require("./models/EmployeeLeaveDetails");
+const { ProductQuantities } = require("./models/ProductQuantities");
 const {
   EmployeeAttendanceDetails,
 } = require("./models/EmployeeAttendanceDetails");
 
-// electronReload(__dirname);
+electronReload(__dirname);
 
 let mainWindow;
 function createWindow() {
@@ -47,12 +48,12 @@ function createWindow() {
 
   const startURL = "http://localhost:3000";
 
-  const isDevelopment = false;
+  const isDevelopment = true;
 
   if (!DBManager.isInitialized) {
     DBManager.initialize().then((v) => {
-      // mainWindow.loadURL(startURL);
-      mainWindow.loadFile(path.join(__dirname, "ui/build/index.html"));
+      mainWindow.loadURL(startURL);
+      // mainWindow.loadFile(path.join(__dirname, "ui/build/index.html"));
     });
   }
   if (isDevelopment) {
@@ -563,7 +564,6 @@ ipcMain.handle("delete-client-by-id", async (ev, args) => {
 ipcMain.handle("get-all-client", async (ev, args) => {
   const clientrepo = DBManager.getRepository(Client);
   const data = await clientrepo.find();
-  // console.log(data);
   return {
     data,
   };
@@ -572,7 +572,6 @@ ipcMain.handle("get-all-client", async (ev, args) => {
 ipcMain.handle("get-todo-data", async (ev, args) => {
   const clientrepo = DBManager.getRepository(Todo);
   const data = await clientrepo.find();
-  // console.log(data);
   return {
     data,
   };
@@ -581,7 +580,6 @@ ipcMain.handle("get-todo-data", async (ev, args) => {
 ipcMain.handle("get-all-vendors", async (ev, args) => {
   const clientrepo = DBManager.getRepository(VendorDetails);
   const data = await clientrepo.find();
-  // console.log(data);
   return {
     data,
   };
@@ -2924,3 +2922,67 @@ ipcMain.handle("create-invoice-from-quotation", async (event, quotationNo) => {
     return { success: false, message: "Error creating invoice from quotation" };
   }
 });
+
+ipcMain.handle("update-product-quantity", async (ev, args) => {
+  try {
+    const response = await updateProductDetails(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to update product quantity",
+    };
+  }
+});
+
+
+ipcMain.handle("get-product-quantity", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(ProductQuantities);
+  const data = await clientrepo.find();
+  return {
+    data,
+  };
+});
+
+
+async function updateProductDetails(productDetailsData) {
+  try {
+    const productDetailsRepo = DBManager.getRepository(ProductQuantities);
+
+    for (const data of productDetailsData) {
+      // Check if the product already exists
+      let existingProductDetails = await productDetailsRepo.findOne({ where: { Product: data.Product } });
+
+      if (existingProductDetails) {
+        // Update the existing product's quantity
+        existingProductDetails.Quantity = data.Quantity;
+        existingProductDetails.updated_at = new Date();
+        await productDetailsRepo.save(existingProductDetails);
+        console.log(`Product details for ${data.Product} updated successfully!`);
+      } else {
+        // Create new product details
+        const newProductDetails = productDetailsRepo.create({
+          Product: data.Product,
+          Quantity: data.Quantity,
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+        await productDetailsRepo.save(newProductDetails);
+        console.log(`New product details for ${data.Product} added successfully!`);
+      }
+    }
+
+    return {
+      success: true,
+      message: "Product details processed successfully!",
+    };
+  } catch (error) {
+    console.error("Error adding or updating product details:", error);
+    return {
+      success: false,
+      message: "Error adding or updating product details",
+    };
+  }
+}
+
