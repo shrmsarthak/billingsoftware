@@ -87,6 +87,7 @@ export const get_all_product_option = async () => {
       uom: c.uom,
       description: c.description,
       purchase_price: c.purchase_price,
+      tax: c.tax,
     });
   });
   return product_option;
@@ -171,5 +172,10 @@ export const get_invoice_count = async () => {
 
 export const get_todo_data = async () => {
   var res = await window.api.invoke("get-todo-data");
+  return res;
+};
+
+export const get_product_quantities = async () => {
+  var res = await window.api.invoke("get-product-quantity");
   return res;
 };

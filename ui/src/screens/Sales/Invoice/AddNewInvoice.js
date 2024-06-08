@@ -15,7 +15,7 @@ import {
   get_all_product_option,
   tax_type,
   uom_type,
-  get_all_invoices,
+  get_product_quantities,
   get_company_details,
 } from "../../../utils/SelectOptions";
 import { api_show_client, api_show_product } from "../../../utils/PageApi";
@@ -89,6 +89,10 @@ let product_option = await get_all_product_option();
 let companyDetails = await get_company_details();
 let tax_option = tax_type();
 let uom_option = uom_type();
+let current_stock = await get_product_quantities();
+
+console.log(current_stock.data);
+
 export default function () {
   useEffect(() => {
     document.title = "New Invoice";
@@ -186,7 +190,7 @@ export default function () {
     getAllClients();
   }, []);
 
-  console.log(selectedClient);
+  console.log(product_option);
 
   useEffect(() => {
     setSelectedClient(
@@ -364,6 +368,12 @@ export default function () {
     const product = data.find((item) => item.text === productText);
     return product ? product.price : null;
   };
+  const getProductTax = (productText, data) => {
+    const product = data.find((item) => item.text === productText);
+    return product ? product.tax : null;
+  };
+
+  console.log(getProductTax(formData.Product, product_option));
   const generateFieldValue = () => {
     const today = new Date();
     const day = ("0" + today.getDate()).slice(-2); // Get day with leading zero if needed
@@ -701,6 +711,10 @@ export default function () {
                     "Description",
                     getProductDescription(values, product_option),
                   );
+                  handleFieldChange(
+                    "Tax",
+                    getProductTax(values, product_option),
+                  );
                 }
               }}
             />
@@ -729,7 +743,20 @@ export default function () {
               label="Qty"
               placeholder="Qty"
               type="number"
-              onChange={(e) => handleFieldChange("Qty", e.target.value)}
+              value={formData.Qty}
+              onChange={(e) => {
+                const product = current_stock.data.find(
+                  (item) => item.Product === formData.Product,
+                );
+                if (product.Quantity > e.target.value) {
+                  handleFieldChange("Qty", e.target.value);
+                } else {
+                  alert(
+                    `Only ${product.Quantity} quantities are available for ${product.Product}`,
+                  );
+                  handleFieldChange("Qty", product.Quantity);
+                }
+              }}
               style={{ minWidth: 100, width: 100 }}
               labelProps={{
                 className: "w-100",
@@ -767,14 +794,15 @@ export default function () {
             />
           </div>
           <div className="mr-12">
-            <SelectComp
+            <Input
               label="Tax"
               placeholder="Tax"
-              options={tax_option}
-              isinput={false}
-              handle={(values) => {
-                handleFieldChange("Tax", values);
-              }}
+              value={
+                formData.Product !== ""
+                  ? getProductTax(formData.Product, product_option)
+                  : ""
+              }
+              disabled
             />
           </div>
 
@@ -851,9 +879,7 @@ export default function () {
                       handle={(values) => {
                         handleFieldChange(
                           "Shipping_Tax",
-                          getIntegerFromPercentageString(
-                            getTextForValue(tax_option, values),
-                          ),
+                          getIntegerFromPercentageString(values),
                         );
                       }}
                     />

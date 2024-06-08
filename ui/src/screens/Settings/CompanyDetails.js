@@ -51,6 +51,21 @@ export default function AddCompanyDetails() {
   //   return () => clearTimeout(timer);}
   // }, [keyToCompare])
 
+  const requiredFields = [
+    "CompanyName",
+    "Address",
+    "Pincode",
+    "City",
+    "State",
+    "Country",
+    "Phone",
+    "KEY",
+  ];
+
+  const isFormIncomplete = requiredFields.some(
+    (field) => formData[field] === "",
+  );
+
   return (
     <>
       <div style={{ position: "absolute", marginLeft: -15 }}>
@@ -100,16 +115,7 @@ export default function AddCompanyDetails() {
             <div style={{ display: "flex", justifyContent: "center" }}>
               <Button
                 onClick={handleSubmit}
-                disabled={
-                  formData.CompanyName === "" ||
-                  formData.Address === "" ||
-                  formData.Pincode === "" ||
-                  formData.City === "" ||
-                  formData.State === "" ||
-                  formData.Country === "" ||
-                  formData.Phone === "" ||
-                  formData.KEY === ""
-                }
+                disabled={isFormIncomplete}
                 style={{ width: "-webkit-fill-available" }}
               >
                 Submit

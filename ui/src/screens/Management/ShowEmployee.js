@@ -599,7 +599,32 @@ export default function ShowEmployee() {
   let salaryToRender = EXPENSES_ROWS.filter(
     (item) => item["Employee Name"] === monthWisePayment[0]?.Employee,
   )[0]?.Salary;
-  console.log(salaryToRender);
+
+  const requiredFields = [
+    "Employee_name",
+    "Age",
+    "Contact_No",
+    "Address",
+    "Joining_Date",
+    "Notes",
+    "Employee_title",
+    "Salary",
+  ];
+
+  const isFormIncomplete = requiredFields.some((field) => fields[field] === "");
+
+  const requiredFieldsPayment = [
+    "Employee_name",
+    "Payment_date",
+    "Amount",
+    "Payment_type",
+    "Payment_notes",
+  ];
+
+  const isPaymentFormIncomplete = requiredFieldsPayment.some(
+    (field) => paymentData[field] === "",
+  );
+
   return (
     <div className="flex flex-col w-full h-full px-5">
       <div className="flex flex-col border border-gray-400 p-3 mb-3">
@@ -619,39 +644,6 @@ export default function ShowEmployee() {
               handle={(values) => {
                 handleFilterChange("Person", values);
               }}
-            />
-          </div>
-          <div className=" mr-12">
-            <div className="flex mr-12 gap-x-2">
-              <Input
-                variant="outlined"
-                label="Issue From"
-                placeholder="Issue From"
-                type="date"
-                onChange={(e) =>
-                  handleFilterChange("Issue_From", e.target.value)
-                }
-              />
-
-              <Input
-                variant="outlined"
-                label="Issue To "
-                placeholder="Issue To"
-                type="date"
-                onChange={(e) => handleFilterChange("Issue_To", e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="flex mr-12 gap-x-2">
-            <SelectComp
-              variant="outlined"
-              label="Type"
-              placeholder="Type"
-              options={generateDropDownList(expense_options)}
-              handle={(values) => {
-                handleFilterChange("Type", values);
-              }}
-              disabled
             />
           </div>
         </div>
@@ -793,6 +785,7 @@ export default function ShowEmployee() {
             <Button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={handleSave}
+              disabled={isFormIncomplete}
             >
               Save
             </Button>
@@ -872,6 +865,7 @@ export default function ShowEmployee() {
             <Button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={handlePaymentSave}
+              disabled={isPaymentFormIncomplete}
             >
               Save
             </Button>
@@ -928,79 +922,6 @@ export default function ShowEmployee() {
           </DialogFooter>
         </Dialog>
         {/* Attendance Modal */}
-        <Dialog
-          size="l"
-          open={isAttendanceModalOpen}
-          handleOpen={openAttendanceModal}
-        >
-          <DialogHeader toggler={closeAttendanceModal}>
-            Employee Attendance Details
-          </DialogHeader>
-          <DialogBody>
-            <div className="Employee-attendance-modal">
-              <div>
-                <Input
-                  variant="outlined"
-                  label="Employee Name"
-                  value={employeeApplyingAttendance.employeeName}
-                  disabled
-                />
-              </div>
-              <div>
-                <Input
-                  variant="outlined"
-                  label="Current Date"
-                  type="date"
-                  value={employeeApplyingAttendance.todayDate}
-                  disabled
-                />
-              </div>
-            </div>
-            <div className="Employee-attendance-modal">
-              <div>
-                <Input
-                  variant="outlined"
-                  label="IN"
-                  type="time"
-                  onChange={(e) =>
-                    setEmployeeApplyingAttendance((prevState) => ({
-                      ...prevState,
-                      inTime: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div>
-                <Input
-                  variant="outlined"
-                  label="OUT"
-                  type="time"
-                  onChange={(e) =>
-                    setEmployeeApplyingAttendance((prevState) => ({
-                      ...prevState,
-                      outTime: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-            </div>
-          </DialogBody>
-          <DialogFooter>
-            <Button
-              onClick={closeAttendanceModal}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              style={{ marginRight: 5 }}
-            >
-              Close
-            </Button>
-            <Button
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              onClick={handleAttendanceSave}
-            >
-              Save
-            </Button>
-          </DialogFooter>
-        </Dialog>
 
         {/* Leave Modal */}
         <Dialog size="l" open={isLeaveModalOpen} handleOpen={openLeaveModal}>

@@ -8,6 +8,7 @@ import {
   Button,
 } from "@material-tailwind/react";
 import SelectComp from "../components/SelectComp";
+import { tax_type } from "../../../utils/SelectOptions";
 
 const unit_options = [
   {
@@ -36,6 +37,8 @@ const unit_options = [
   },
 ];
 
+const tax_option = tax_type();
+
 export default function AddNewProductModal({
   isOpen,
   handleOpen,
@@ -53,7 +56,7 @@ export default function AddNewProductModal({
     storage_location: "",
     hns: "",
     sac: "",
-    unit_price: "",
+    unit_price: 0,
     currency: "",
     tax: "",
     quantity: "",
@@ -70,14 +73,25 @@ export default function AddNewProductModal({
     }));
   };
 
-  console.log(productData);
-
   const handleSave = async () => {
     // Save product data logic here
     const res = await window.api.invoke("add-new-product", productData);
     alert(res.message);
     handleClose();
   };
+
+  const requiredFields = [
+    "product_name",
+    "uom",
+    "description",
+    "unit_price",
+    "quantity",
+    "tax",
+  ];
+
+  const isFormIncomplete = requiredFields.some(
+    (field) => productData[field] === "",
+  );
 
   return (
     <Dialog size="md" open={isOpen} handler={handleOpen}>
@@ -103,6 +117,18 @@ export default function AddNewProductModal({
               setProductData((prevState) => ({
                 ...prevState,
                 uom: value,
+              }))
+            }
+          />
+          <SelectComp
+            variant="outlined"
+            label="Tax"
+            options={tax_option}
+            isinput={false}
+            handle={(value) =>
+              setProductData((prevState) => ({
+                ...prevState,
+                tax: value,
               }))
             }
           />
@@ -178,13 +204,6 @@ export default function AddNewProductModal({
           />
           <Input
             variant="outlined"
-            label="Tax"
-            name="tax"
-            value={productData.tax}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
             label="Quantity"
             name="quantity"
             value={productData.quantity}
@@ -210,6 +229,7 @@ export default function AddNewProductModal({
         <Button
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           onClick={handleSave}
+          disabled={isFormIncomplete}
         >
           Save
         </Button>
