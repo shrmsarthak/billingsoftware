@@ -54,13 +54,9 @@ export default function AddNewProductModal({
     opening_value: "",
     opening_rate: "",
     storage_location: "",
-    hns: "",
-    sac: "",
     unit_price: 0,
-    currency: "",
     tax: "",
     quantity: "",
-    cess: "",
     description: "",
     created_at: new Date(),
   });
@@ -87,10 +83,11 @@ export default function AddNewProductModal({
     "unit_price",
     "quantity",
     "tax",
+    "purchase_price",
   ];
 
   const isFormIncomplete = requiredFields.some(
-    (field) => productData[field] === "",
+    (field) => productData[field] === ""
   );
 
   return (
@@ -176,20 +173,6 @@ export default function AddNewProductModal({
           />
           <Input
             variant="outlined"
-            label="HNS"
-            name="hns"
-            value={productData.hns}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
-            label="SAC"
-            name="sac"
-            value={productData.sac}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
             label="Unit Price"
             name="unit_price"
             value={productData.unit_price}
@@ -197,23 +180,9 @@ export default function AddNewProductModal({
           />
           <Input
             variant="outlined"
-            label="Currency"
-            name="currency"
-            value={productData.currency}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
             label="Quantity"
             name="quantity"
             value={productData.quantity}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
-            label="Cess"
-            name="cess"
-            value={productData.cess}
             onChange={handleChange}
           />
         </div>
