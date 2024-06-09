@@ -269,7 +269,9 @@ export default function ShowCreditNotePage() {
             <Button
               color="white"
               size="xs" // Adjusted button size to xs
-              onClick={() => handleDeleteInvoice(obj)}
+              onClick={() =>
+                console.log(obj)
+              }
               className="py-1 px-2" // Adjusted padding
             >
               <svg
@@ -523,11 +525,14 @@ export default function ShowCreditNotePage() {
   }
 
   const exportInvoicesToExcel = async () => {
+    console.log(removeStatusField(filteredArray) )
+    console.log(removeStatusField(filterData) )
+
     try {
       const response = await window.api.invoke(
-        "export-invoices-to-excel",
+        "export-credit-to-excel",
         nonEmptyFields.length === 0
-          ? removeStatusField(filteredArray)
+          ? removeStatusField(filteredArray) 
           : removeStatusField(filterData),
       );
       if (response?.success) {
@@ -535,8 +540,7 @@ export default function ShowCreditNotePage() {
         const blob = new Blob([buffer], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
-        saveAs(blob, "export_invoices.xlsx");
-        alert("yo");
+        saveAs(blob, "export_creditNotes.xlsx");
       } else {
         console.error("Error:", response?.error);
       }

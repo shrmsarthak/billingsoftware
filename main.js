@@ -253,7 +253,6 @@ async function addNewProduct(args) {
     const product = {
       p_type: args.p_type,
       uom: args.uom,
-      sku: args.sku,
       product_name: args.product_name,
       purchase_price: args.purchase_price,
       keyword: args.keyword,
@@ -264,13 +263,9 @@ async function addNewProduct(args) {
       opening_rate: args.opening_rate,
       storage_location: args.storage_location,
       sub_location: args.sub_location,
-      hns: args.hns,
-      sac: args.sac,
       unit_price: args.unit_price,
-      currency: args.currency,
       tax: args.tax,
       quantity: args.quantity,
-      cess: args.cess,
       description: args.description,
       created_at: new Date(),
     };
@@ -284,6 +279,7 @@ async function addNewProduct(args) {
       return { success: true, message: "Product added successfully" };
     }
   } catch (error) {
+    console.log(error)
     return { success: false, message: "Error while adding new product" };
   }
 }
@@ -2682,6 +2678,61 @@ ipcMain.handle("export-invoices-to-excel", async (ev, args) => {
   }
 });
 
+ipcMain.handle("export-credit-to-excel", async (ev, args) => {
+  console.log("ev", ev);
+  console.log("args", args);
+  // try {
+  //   // Call the API to get all products with pagination and search query
+  //   const invoices = args;
+
+  //   // Create a new workbook
+  //   const workbook = new ExcelJS.Workbook();
+
+  //   // Add a worksheet
+  //   const worksheet = workbook.addWorksheet("Quotation");
+
+  //   // Define the columns
+  //   worksheet.columns = [
+  //     { header: "Client Name", key: "client_name", width: 20 },
+  //     { header: "Quotation No", key: "invoice_no", width: 20 },
+  //     { header: "Issue Date", key: "issue_date", width: 20 },
+  //     { header: "Valid Until", key: "due_date", width: 20 },
+  //     { header: "Amount", key: "amount", width: 20 },
+  //     { header: "Tax", key: "tax", width: 20 },
+  //     { header: "Shipping Cost", key: "shipping_cost", width: 20 },
+  //     { header: "Total", key: "total", width: 20 },
+  //     { header: "Type", key: "type", width: 20 },
+  //     { header: "Private Notes", key: "private_notes", width: 20 },
+  //   ];
+
+  //   for (const invoice of invoices) {
+  //     worksheet.addRow({
+  //       client_name: invoice["Client Name"],
+  //       invoice_no: invoice["Invoice No"],
+  //       issue_date: invoice["Issue Date"],
+  //       due_date: invoice["Valid Until"],
+  //       amount: invoice["Amount"],
+  //       tax: invoice["Tax"],
+  //       shipping_cost: invoice["Shipping Cost"],
+  //       total: invoice["Total"],
+  //       type: invoice["Type"],
+  //       private_notes: invoice["Private Notes"],
+  //     });
+  //   }
+  //   // Generate a buffer from the workbook
+  //   const buffer = await workbook.xlsx.writeBuffer();
+
+  //   if (buffer) {
+  //     return { success: true, buffer: buffer };
+  //   } else {
+  //     console.error("Error: Buffer is null.");
+  //     return { success: false, error: "Buffer is null." };
+  //   }
+  // } catch (error) {
+  //   console.error("Error exporting products:", error);
+  //   return null;
+  // }
+});
 
 ipcMain.handle("export-quotation-to-excel", async (ev, args) => {
   console.log("ev", ev);

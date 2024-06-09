@@ -36,7 +36,6 @@ const TABLE_HEAD = [
 const dataDefault = {
   p_type: "Product",
   uom: "",
-  sku: "",
   product_name: "",
   keyword: "",
   description: "",
@@ -44,17 +43,13 @@ const dataDefault = {
   sub_category: "",
   storage_location: "",
   sub_location: "",
-  hns: "",
   unit_price: "",
   tax: "",
   quantity: "",
-  cessValue1: "",
-  cessValue2: "",
   opening_balance: "",
   opening_value: "",
   opening_rate: "",
   purchase_price: "",
-  currency: "",
 };
 
 const type_options = [
@@ -167,7 +162,7 @@ export default function ShowProductsPage() {
     const getSubCategories = async () => {
       const subCategoriesData = await window.api.invoke(
         "get-sub-categories-by-category-id",
-        { category_id: categoryId },
+        { category_id: categoryId }
       );
       const subCategoriesArray = subCategoriesData?.data?.map((cat) => ({
         text: cat.name,
@@ -241,7 +236,7 @@ export default function ShowProductsPage() {
   // For search Filters
   const searchByQuery = async () => {
     const filteredSearchQuery = Object.fromEntries(
-      Object.entries(searchQuery).filter(([key, value]) => value !== ""),
+      Object.entries(searchQuery).filter(([key, value]) => value !== "")
     );
     const res = await window.api.invoke("get-all-products-list", {
       page,
@@ -285,7 +280,7 @@ export default function ShowProductsPage() {
   const downloadSampleFile = async () => {
     try {
       const response = await window.api.invoke(
-        "download-product-sample-import-file",
+        "download-product-sample-import-file"
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -373,15 +368,12 @@ export default function ShowProductsPage() {
         productId: values?.id,
       });
       const prodData = productDataForEdit.product;
-      const cessValue1 = prodData?.cess?.split(",")[0];
-      const cessValue2 = prodData?.cess?.split(",")[1];
       setProductData({
         ...productData,
         id: prodData.id,
         p_type: prodData.p_type,
         product_name: prodData.product_name,
         uom: prodData.uom,
-        sku: prodData.sku,
         purchase_price: prodData.purchase_price,
         keyword: prodData.keyword,
         category: prodData.category,
@@ -391,14 +383,10 @@ export default function ShowProductsPage() {
         opening_value: prodData.opening_value,
         storage_location: prodData.storage_location,
         sub_location: prodData.sub_location,
-        hns: prodData.hns,
         unit_price: prodData.unit_price,
-        currency: prodData.currency,
         tax: prodData.tax,
         quantity: prodData.quantity,
         quantity_sold: prodData.quantity_sold,
-        cessValue1,
-        cessValue2,
         description: prodData.description,
       });
     } else {
@@ -428,11 +416,8 @@ export default function ShowProductsPage() {
       return;
     }
     const nonEmptyProductFields = Object.fromEntries(
-      Object.entries(productData).filter(([key, value]) => value !== ""),
+      Object.entries(productData).filter(([key, value]) => value !== "")
     );
-    productData["cess"] = `${productData.cessValue1},${productData.cessValue2}`;
-    delete productData["cessValue1"];
-    delete productData["cessValue2"];
     if (productData.id) {
       const res = await window.api.invoke("update-product", {
         productId: nonEmptyProductFields.id,
@@ -446,7 +431,7 @@ export default function ShowProductsPage() {
     } else {
       const res = await window.api.invoke(
         "add-new-product",
-        nonEmptyProductFields,
+        nonEmptyProductFields
       );
       if (res && res.success === true) {
         alert(res.message);
@@ -475,7 +460,6 @@ export default function ShowProductsPage() {
         p_type: prodData.p_type,
         product_name: prodData.product_name,
         uom: prodData.uom,
-        sku: prodData.sku,
         purchase_price: prodData.purchase_price,
         keyword: prodData.keyword,
         category: prodData.category,
@@ -485,13 +469,10 @@ export default function ShowProductsPage() {
         opening_value: prodData.opening_value,
         storage_location: prodData.storage_location,
         sub_location: prodData.sub_location,
-        hns: prodData.hns,
         unit_price: prodData.unit_price,
-        currency: prodData.currency,
         tax: prodData.tax,
         quantity: prodData.quantity,
         quantity_sold: prodData.quantity_sold,
-        cess: prodData.cess,
         description: prodData.description,
       });
     }
@@ -554,19 +535,6 @@ export default function ShowProductsPage() {
           </div>
 
           <div className="flex flex-row w-full max-w-screen-xl m-auto justify-between my-2">
-            <div className="w-1/3 mr-6">
-              <Input
-                variant="outlined"
-                label="SKUs"
-                onChange={(v) =>
-                  setSearchQuery((prevSearchQuery) => ({
-                    ...prevSearchQuery,
-                    sku: v.target.value,
-                  }))
-                }
-                placeholder="SKUs"
-              />
-            </div>
             <div className="w-1/3 mr-6">
               <Input
                 variant="outlined"

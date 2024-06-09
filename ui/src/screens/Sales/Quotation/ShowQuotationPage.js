@@ -129,7 +129,7 @@ export default function ShowQuotationPage() {
   const handleQuotationChange = async (rowData) => {
     const res = await window.api.invoke(
       "create-invoice-from-quotation",
-      rowData.Quotation_No,
+      rowData.Quotation_No
     );
   };
 
@@ -140,31 +140,22 @@ export default function ShowQuotationPage() {
     today.setHours(0, 0, 0, 0); // Set hours to 0 for accurate comparison
     const colorStyle = dueDate < today ? { color: "red" } : {};
     return {
-      "Client Name": <p style={colorStyle}>{obj.Client}</p>,
-      "Quotation No": <p style={colorStyle}>{obj.Quotation_No}</p>,
-      "Issue Date": <p style={colorStyle}>{obj.Issue_Date}</p>,
-      "Valid Until": <p style={colorStyle}>{obj.Due_Date}</p>,
-      Amount: <p style={colorStyle}>{obj.Total_BeforeTax}</p>,
-      Tax: <p style={colorStyle}>{obj.Total_Tax}</p>,
-      "Shipping Cost": <p style={colorStyle}>{obj.Shipping_Charges}</p>,
+      "Client Name": obj.Client,
+      "Quotation No": obj.Quotation_No,
+      "Issue Date": obj.Issue_Date,
+      "Valid Until": obj.Due_Date,
+      Amount: obj.Total_BeforeTax,
+      Tax: obj.Total_Tax,
+      "Shipping Cost": obj.Shipping_Charges,
       Total: (
-        <p style={colorStyle}>
-          {(
-            Number(obj.Total_BeforeTax) +
-            Number(obj.Total_Tax) +
-            Number(obj.Shipping_Charges)
-          ).toFixed(2)}
-        </p>
-      ),
-      "Private Notes": <p style={colorStyle}>{obj.Private_Notes}</p>,
-      Invoiced:
-        obj.Invoiced === "1" ? (
-          <p style={{ color: "green" }}>Yes</p>
-        ) : (
-          <p style={{ color: "orangered" }}>No</p>
-        ),
+        Number(obj.Total_BeforeTax) +
+        Number(obj.Total_Tax) +
+        Number(obj.Shipping_Charges)
+      ).toFixed(2),
+      "Private Notes": obj.Private_Notes,
+      Invoiced: obj.Invoiced === "1" ? "Yes" : "No",
 
-      Type: <p style={colorStyle}>{"Quotation"}</p>,
+      Type: "Quotation",
       ActionButton: (
         <>
           {" "}
@@ -301,37 +292,22 @@ export default function ShowQuotationPage() {
         });
       })
       .map((obj) => {
-        const dueDate = new Date(obj.Due_Date);
-        // Get today's date
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set hours to 0 for accurate comparison
-        const colorStyle = dueDate < today ? { color: "red" } : {};
         return {
-          "Client Name": <p style={colorStyle}>{obj.Client}</p>,
-          "Quotation No": <p style={colorStyle}>{obj.Quotation_No}</p>,
-          "Issue Date": <p style={colorStyle}>{obj.Issue_Date}</p>,
-          "Valid Until": <p style={colorStyle}>{obj.Due_Date}</p>,
-          Amount: <p style={colorStyle}>{obj.Total_BeforeTax}</p>,
-          Tax: <p style={colorStyle}>{obj.Total_Tax}</p>,
-          "Shipping Cost": <p style={colorStyle}>{obj.Shipping_Charges}</p>,
+          "Client Name": obj.Client,
+          "Quotation No": obj.Quotation_No,
+          "Issue Date": obj.Issue_Date,
+          "Valid Until": obj.Due_Date,
+          Amount: obj.Total_BeforeTax,
+          Tax: obj.Total_Tax,
+          "Shipping Cost": obj.Shipping_Charges,
           Total: (
-            <p style={colorStyle}>
-              {(
-                Number(obj.Total_BeforeTax) +
-                Number(obj.Total_Tax) +
-                Number(obj.Shipping_Charges)
-              ).toFixed(2)}
-            </p>
-          ),
-          "Private Notes": <p style={colorStyle}>{obj.Private_Notes}</p>,
-          Invoiced:
-            obj.Invoiced === "1" ? (
-              <p style={{ color: "green" }}>Yes</p>
-            ) : (
-              <p style={{ color: "orangered" }}>No</p>
-            ),
-
-          Type: <p style={colorStyle}>{"Quotation"}</p>,
+            Number(obj.Total_BeforeTax) +
+            Number(obj.Total_Tax) +
+            Number(obj.Shipping_Charges)
+          ).toFixed(2),
+          "Private Notes": obj.Private_Notes,
+          Invoiced: obj.Invoiced === "1" ? "Yes" : "No",
+          Type: "Quotation",
           ActionButton: (
             <>
               <Tooltip content="Convert Quotation to Invoice">
@@ -455,7 +431,7 @@ export default function ShowQuotationPage() {
   const handleDeleteQuotation = async (obj) => {
     const res = await window.api.invoke(
       "delete-quotation-by-quotation-no",
-      obj.Quotation_No,
+      obj.Quotation_No
     );
   };
   const AmountPaidHandler = async (e, doc_no) => {
@@ -483,7 +459,7 @@ export default function ShowQuotationPage() {
         "export-quotation-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData),
+          : removeStatusField(filterData)
       );
       if (response?.success) {
         const buffer = response.buffer;
