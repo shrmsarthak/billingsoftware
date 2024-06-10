@@ -40,7 +40,6 @@ const TABLE_HEAD_MAIN = [
   "Description",
   "Type",
   "Price",
-  "Location",
   "Quantity",
   "Action",
 ];
@@ -111,7 +110,6 @@ export default function Inventory() {
   const [filterValues, setFilterValues] = useState({
     Product: "",
     Type: "",
-    Location: "",
   });
   const [filterData, setFilterData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -143,7 +141,6 @@ export default function Inventory() {
       Description: obj.Description,
       Type: obj.Type,
       Price: obj.Price,
-      Location: obj.Location,
       Quantity: obj.Quantity,
       ActionButton: (
         <>
@@ -199,7 +196,6 @@ export default function Inventory() {
           Description: obj.Description,
           Type: obj.Type,
           Price: obj.Price,
-          Location: obj.Location,
           Quantity: obj.Quantity,
           ActionButton: (
             <>
@@ -269,7 +265,7 @@ export default function Inventory() {
               }}
             />
           </div>
-          <div className=" mr-12">
+          <div className="flex mr-12 gap-x-2">
             <SelectComp
               variant="outlined"
               label="Type"
@@ -279,14 +275,6 @@ export default function Inventory() {
               handle={(values) => {
                 handleFilterChange("Type", values);
               }}
-            />
-          </div>
-          <div className="flex mr-12 gap-x-2">
-            <Input
-              variant="outlined"
-              label="Location"
-              placeholder="Location"
-              onChange={(e) => handleFilterChange("Location", e.target.value)}
             />
           </div>
         </div>

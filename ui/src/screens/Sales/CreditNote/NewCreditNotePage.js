@@ -147,7 +147,7 @@ export default function NewCreditNotePage() {
 
     // Calculate the due date by adding days to the issue date
     const dueDate = new Date(
-      issueDate.setDate(issueDate.getDate() + daysToAdd)
+      issueDate.setDate(issueDate.getDate() + daysToAdd),
     );
 
     // Check if dueDate is a valid date
@@ -184,7 +184,7 @@ export default function NewCreditNotePage() {
 
   useEffect(() => {
     setSelectedClient(
-      allClient.filter((x) => x.client_name === formData.Client)
+      allClient.filter((x) => x.client_name === formData.Client),
     );
   }, [formData.Client]);
 
@@ -206,7 +206,7 @@ export default function NewCreditNotePage() {
           " " +
           selectedClient[0]?.city +
           "-" +
-          selectedClient[0]?.pincode
+          selectedClient[0]?.pincode,
       );
       handleFieldChange("Place_Of_Supply", selectedClient[0]?.state);
     }
@@ -214,7 +214,7 @@ export default function NewCreditNotePage() {
       invoices
         .flat()
         .filter((x) => formData.Client === x.Client)
-        .map((y) => y.Document_No)
+        .map((y) => y.Document_No),
     );
   }, [selectedClient]);
 
@@ -534,7 +534,7 @@ export default function NewCreditNotePage() {
                   Shipping_Charges:
                     Number(formData.Shipping_Charges) +
                     Number(
-                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                      (formData.Shipping_Charges / 100) * formData.Shipping_Tax,
                     ),
                   Shipping_Tax: formData.Shipping_Tax,
                   Discount_on_all: formData.Discount_on_all,
@@ -606,7 +606,7 @@ export default function NewCreditNotePage() {
                 handleFieldChange(
                   "Issue_Date",
                   invoices.flat().filter((x) => x.Document_No === values)[0]
-                    .Issue_Date
+                    .Issue_Date,
                 );
               }}
             />
@@ -649,7 +649,7 @@ export default function NewCreditNotePage() {
               handle={(values) => {
                 handleFieldChange(
                   "Payment_Term",
-                  getTextForValue(payemnt_options, values)
+                  getTextForValue(payemnt_options, values),
                 );
               }}
             />
@@ -700,19 +700,19 @@ export default function NewCreditNotePage() {
                   handleFieldChange("Product", values);
                   handleFieldChange(
                     "Unit_Price",
-                    getProductPrice(values, product_option)
+                    getProductPrice(values, product_option),
                   );
                   handleFieldChange(
                     "UoM",
-                    getProductUOM(values, product_option)
+                    getProductUOM(values, product_option),
                   );
                   handleFieldChange(
                     "Description",
-                    getProductDescription(values, product_option)
+                    getProductDescription(values, product_option),
                   );
                   handleFieldChange(
                     "Tax",
-                    getProductTax(values, product_option)
+                    getProductTax(values, product_option),
                   );
                 }
               }}
@@ -776,7 +776,12 @@ export default function NewCreditNotePage() {
           <div className="mr-12">
             <Button
               onClick={() => setRows((pre) => [...pre, formData])}
-              disabled={formData.Client === "" || formData.Product === ""}
+              disabled={
+                formData.Client === "" ||
+                formData.Product === "" ||
+                formData.Qty === 0 ||
+                formData.Qty === "0"
+              }
             >
               +
             </Button>
@@ -844,7 +849,7 @@ export default function NewCreditNotePage() {
                       handle={(values) => {
                         handleFieldChange(
                           "Shipping_Tax",
-                          getIntegerFromPercentageString(values)
+                          getIntegerFromPercentageString(values),
                         );
                       }}
                     />
@@ -948,7 +953,7 @@ export default function NewCreditNotePage() {
                   Number(totalTax) +
                   Number(formData.Shipping_Charges) +
                   Number(
-                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax
+                    (formData.Shipping_Charges / 100) * formData.Shipping_Tax,
                   )
                 ).toFixed(2)}
               </div>

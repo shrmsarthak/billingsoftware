@@ -56,7 +56,6 @@ export default function AddNewProductModal({
     storage_location: "",
     unit_price: 0,
     tax: "",
-    quantity: "",
     description: "",
     created_at: new Date(),
   });
@@ -81,13 +80,12 @@ export default function AddNewProductModal({
     "uom",
     "description",
     "unit_price",
-    "quantity",
     "tax",
     "purchase_price",
   ];
 
   const isFormIncomplete = requiredFields.some(
-    (field) => productData[field] === ""
+    (field) => productData[field] === "",
   );
 
   return (
@@ -176,13 +174,6 @@ export default function AddNewProductModal({
             label="Unit Price"
             name="unit_price"
             value={productData.unit_price}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
-            label="Quantity"
-            name="quantity"
-            value={productData.quantity}
             onChange={handleChange}
           />
         </div>

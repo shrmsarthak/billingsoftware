@@ -276,7 +276,10 @@ export default function () {
     HSNSAC: "HSN-" + item.Product.substring(0, 3),
     Description: item.Description || "Sample Service Description",
     UoM: item.UoM || "Boxes",
-    Qty: item.Qty ? item.Qty : "1",
+    Qty:
+      item.Qty === undefined || item.Qty === null || item.Qty === ""
+        ? 1
+        : item.Qty,
     UnitPrice: item.Unit_Price ? item.Unit_Price : "1.00",
     Value:
       item.Discount === ""
@@ -748,6 +751,15 @@ export default function () {
                 const product = current_stock.data.find(
                   (item) => item.Product === formData.Product,
                 );
+
+                console.log(current_stock);
+
+                if (!product) {
+                  alert(`Product ${formData.Product} not found in stock.`);
+                  handleFieldChange("Qty", 0); // Set Qty to 0 or handle as needed
+                  return;
+                }
+
                 if (product.Quantity > e.target.value) {
                   handleFieldChange("Qty", e.target.value);
                 } else {
@@ -809,7 +821,12 @@ export default function () {
           <div className="mr-12">
             <Button
               onClick={() => setRows((pre) => [...pre, formData])}
-              disabled={formData.Client === "" || formData.Product === ""}
+              disabled={
+                formData.Client === "" ||
+                formData.Product === "" ||
+                formData.Qty === 0 ||
+                formData.Qty === "0"
+              }
               size="md"
             >
               +
@@ -997,20 +1014,16 @@ export default function () {
             Preview
           </Button>
           {renderInvoicePreview()}
-          {
-            <AddNewClientModal
-              isOpen={isModalOpen}
-              handleOpen={handleOpen}
-              handleClose={handleClose}
-            />
-          }
-          {
-            <AddNewProductModal
-              isOpen={isProductModalOpen}
-              handleOpen={handleProductOpen}
-              handleClose={handleProductClose}
-            />
-          }
+          <AddNewClientModal
+            isOpen={isModalOpen}
+            handleOpen={handleOpen}
+            handleClose={handleClose}
+          />
+          <AddNewProductModal
+            isOpen={isProductModalOpen}
+            handleOpen={handleProductOpen}
+            handleClose={handleProductClose}
+          />
         </div>
       </div>
     </div>

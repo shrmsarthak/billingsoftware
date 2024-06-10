@@ -99,7 +99,7 @@ const allLeaves = await get_all_employee_leaves();
 
 const uniqueMonths = [
   ...new Set(
-    allPayments.map((doc) => new Date(doc.Payment_date).getMonth() + 1)
+    allPayments.map((doc) => new Date(doc.Payment_date).getMonth() + 1),
   ),
 ];
 
@@ -118,7 +118,7 @@ const LEAVE_ROWS = allLeaves.map((item) => {
 const handleDeleteEmployee = async (obj) => {
   const res = await window.api.invoke(
     "delete-employee-by-contact-no",
-    obj.Contact_No
+    obj.Contact_No,
   );
   alert(res.message);
 };
@@ -129,11 +129,11 @@ export default function ShowEmployee() {
   });
 
   const person_option = Array.from(
-    new Set(allEmployees.flat().map((x) => x.Employee_name))
+    new Set(allEmployees.flat().map((x) => x.Employee_name)),
   );
 
   const person_title_option = Array.from(
-    new Set(allEmployees.flat().map((x) => x.Employee_title))
+    new Set(allEmployees.flat().map((x) => x.Employee_title)),
   );
 
   const [filterValues, setFilterValues] = useState({
@@ -160,7 +160,7 @@ export default function ShowEmployee() {
   const [monthWiseLeave, setMonthWiseLeave] = useState([]);
 
   const [employeeApplyingAttendance, setEmployeeApplyingAttendance] = useState(
-    initialAttendanceData
+    initialAttendanceData,
   );
 
   // Function to open payment modal
@@ -243,7 +243,7 @@ export default function ShowEmployee() {
             "Payment Type": items.Payment_type,
             "Payment Notes": items.Payment_notes,
           };
-        })
+        }),
     );
     setBalanceModalOpen(true);
   };
@@ -271,7 +271,7 @@ export default function ShowEmployee() {
   const handleAttendanceSave = async () => {
     const res = await window.api.invoke(
       "add-employee-attendance",
-      employeeApplyingAttendance
+      employeeApplyingAttendance,
     );
     alert(res.message);
     setEmployeeApplyingAttendance(initialAttendanceData);
@@ -296,7 +296,7 @@ export default function ShowEmployee() {
   const handleLeaveSave = async () => {
     const res = await window.api.invoke(
       "add-employee-leave",
-      employeeApplyingLeave
+      employeeApplyingLeave,
     );
     alert(res.message);
     setEmployeeApplyingLeave(initialLeaveData);
@@ -320,7 +320,7 @@ export default function ShowEmployee() {
   const handlePaymentSave = async () => {
     const res = await window.api.invoke(
       "add-new-employee-payment",
-      paymentData
+      paymentData,
     );
     alert(res.message);
     setPaymentData(initialPaymentData);
@@ -667,7 +667,7 @@ export default function ShowEmployee() {
   };
 
   let salaryToRender = EXPENSES_ROWS.filter(
-    (item) => item["Employee Name"] === monthWisePayment[0]?.Employee
+    (item) => item["Employee Name"] === monthWisePayment[0]?.Employee,
   )[0]?.Salary;
 
   const requiredFields = [
@@ -692,7 +692,13 @@ export default function ShowEmployee() {
   ];
 
   const isPaymentFormIncomplete = requiredFieldsPayment.some(
-    (field) => paymentData[field] === ""
+    (field) => paymentData[field] === "",
+  );
+
+  const requiredFieldsLeave = ["employeeName", "leaveDate", "leaveReason"];
+
+  const isLeaveFormIncomplete = requiredFieldsLeave.some(
+    (field) => employeeApplyingLeave[field] === "",
   );
 
   return (
@@ -743,9 +749,6 @@ export default function ShowEmployee() {
       </div>
       <hr />
       <div className="flex my-2 flex-row-reverse">
-        <div className="mx-3">
-          <Button>Export</Button>
-        </div>
         <div className="mx-3">
           <Button onClick={openModal}>Add New Employee</Button>
         </div>
@@ -970,12 +973,12 @@ export default function ShowEmployee() {
                 isInput={false}
                 handle={(values) => {
                   setMonthWisePayment(
-                    filterDocumentsByMonth(values, balanceData)
+                    filterDocumentsByMonth(values, balanceData),
                   );
                   setPaymentDatamentForTheMonth(
                     calculateNonSalaryTotal(
-                      filterDocumentsByMonth(values, balanceData)
-                    )
+                      filterDocumentsByMonth(values, balanceData),
+                    ),
                   );
                 }}
               />
@@ -1136,7 +1139,8 @@ export default function ShowEmployee() {
             <ProductInvoiceTable
               TABLE_HEAD={TABLE_HEAD_LEAVE}
               TABLE_ROWS={monthWiseLeave.filter(
-                (x) => x["Employee Name"] === employeeApplyingLeave.employeeName
+                (x) =>
+                  x["Employee Name"] === employeeApplyingLeave.employeeName,
               )}
             />
           </DialogBody>
@@ -1151,6 +1155,7 @@ export default function ShowEmployee() {
             <Button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={handleLeaveSave}
+              disabled={isLeaveFormIncomplete}
             >
               Save
             </Button>

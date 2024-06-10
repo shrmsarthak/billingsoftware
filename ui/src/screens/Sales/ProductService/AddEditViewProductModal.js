@@ -121,7 +121,7 @@ export function AddEditViewProductModal({
                 />
                 {renderErrorMessage(
                   "product_name",
-                  "Product name is required."
+                  "Product name is required.",
                 )}
               </div>
               {showProductsModule && (
@@ -233,23 +233,6 @@ export function AddEditViewProductModal({
               />
               {showProductsModule && (
                 <>
-                  <Input
-                    variant="outlined"
-                    label="Quantity"
-                    placeholder="Quantity"
-                    value={data.quantity}
-                    disabled={isView}
-                    onChange={(v) => {
-                      const qtyValue = v.target.value;
-                      const numericValue = qtyValue.replace(/[^0-9]/g, "");
-                      setData({ ...data, quantity: numericValue });
-                      setError((prevErrors) => ({
-                        ...prevErrors,
-                        quantity: !qtyValue.trim(),
-                      }));
-                    }}
-                  />
-                  {renderErrorMessage("quantity", "Quantity is required.")}
                   <Input
                     variant="outlined"
                     label="Opening Balance"
