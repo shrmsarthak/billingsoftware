@@ -14,7 +14,6 @@ const TABLE_HEAD = [
   "S.No",
   "Product/Service Name",
   "Description",
-  "Quantity",
   "Unit Price",
   "Unit",
   "Quantity Sold",
@@ -45,7 +44,6 @@ const dataDefault = {
   sub_location: "",
   unit_price: "",
   tax: "",
-  quantity: "",
   opening_balance: "",
   opening_value: "",
   opening_rate: "",
@@ -141,11 +139,10 @@ export default function ShowProductsPage() {
     p_type: false,
     product_name: false,
     unit_price: false,
-    quantity: false,
   };
   const [fieldErrors, setFieldErrors] = useState(errorDefault);
 
-  const fieldsToValidate = ["p_type", "product_name", "unit_price", "quantity"];
+  const fieldsToValidate = ["p_type", "product_name", "unit_price"];
 
   useEffect(() => {
     document.title = "Show Product";
@@ -162,7 +159,7 @@ export default function ShowProductsPage() {
     const getSubCategories = async () => {
       const subCategoriesData = await window.api.invoke(
         "get-sub-categories-by-category-id",
-        { category_id: categoryId }
+        { category_id: categoryId },
       );
       const subCategoriesArray = subCategoriesData?.data?.map((cat) => ({
         text: cat.name,
@@ -204,7 +201,6 @@ export default function ShowProductsPage() {
       id: c.id,
       product_name: c.product_name,
       description: c.description,
-      quantity: c.quantity,
       unit_price: c.unit_price,
       uom: c.uom,
       quantity_sold: c.quantity_sold,
@@ -236,7 +232,7 @@ export default function ShowProductsPage() {
   // For search Filters
   const searchByQuery = async () => {
     const filteredSearchQuery = Object.fromEntries(
-      Object.entries(searchQuery).filter(([key, value]) => value !== "")
+      Object.entries(searchQuery).filter(([key, value]) => value !== ""),
     );
     const res = await window.api.invoke("get-all-products-list", {
       page,
@@ -248,7 +244,6 @@ export default function ShowProductsPage() {
       id: c.id,
       product_name: c.product_name,
       description: c.description,
-      quantity: c.quantity,
       unit_price: c.unit_price,
       uom: c.uom,
       quantity_sold: c.quantity_sold,
@@ -280,7 +275,7 @@ export default function ShowProductsPage() {
   const downloadSampleFile = async () => {
     try {
       const response = await window.api.invoke(
-        "download-product-sample-import-file"
+        "download-product-sample-import-file",
       );
       if (response?.success) {
         const buffer = response.buffer;
@@ -385,7 +380,6 @@ export default function ShowProductsPage() {
         sub_location: prodData.sub_location,
         unit_price: prodData.unit_price,
         tax: prodData.tax,
-        quantity: prodData.quantity,
         quantity_sold: prodData.quantity_sold,
         description: prodData.description,
       });
@@ -416,7 +410,7 @@ export default function ShowProductsPage() {
       return;
     }
     const nonEmptyProductFields = Object.fromEntries(
-      Object.entries(productData).filter(([key, value]) => value !== "")
+      Object.entries(productData).filter(([key, value]) => value !== ""),
     );
     if (productData.id) {
       const res = await window.api.invoke("update-product", {
@@ -431,7 +425,7 @@ export default function ShowProductsPage() {
     } else {
       const res = await window.api.invoke(
         "add-new-product",
-        nonEmptyProductFields
+        nonEmptyProductFields,
       );
       if (res && res.success === true) {
         alert(res.message);
@@ -471,7 +465,6 @@ export default function ShowProductsPage() {
         sub_location: prodData.sub_location,
         unit_price: prodData.unit_price,
         tax: prodData.tax,
-        quantity: prodData.quantity,
         quantity_sold: prodData.quantity_sold,
         description: prodData.description,
       });

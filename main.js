@@ -52,8 +52,8 @@ function createWindow() {
 
   if (!DBManager.isInitialized) {
     DBManager.initialize().then((v) => {
-      mainWindow.loadURL(startURL);
-      // mainWindow.loadFile(path.join(__dirname, "ui/build/index.html"));
+      // mainWindow.loadURL(startURL);
+      mainWindow.loadFile(path.join(__dirname, "ui/build/index.html"));
     });
   }
   if (isDevelopment) {
@@ -265,7 +265,6 @@ async function addNewProduct(args) {
       sub_location: args.sub_location,
       unit_price: args.unit_price,
       tax: args.tax,
-      quantity: args.quantity,
       description: args.description,
       created_at: new Date(),
     };
@@ -279,7 +278,7 @@ async function addNewProduct(args) {
       return { success: true, message: "Product added successfully" };
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return { success: false, message: "Error while adding new product" };
   }
 }
@@ -918,7 +917,6 @@ ipcMain.handle("export-products-to-excel", async (ev, args) => {
       { header: "Product Name", key: "product_name", width: 20 },
       { header: "Unit Price", key: "unit_price", width: 20 },
       { header: "Uom", key: "uom", width: 20 },
-      { header: "Quantity", key: "quantity", width: 20 },
       { header: "Description", key: "description", width: 20 },
       { header: "Type", key: "p_type", width: 20 },
       { header: "Purchase Rate", key: "purchase_price", width: 20 },
@@ -935,7 +933,6 @@ ipcMain.handle("export-products-to-excel", async (ev, args) => {
         product_name: product.product_name,
         unit_price: product.unit_price,
         uom: product.uom,
-        quantity: product.quantity,
         description: product.description,
         p_type: product.p_type,
         purchase_price: product.purchase_price,
@@ -1757,7 +1754,6 @@ async function addNewPurchaseOrder(invoiceData) {
       Discount_on_all: invoiceData.Discount_on_all,
       Total_BeforeTax: invoiceData.Total_BeforeTax,
       Total_Tax: invoiceData.Total_Tax,
-      Location: invoiceData.Location,
     };
     // Save the new invoice entity to the database
     const result = await productRepo
@@ -2617,7 +2613,6 @@ async function updateCreditNote(invoiceData) {
   }
 }
 
-
 ipcMain.handle("export-invoices-to-excel", async (ev, args) => {
   try {
     // Call the API to get all products with pagination and search query
@@ -2863,15 +2858,15 @@ async function addCompanyDetails(companyDetailsData) {
     let existingCompanyDetails = await companyDetailsRepo.find();
 
     const companyDetailsObj = {
-      companyName: companyDetailsData.CompanyName,
-      address: companyDetailsData.Address,
-      pincode: companyDetailsData.Pincode,
-      city: companyDetailsData.City,
-      state: companyDetailsData.State,
-      country: companyDetailsData.Country,
-      phone: companyDetailsData.Phone,
-      email: companyDetailsData.Email,
-      website: companyDetailsData.Website,
+      companyName: companyDetailsData.companyName,
+      address: companyDetailsData.address,
+      pincode: companyDetailsData.pincode,
+      city: companyDetailsData.city,
+      state: companyDetailsData.state,
+      country: companyDetailsData.country,
+      phone: companyDetailsData.phone,
+      email: companyDetailsData.email,
+      website: companyDetailsData.website,
       PAN: companyDetailsData.PAN,
       GSTNO: companyDetailsData.GSTNO,
       TIN: companyDetailsData.TIN,
@@ -2987,7 +2982,6 @@ ipcMain.handle("update-product-quantity", async (ev, args) => {
   }
 });
 
-
 ipcMain.handle("get-product-quantity", async (ev, args) => {
   const clientrepo = DBManager.getRepository(ProductQuantities);
   const data = await clientrepo.find();
@@ -2996,31 +2990,36 @@ ipcMain.handle("get-product-quantity", async (ev, args) => {
   };
 });
 
-
 async function updateProductDetails(productDetailsData) {
   try {
     const productDetailsRepo = DBManager.getRepository(ProductQuantities);
 
     for (const data of productDetailsData) {
       // Check if the product already exists
-      let existingProductDetails = await productDetailsRepo.findOne({ where: { Product: data.Product } });
+      let existingProductDetails = await productDetailsRepo.findOne({
+        where: { Product: data.Product },
+      });
 
       if (existingProductDetails) {
         // Update the existing product's quantity
-        existingProductDetails.Quantity = data.Quantity;
+        existingProductDetails.Quantity = data.Quantity; // Update the quantity
         existingProductDetails.updated_at = new Date();
         await productDetailsRepo.save(existingProductDetails);
-        console.log(`Product details for ${data.Product} updated successfully!`);
+        console.log(
+          `Product details for ${data.Product} updated successfully!`
+        );
       } else {
         // Create new product details
         const newProductDetails = productDetailsRepo.create({
           Product: data.Product,
-          Quantity: data.Quantity,
+          Quantity: data.Quantity, // Set the quantity
           created_at: new Date(),
           updated_at: new Date(),
         });
         await productDetailsRepo.save(newProductDetails);
-        console.log(`New product details for ${data.Product} added successfully!`);
+        console.log(
+          `New product details for ${data.Product} added successfully!`
+        );
       }
     }
 
@@ -3036,4 +3035,3 @@ async function updateProductDetails(productDetailsData) {
     };
   }
 }
-

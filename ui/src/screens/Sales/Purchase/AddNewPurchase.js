@@ -73,7 +73,6 @@ export default function NewPurchasePage() {
     Qty: "",
     Unit_Price: "",
     Tax: "GST Rate 0%",
-    Location: "",
     Notes: "",
     Private_Notes: "",
     Shipping_Charges: 0,
@@ -368,7 +367,6 @@ export default function NewPurchasePage() {
         Discount_on_all: formData.Discount_on_all,
         Total_BeforeTax: formData.Total_BeforeTax,
         Total_Tax: formData.Total_Tax,
-        Location: formData.Location,
       };
       const res = await window.api.invoke(
         "add-new-purchase-order",
@@ -656,16 +654,7 @@ export default function NewPurchasePage() {
               disabled
             />
           </div>
-          <div className="mr-12">
-            <Input
-              variant="outlined"
-              label="Location"
-              placeholder="Location"
-              onChange={(e) => {
-                handleFieldChange("Location", e.target.value);
-              }}
-            />
-          </div>
+          <div className="mr-12"></div>
 
           <div className="mr-12">
             <Button

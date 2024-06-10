@@ -269,9 +269,7 @@ export default function ShowCreditNotePage() {
             <Button
               color="white"
               size="xs" // Adjusted button size to xs
-              onClick={() =>
-                console.log(obj)
-              }
+              onClick={() => console.log(obj)}
               className="py-1 px-2" // Adjusted padding
             >
               <svg
@@ -525,14 +523,14 @@ export default function ShowCreditNotePage() {
   }
 
   const exportInvoicesToExcel = async () => {
-    console.log(removeStatusField(filteredArray) )
-    console.log(removeStatusField(filterData) )
+    console.log(removeStatusField(filteredArray));
+    console.log(removeStatusField(filterData));
 
     try {
       const response = await window.api.invoke(
         "export-credit-to-excel",
         nonEmptyFields.length === 0
-          ? removeStatusField(filteredArray) 
+          ? removeStatusField(filteredArray)
           : removeStatusField(filterData),
       );
       if (response?.success) {

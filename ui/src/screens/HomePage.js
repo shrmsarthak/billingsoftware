@@ -26,8 +26,6 @@ let purchaseOrders = await get_all_purchase_orders();
 
 const adjustedData = adjustQuantities(purchaseOrders.flat(), invoices.flat());
 
-console.log(adjustedData);
-
 const current_stock = adjustedData.map((x) => {
   return {
     Product: x.Product,
@@ -35,7 +33,6 @@ const current_stock = adjustedData.map((x) => {
   };
 });
 
-console.log(current_stock);
 
 const Icon = ({ id, open }) => (
   <svg

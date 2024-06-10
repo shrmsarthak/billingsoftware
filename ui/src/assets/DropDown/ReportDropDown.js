@@ -1,8 +1,9 @@
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Select from "react-select";
 
 export default function ReportsDropDown() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   function convertDropdownData(data) {
     return data.map((item) => ({
@@ -37,17 +38,21 @@ export default function ReportsDropDown() {
       );
     };
 
+    const handleClick = () => {
+      navigate(to);
+    };
+
     return (
-      <Link to={to}>
-        <div
-          style={{
-            justifyContent: "center",
-            border: "none",
-          }}
-        >
-          <div>{renderTitle()}</div>
-        </div>
-      </Link>
+      <div
+        onClick={handleClick}
+        style={{
+          justifyContent: "center",
+          border: "none",
+          cursor: "pointer", // Add cursor style for better UX
+        }}
+      >
+        <div>{renderTitle()}</div>
+      </div>
     );
   }
 
@@ -85,6 +90,7 @@ export default function ReportsDropDown() {
       label: <ListItemsOptions title="Show Vendors" to="/sales/vendors/show" />,
     },
   ];
+
   return (
     <div style={{ width: 200, marginLeft: 20 }}>
       <Select

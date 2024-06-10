@@ -744,7 +744,12 @@ export default function NewQuotationPage() {
           <div className="mr-12">
             <Button
               onClick={() => setRows((pre) => [...pre, formData])}
-              disabled={formData.Client === "" || formData.Product === ""}
+              disabled={
+                formData.Client === "" ||
+                formData.Product === "" ||
+                formData.Qty === 0 ||
+                formData.Qty === "0"
+              }
             >
               +
             </Button>

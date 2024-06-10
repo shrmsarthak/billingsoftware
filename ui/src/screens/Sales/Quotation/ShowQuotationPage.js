@@ -129,7 +129,7 @@ export default function ShowQuotationPage() {
   const handleQuotationChange = async (rowData) => {
     const res = await window.api.invoke(
       "create-invoice-from-quotation",
-      rowData.Quotation_No
+      rowData.Quotation_No,
     );
   };
 
@@ -431,7 +431,7 @@ export default function ShowQuotationPage() {
   const handleDeleteQuotation = async (obj) => {
     const res = await window.api.invoke(
       "delete-quotation-by-quotation-no",
-      obj.Quotation_No
+      obj.Quotation_No,
     );
   };
   const AmountPaidHandler = async (e, doc_no) => {
@@ -459,7 +459,7 @@ export default function ShowQuotationPage() {
         "export-quotation-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
-          : removeStatusField(filterData)
+          : removeStatusField(filterData),
       );
       if (response?.success) {
         const buffer = response.buffer;

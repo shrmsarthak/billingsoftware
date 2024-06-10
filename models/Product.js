@@ -18,10 +18,6 @@ const Product = new EntitySchema({
       default: "box",
       nullable: false,
     },
-    sku: {
-      type: String,
-      nullable: true,
-    },
     product_name: {
       type: String,
       nullable: false,
@@ -86,29 +82,12 @@ const Product = new EntitySchema({
       type: String,
       nullable: true,
     },
-    hns: {
-      type: String,
-      nullable: true,
-    },
-    sac: {
-      type: String,
-      nullable: true,
-    },
     unit_price: {
       type: Number,
       nullable: false,
       default: 0,
     },
-    currency: {
-      type: String,
-      nullable: true,
-      default: "INR",
-    },
     tax: {
-      type: Number,
-      nullable: false,
-    },
-    quantity: {
       type: Number,
       nullable: false,
     },
@@ -116,10 +95,6 @@ const Product = new EntitySchema({
       type: Number,
       nullable: true,
       default: 0.0,
-    },
-    cess: {
-      type: String,
-      nullable: true,
     },
     description: {
       type: String,

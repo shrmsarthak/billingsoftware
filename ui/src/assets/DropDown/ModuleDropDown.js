@@ -1,8 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Select from "react-select";
 
 export default function ModuleDropDown() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   function extractMiddleTitleCase(path) {
     const parts = path.split("/");
@@ -30,19 +31,24 @@ export default function ModuleDropDown() {
       );
     };
 
+    const handleClick = () => {
+      navigate(to);
+    };
+
     return (
-      <Link to={to}>
-        <div
-          style={{
-            justifyContent: "center",
-            border: "none",
-          }}
-        >
-          <div>{renderTitle()}</div>
-        </div>
-      </Link>
+      <div
+        onClick={handleClick}
+        style={{
+          justifyContent: "center",
+          border: "none",
+          cursor: "pointer", // Add cursor style for better UX
+        }}
+      >
+        <div>{renderTitle()}</div>
+      </div>
     );
   }
+
   const options = [
     {
       value: "1",
