@@ -612,6 +612,14 @@ ipcMain.handle("get-all-employee-leaves", async (ev, args) => {
   };
 });
 
+ipcMain.handle("get-attendance", async (ev, args) => {
+  const clientrepo = DBManager.getRepository(EmployeeAttendanceDetails);
+  const data = await clientrepo.find();
+  return {
+    data,
+  };
+});
+
 // Get all clients for clients list
 ipcMain.handle("get-all-clients-list", async (ev, args) => {
   const result = await getAllClientsList(args);

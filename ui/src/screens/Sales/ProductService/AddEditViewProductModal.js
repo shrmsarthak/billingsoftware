@@ -121,7 +121,7 @@ export function AddEditViewProductModal({
                 />
                 {renderErrorMessage(
                   "product_name",
-                  "Product name is required.",
+                  "Product name is required."
                 )}
               </div>
               {showProductsModule && (
@@ -147,61 +147,7 @@ export function AddEditViewProductModal({
                   setData({ ...data, description: descValue });
                 }}
               />
-              {showProductsModule && (
-                <SelectComp
-                  label="Category"
-                  options={categories}
-                  isinput={false}
-                  defaultValue={data.category}
-                  disabled={isView}
-                  handle={(values) => {
-                    if (values === "*") {
-                      // api_new_client();
-                      return;
-                    }
-                    setCategoryId(values);
-                    setData({ ...data, category: values });
-                  }}
-                />
-              )}
-              {showProductsModule && (
-                <SelectComp
-                  label="Sub Category"
-                  isinput={false}
-                  options={subCategories}
-                  defaultValue={data.sub_category}
-                  disabled={isView}
-                  handle={(values) => {
-                    setData({ ...data, sub_category: values });
-                  }}
-                />
-              )}
-              {showProductsModule && (
-                <Input
-                  variant="outlined"
-                  label="Storage Location"
-                  placeholder="Storage Location"
-                  value={data.storage_location}
-                  disabled={isView}
-                  onChange={(v) => {
-                    const locationValue = v.target.value;
-                    setData({ ...data, storage_location: locationValue });
-                  }}
-                />
-              )}
-              {showProductsModule && (
-                <Input
-                  variant="outlined"
-                  label="Sub Location"
-                  placeholder="Sub Location"
-                  value={data.sub_location}
-                  disabled={isView}
-                  onChange={(v) => {
-                    const locationValue = v.target.value;
-                    setData({ ...data, sub_location: locationValue });
-                  }}
-                />
-              )}
+
               <Typography>Sales Information</Typography>
               <div className="mb-5">
                 <Input
