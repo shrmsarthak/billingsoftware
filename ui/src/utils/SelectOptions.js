@@ -179,3 +179,8 @@ export const get_product_quantities = async () => {
   var res = await window.api.invoke("get-product-quantity");
   return res;
 };
+
+export const get_all_employee_attendance = async () => {
+  var res = await window.api.invoke("get-attendance");
+  return res?.data;
+};
