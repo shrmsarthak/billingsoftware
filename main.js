@@ -2681,62 +2681,6 @@ ipcMain.handle("export-invoices-to-excel", async (ev, args) => {
   }
 });
 
-ipcMain.handle("export-credit-to-excel", async (ev, args) => {
-  console.log("ev", ev);
-  console.log("args", args);
-  // try {
-  //   // Call the API to get all products with pagination and search query
-  //   const invoices = args;
-
-  //   // Create a new workbook
-  //   const workbook = new ExcelJS.Workbook();
-
-  //   // Add a worksheet
-  //   const worksheet = workbook.addWorksheet("Quotation");
-
-  //   // Define the columns
-  //   worksheet.columns = [
-  //     { header: "Client Name", key: "client_name", width: 20 },
-  //     { header: "Quotation No", key: "invoice_no", width: 20 },
-  //     { header: "Issue Date", key: "issue_date", width: 20 },
-  //     { header: "Valid Until", key: "due_date", width: 20 },
-  //     { header: "Amount", key: "amount", width: 20 },
-  //     { header: "Tax", key: "tax", width: 20 },
-  //     { header: "Shipping Cost", key: "shipping_cost", width: 20 },
-  //     { header: "Total", key: "total", width: 20 },
-  //     { header: "Type", key: "type", width: 20 },
-  //     { header: "Private Notes", key: "private_notes", width: 20 },
-  //   ];
-
-  //   for (const invoice of invoices) {
-  //     worksheet.addRow({
-  //       client_name: invoice["Client Name"],
-  //       invoice_no: invoice["Invoice No"],
-  //       issue_date: invoice["Issue Date"],
-  //       due_date: invoice["Valid Until"],
-  //       amount: invoice["Amount"],
-  //       tax: invoice["Tax"],
-  //       shipping_cost: invoice["Shipping Cost"],
-  //       total: invoice["Total"],
-  //       type: invoice["Type"],
-  //       private_notes: invoice["Private Notes"],
-  //     });
-  //   }
-  //   // Generate a buffer from the workbook
-  //   const buffer = await workbook.xlsx.writeBuffer();
-
-  //   if (buffer) {
-  //     return { success: true, buffer: buffer };
-  //   } else {
-  //     console.error("Error: Buffer is null.");
-  //     return { success: false, error: "Buffer is null." };
-  //   }
-  // } catch (error) {
-  //   console.error("Error exporting products:", error);
-  //   return null;
-  // }
-});
-
 ipcMain.handle("export-quotation-to-excel", async (ev, args) => {
   console.log("ev", ev);
   console.log("args", args);
@@ -2793,9 +2737,105 @@ ipcMain.handle("export-quotation-to-excel", async (ev, args) => {
   }
 });
 
-ipcMain.handle("export-payment_report-to-excel", async (ev, args) => {
-  console.log("ev", ev);
-  console.log("args", args);
+ipcMain.handle("export-purchase-to-excel", async (ev, args) => {
+  try {
+    // Call the API to get all products with pagination and search query
+    const invoices = args;
+
+    // Create a new workbook
+    const workbook = new ExcelJS.Workbook();
+
+    // Add a worksheet
+    const worksheet = workbook.addWorksheet("Quotation");
+
+    // Define the columns
+    worksheet.columns = [
+      { header: "Vendor Name", key: "client_name", width: 20 },
+      { header: "Document No", key: "invoice_no", width: 20 },
+      { header: "Issue Date", key: "issue_date", width: 20 },
+      { header: "Valid Until", key: "due_date", width: 20 },
+      { header: "Amount", key: "amount", width: 20 },
+      { header: "Tax", key: "tax", width: 20 },
+      { header: "Total", key: "total", width: 20 },
+      { header: "Type", key: "type", width: 20 },
+      { header: "Private Notes", key: "private_notes", width: 20 },
+    ];
+
+    for (const invoice of invoices) {
+      worksheet.addRow({
+        client_name: invoice["Vendor Name"],
+        invoice_no: invoice["Document No"],
+        issue_date: invoice["Issue Date"],
+        due_date: invoice["Valid Until"],
+        amount: invoice["Amount"],
+        tax: invoice["Tax"],
+        total: invoice["Total"],
+        type: "Purchase Order",
+        private_notes: invoice["Private Notes"],
+      });
+    }
+    // Generate a buffer from the workbook
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    if (buffer) {
+      return { success: true, buffer: buffer };
+    } else {
+      console.error("Error: Buffer is null.");
+      return { success: false, error: "Buffer is null." };
+    }
+  } catch (error) {
+    console.error("Error exporting products:", error);
+    return null;
+  }
+});
+
+ipcMain.handle("export-ledger-to-excel", async (ev, args) => {
+  try {
+    // Call the API to get all products with pagination and search query
+    const invoices = args;
+
+    // Create a new workbook
+    const workbook = new ExcelJS.Workbook();
+
+    // Add a worksheet
+    const worksheet = workbook.addWorksheet("Quotation");
+
+    // Define the columns
+    worksheet.columns = [
+      { header: "Date", key: "date", width: 20 },
+      { header: "Type", key: "type", width: 20 },
+      { header: "Client", key: "client", width: 20 },
+      { header: "Document No", key: "invoice_no", width: 20 },
+      { header: "Credit (+)", key: "credit", width: 20 },
+      { header: "Debit (-)", key: "debit", width: 20 },
+    ];
+
+    for (const invoice of invoices) {
+      worksheet.addRow({
+        invoice_no: invoice["Document No"],
+        client: invoice["Client"],
+        type: invoice["Type"],
+        date: invoice["Date"],
+        credit: invoice["Credit (+)"],
+        debit: invoice["Debit (-)"],
+      });
+    }
+    // Generate a buffer from the workbook
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    if (buffer) {
+      return { success: true, buffer: buffer };
+    } else {
+      console.error("Error: Buffer is null.");
+      return { success: false, error: "Buffer is null." };
+    }
+  } catch (error) {
+    console.error("Error exporting products:", error);
+    return null;
+  }
+});
+
+ipcMain.handle("export-payment-report-to-excel", async (ev, args) => {
   try {
     // Call the API to get all products with pagination and search query
     const invoices = args;
@@ -2809,7 +2849,7 @@ ipcMain.handle("export-payment_report-to-excel", async (ev, args) => {
     // Define the columns
     worksheet.columns = [
       { header: "Client Name", key: "client_name", width: 20 },
-      { header: "Invoice No", key: "invoice_no", width: 20 },
+      { header: "Document No", key: "invoice_no", width: 20 },
       { header: "Pay Date", key: "issue_date", width: 20 },
       { header: "Type", key: "type", width: 20 },
       { header: "Amount Payment", key: "amount_payment", width: 20 },
@@ -2828,6 +2868,94 @@ ipcMain.handle("export-payment_report-to-excel", async (ev, args) => {
         amount_used: invoice["Amount Used"],
         available_credit: invoice["Available Credit"],
         payment_type: invoice["Payment Type"],
+      });
+    }
+    // Generate a buffer from the workbook
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    if (buffer) {
+      return { success: true, buffer: buffer };
+    } else {
+      console.error("Error: Buffer is null.");
+      return { success: false, error: "Buffer is null." };
+    }
+  } catch (error) {
+    console.error("Error exporting products:", error);
+    return null;
+  }
+});
+
+ipcMain.handle("export-inventory-report-to-excel", async (ev, args) => {
+  try {
+    // Call the API to get all products with pagination and search query
+    const invoices = args;
+
+    // Create a new workbook
+    const workbook = new ExcelJS.Workbook();
+
+    // Add a worksheet
+    const worksheet = workbook.addWorksheet("Quotation");
+
+    // Define the columns
+    worksheet.columns = [
+      { header: "Product", key: "product", width: 20 },
+      { header: "Description", key: "desc", width: 20 },
+      { header: "Type", key: "type", width: 20 },
+      { header: "Price", key: "price", width: 20 },
+      { header: "Quantity", key: "quantity", width: 20 },
+    ];
+
+    for (const invoice of invoices) {
+      worksheet.addRow({
+        product: invoice["Product"],
+        desc: invoice["Description"],
+        type: invoice["Type"],
+        price: invoice["Price"],
+        quantity: invoice["Quantity"],
+      });
+    }
+    // Generate a buffer from the workbook
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    if (buffer) {
+      return { success: true, buffer: buffer };
+    } else {
+      console.error("Error: Buffer is null.");
+      return { success: false, error: "Buffer is null." };
+    }
+  } catch (error) {
+    console.error("Error exporting products:", error);
+    return null;
+  }
+});
+
+ipcMain.handle("export-vendor-report-to-excel", async (ev, args) => {
+  try {
+    // Call the API to get all products with pagination and search query
+    const invoices = args;
+
+    // Create a new workbook
+    const workbook = new ExcelJS.Workbook();
+
+    // Add a worksheet
+    const worksheet = workbook.addWorksheet("Quotation");
+
+    // Define the columns
+    worksheet.columns = [
+      { header: "Vendor", key: "vendor", width: 20 },
+      { header: "Created At", key: "created_at", width: 20 },
+      { header: "City", key: "city", width: 20 },
+      { header: "State", key: "state", width: 20 },
+      { header: "Contact No", key: "contact_no", width: 20 },
+    ];
+
+    for (const invoice of invoices) {
+      worksheet.addRow({
+        vendor: invoice["Vendor Name"],
+        created_at: invoice["Created At"],
+        city: invoice["City"],
+        state: invoice["State"],
+        contact_no: invoice["Contact No"],
       });
     }
     // Generate a buffer from the workbook

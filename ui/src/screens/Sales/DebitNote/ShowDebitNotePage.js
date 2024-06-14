@@ -522,29 +522,6 @@ export default function ShowDebitNotePage() {
     });
   }
 
-  const exportInvoicesToExcel = async () => {
-    try {
-      const response = await window.api.invoke(
-        "export-invoices-to-excel",
-        nonEmptyFields.length === 0
-          ? removeStatusField(filteredArray)
-          : removeStatusField(filterData),
-      );
-      if (response?.success) {
-        const buffer = response.buffer;
-        const blob = new Blob([buffer], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        });
-        saveAs(blob, "export_invoices.xlsx");
-        alert("yo");
-      } else {
-        console.error("Error:", response?.error);
-      }
-      console.log("Export response:", response);
-    } catch (error) {
-      console.error("Export error:", error);
-    }
-  };
   const renderInvoicePreview = () => {
     if (isInvoicePreviewOpen) {
       return (
@@ -739,9 +716,6 @@ export default function ShowDebitNotePage() {
       </div>
       <hr />
       <div className="flex my-2 flex-row-reverse">
-        <div className="mx-3">
-          <Button onClick={exportInvoicesToExcel}>Export</Button>
-        </div>
         <div className="mx-3">
           <Button onClick={() => navigate("/sales/debit/new")}>
             New Debit Note
