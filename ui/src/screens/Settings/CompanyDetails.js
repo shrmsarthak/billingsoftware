@@ -65,7 +65,7 @@ export default function AddCompanyDetails() {
   ];
 
   const isFormIncomplete = requiredFields.some(
-    (field) => formData[field] === ""
+    (field) => formData[field] === "",
   );
 
   const keyToCompare = companyDetails?.KEY;

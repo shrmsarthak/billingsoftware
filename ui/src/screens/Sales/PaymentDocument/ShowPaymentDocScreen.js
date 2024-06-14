@@ -21,6 +21,7 @@ import PaymentReceipt from "../components/Receipts/PaymentReceipt";
 import { PDFViewer } from "@react-pdf/renderer";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import ReportsDropDown from "../../../assets/DropDown/ReportDropDown";
+import { useNavigate } from "react-router-dom";
 
 const TABLE_HEAD = [
   "No",
@@ -52,6 +53,8 @@ export default function ShowPaymentDocScreen() {
   useEffect(() => {
     document.title = "Payment Documents Report";
   });
+
+  const navigate = useNavigate();
 
   const [filterValues, setFilterValues] = useState({
     Client: "",
@@ -329,7 +332,7 @@ export default function ShowPaymentDocScreen() {
     // Iterate through each object in the array
     return objectsArray.map((obj) => {
       // Destructure the object to remove the "Status" field
-      const { Status, ActionButton, ...rest } = obj;
+      const { ActionButton, ...rest } = obj;
       // Return the object without the "Status" field
       return rest;
     });
@@ -338,7 +341,7 @@ export default function ShowPaymentDocScreen() {
   const exportInvoicesToExcel = async () => {
     try {
       const response = await window.api.invoke(
-        "export-payment_report-to-excel",
+        "export-payment-report-to-excel",
         nonEmptyFields.length === 0
           ? removeStatusField(filteredArray)
           : removeStatusField(filterData),
@@ -527,7 +530,9 @@ export default function ShowPaymentDocScreen() {
           <Button onClick={exportInvoicesToExcel}>Export</Button>
         </div>
         <div className="mx-3">
-          <Button onClick={api_new_payment}>New Payment Document</Button>
+          <Button onClick={() => navigate("/sales/payment/new")}>
+            New Payment Document
+          </Button>
         </div>
       </div>
 

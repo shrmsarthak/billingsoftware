@@ -33,7 +33,6 @@ const current_stock = adjustedData.map((x) => {
   };
 });
 
-
 const Icon = ({ id, open }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

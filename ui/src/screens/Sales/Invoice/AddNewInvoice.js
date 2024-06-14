@@ -117,7 +117,7 @@ export default function () {
     Product: "",
     Description: "",
     UoM: "",
-    Qty: "",
+    Qty: "0",
     Unit_Price: "",
     Discount: "",
     Tax: "GST Rate 18%",
@@ -751,8 +751,6 @@ export default function () {
                 const product = current_stock.data.find(
                   (item) => item.Product === formData.Product,
                 );
-
-                console.log(current_stock);
 
                 if (!product) {
                   alert(`Product ${formData.Product} not found in stock.`);
