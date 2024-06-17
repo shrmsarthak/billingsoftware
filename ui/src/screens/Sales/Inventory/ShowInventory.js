@@ -62,7 +62,7 @@ function convertDropdownData(data) {
 
 const adjustedData = adjustQuantities(purchaseOrders.flat(), invoices.flat());
 
-console.log(adjustedData);
+//console.log(adjustedData);
 
 export default function Inventory() {
   useEffect(() => {
@@ -269,11 +269,11 @@ export default function Inventory() {
         });
         saveAs(blob, `inventory_report_${new Date()}.xlsx`);
       } else {
-        console.error("Error:", response?.error);
+        //console.error("Error:", response?.error);
       }
-      console.log("Export response:", response);
+      //console.log("Export response:", response);
     } catch (error) {
-      console.error("Export error:", error);
+      //console.error("Export error:", error);
     }
   };
 
