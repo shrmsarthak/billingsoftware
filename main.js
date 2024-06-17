@@ -1762,6 +1762,7 @@ async function addNewPurchaseOrder(invoiceData) {
       Discount_on_all: invoiceData.Discount_on_all,
       Total_BeforeTax: invoiceData.Total_BeforeTax,
       Total_Tax: invoiceData.Total_Tax,
+      Order_Type: invoiceData?.Order_Type,
     };
     // Save the new invoice entity to the database
     const result = await productRepo
@@ -3127,37 +3128,54 @@ ipcMain.handle("get-product-quantity", async (ev, args) => {
 });
 
 async function updateProductDetails(productDetailsData) {
+  console.log(JSON.stringify(productDetailsData));
   try {
     const productDetailsRepo = DBManager.getRepository(ProductQuantities);
 
-    for (const data of productDetailsData) {
-      // Check if the product already exists
-      let existingProductDetails = await productDetailsRepo.findOne({
-        where: { Product: data.Product },
-      });
+    // Start a transaction
+    await productDetailsRepo.manager.transaction(
+      async (transactionalEntityManager) => {
+        for (const data of productDetailsData) {
+          // Check if the product already exists
+          let existingProductDetails = await transactionalEntityManager.findOne(
+            ProductQuantities,
+            {
+              where: { Product: data.Product },
+            }
+          );
 
-      if (existingProductDetails) {
-        // Update the existing product's quantity
-        existingProductDetails.Quantity = data.Quantity; // Update the quantity
-        existingProductDetails.updated_at = new Date();
-        await productDetailsRepo.save(existingProductDetails);
-        console.log(
-          `Product details for ${data.Product} updated successfully!`
-        );
-      } else {
-        // Create new product details
-        const newProductDetails = productDetailsRepo.create({
-          Product: data.Product,
-          Quantity: data.Quantity, // Set the quantity
-          created_at: new Date(),
-          updated_at: new Date(),
-        });
-        await productDetailsRepo.save(newProductDetails);
-        console.log(
-          `New product details for ${data.Product} added successfully!`
-        );
+          if (existingProductDetails) {
+            // Update the existing product's quantity
+            existingProductDetails.Quantity = data.Quantity;
+            existingProductDetails.updated_at = new Date();
+            await transactionalEntityManager.save(
+              ProductQuantities,
+              existingProductDetails
+            );
+            console.log(
+              `Product details for ${data.Product} updated successfully!`
+            );
+          } else {
+            // Create new product details
+            const newProductDetails = transactionalEntityManager.create(
+              ProductQuantities,
+              {
+                Product: data.Product,
+                Quantity: data.Quantity,
+                created_at: new Date(),
+              }
+            );
+            await transactionalEntityManager.save(
+              ProductQuantities,
+              newProductDetails
+            );
+            console.log(
+              `New product details for ${data.Product} added successfully!`
+            );
+          }
+        }
       }
-    }
+    );
 
     return {
       success: true,
@@ -3171,3 +3189,16 @@ async function updateProductDetails(productDetailsData) {
     };
   }
 }
+
+ipcMain.handle("update-manufacture-quantity", async (ev, args) => {
+  try {
+    const response = await addNewPurchaseOrder(args);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to update product quantity",
+    };
+  }
+});
