@@ -59,7 +59,7 @@ function createWindow() {
   if (isDevelopment) {
     electronReload(__dirname);
   } else {
-    const watcher = chokidar.watch("db/test2.sqlite");
+    const watcher = chokidar.watch("db/database.sqlite");
     watcher.on("change", () => {
       mainWindow.reload();
     });

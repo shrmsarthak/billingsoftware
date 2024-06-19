@@ -28,7 +28,7 @@ const { ProductQuantities } = require("../models/ProductQuantities");
 const DBManager = new DataSource({
   name: "maindb",
   type: "sqlite",
-  database: "./db/test2.sqlite",
+  database: "./db/database.sqlite",
   entities: [
     Address,
     Client,
