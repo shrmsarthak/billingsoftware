@@ -745,12 +745,13 @@ export default function NewCreditNotePage() {
               variant="outlined"
               label="Unit Price"
               placeholder="Unit Price"
-              value={
+              defaultValue={
                 formData.Product !== ""
                   ? getProductPrice(formData.Product, product_option)
                   : ""
               }
-              disabled
+              value={formData.Unit_Price}
+              onChange={(e) => handleFieldChange("Unit_Price", e.target.value)}
             />
           </div>
           <div className=" mr-12">

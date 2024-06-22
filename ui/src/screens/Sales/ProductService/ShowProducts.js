@@ -5,7 +5,7 @@ import SelectComp from "../components/SelectComp";
 import { Table } from "../components/Table";
 import { ImportModal } from "../components/ImportModal";
 import { DeleteModal } from "../components/DeleteModal";
-import { get_all_product_option } from "../../../utils/SelectOptions";
+import { get_all_product_option, uom_type } from "../../../utils/SelectOptions";
 // import DatePicker from "../components/DatePicker";
 import { AddEditViewProductModal } from "./AddEditViewProductModal";
 import HomeButton from "../../../assets/Buttons/HomeButton";
@@ -62,33 +62,7 @@ const type_options = [
   // },
 ];
 
-const unit_options = [
-  {
-    text: "Boxes",
-    value: "Boxes",
-  },
-  {
-    text: "CFT",
-    value: "CFT",
-  },
-  {
-    text: "Centimeters",
-    value: "Centimeters",
-  },
-  {
-    text: "Gram",
-    value: "Gram",
-  },
-  {
-    text: "Inches",
-    value: "Inches",
-  },
-  {
-    text: "Hours",
-    value: "Hours",
-  },
-];
-
+const unit_options = uom_type();
 const purchase_options = [
   {
     text: "INR",

@@ -1,38 +1,154 @@
 export const uom_type = () => {
   return [
     {
+      text: "Bags",
+      value: "bags",
+    },
+    {
+      text: "Bale",
+      value: "bale",
+    },
+    {
+      text: "Bundles",
+      value: "bundles",
+    },
+    {
+      text: "Buckles",
+      value: "buckles",
+    },
+    {
+      text: "Billion of Units",
+      value: "billion_units",
+    },
+    {
       text: "Boxes",
       value: "box",
     },
     {
-      text: "CFT",
-      value: "cft",
+      text: "Bottles",
+      value: "bottles",
     },
     {
-      text: "Centimeter",
-      value: "cm",
+      text: "Bunches",
+      value: "bunches",
     },
     {
-      text: "Cubic Meter",
+      text: "Cans",
+      value: "cans",
+    },
+    {
+      text: "Cubic Meters",
       value: "c_meter",
     },
     {
-      text: "Hours",
-      value: "hour",
+      text: "Cubic Centimeters",
+      value: "cm",
     },
     {
-      text: "Kilogram",
-      value: "kg",
+      text: "Centimeters",
+      value: "centimeters",
     },
     {
-      text: "Gram",
+      text: "Cartons",
+      value: "cartons",
+    },
+    {
+      text: "Dozens",
+      value: "dozens",
+    },
+    {
+      text: "Drums",
+      value: "drums",
+    },
+    {
+      text: "Great Gross",
+      value: "great_gross",
+    },
+    {
+      text: "Grammes",
       value: "g",
     },
     {
-      text: "Inche",
-      value: "inche",
+      text: "Gross",
+      value: "gross",
     },
-  ];
+    {
+      text: "Gross Yards",
+      value: "gross_yards",
+    },
+    {
+      text: "Kilograms",
+      value: "kg",
+    },
+    {
+      text: "Kilolitre",
+      value: "kilolitre",
+    },
+    {
+      text: "Kilometre",
+      value: "kilometre",
+    },
+    {
+      text: "Litres",
+      value: "litres",
+    },
+    {
+      text: "Mililitre",
+      value: "mililitre",
+    },
+    {
+      text: "Meters",
+      value: "meters",
+    },
+    {
+      text: "Metric Ton",
+      value: "metric_ton",
+    },
+    {
+      text: "Numbers",
+      value: "numbers",
+    },
+    {
+      text: "Others",
+      value: "others",
+    },
+    {
+      text: "Packs",
+      value: "packs",
+    },
+    {
+      text: "Pieces",
+      value: "pieces",
+    },
+    {
+      text: "Pairs",
+      value: "pairs",
+    },
+    {
+      text: "Quintal",
+      value: "quintal",
+    },
+    {
+      text: "Rolls",
+      value: "rolls",
+    },
+    {
+      text: "Sets",
+      value: "sets",
+    },
+    {
+      text: "Square Feet",
+      value: "square_feet",
+    },
+    {
+      text: "Square Meters",
+      value: "square_meters",
+    },
+    // Add more options as needed
+  ].map((option) => ({
+    ...option,
+    text: option.text.replace(/\b\w/g, (firstChar) => firstChar.toUpperCase()),
+  }));
 };
 
 export const tax_type = () => {

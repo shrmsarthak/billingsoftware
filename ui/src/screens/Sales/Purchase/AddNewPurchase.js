@@ -639,8 +639,7 @@ export default function NewPurchasePage() {
               variant="outlined"
               label="Purchase Rate"
               placeholder="Purchase Rate"
-              value={formData.Unit_Price}
-              disabled
+              onChange={(e) => handleFieldChange("Unit_Price", e.target.value)}
             />
           </div>
           <div className="mr-12">

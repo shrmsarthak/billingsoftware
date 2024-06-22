@@ -20,6 +20,12 @@ import { get_all_vendor_option } from "../../../utils/SelectOptions";
 import { saveAs } from "file-saver";
 import HomeButton from "../../../assets/Buttons/HomeButton";
 import { showmessage } from "../../../utils/api";
+import {
+  getAllCountry,
+  getStates,
+  getCities,
+  getFilterCities,
+} from "../../../utils/AddressDataApi";
 
 const TABLE_HEAD = [
   "No",
@@ -47,6 +53,7 @@ const initialValue = {
   Address: "",
   City: "",
   State: "",
+  Country: "",
   GSTIN: "",
 };
 
@@ -116,6 +123,10 @@ export default function ShowVendors() {
   const [fields, setFields] = useState(initialValue);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState("");
+  const [countries, setCountries] = useState(getAllCountry());
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
   const openModal = (data) => {
     setSelectedProduct(data);
     setIsModalOpen(true);
@@ -126,9 +137,22 @@ export default function ShowVendors() {
   };
 
   const handleSave = async () => {
+    delete fields.Country;
     const res = await window.api.invoke("add-new-vendor", fields);
     showmessage(res.message);
   };
+
+  const requiredFields = [
+    "Vendor",
+    "Vendor_email",
+    "Contact_number",
+    "Address",
+    "City",
+    "State",
+    "GSTIN",
+  ];
+
+  const isFormIncomplete = requiredFields.some((field) => fields[field] === "");
   // const nonEmptyValues = () => {
   //   return Object.keys(filterValues).filter((key) => filterValues[key] !== "");
   // };
@@ -404,21 +428,51 @@ export default function ShowVendors() {
                   placeholder="Address"
                 ></Input>
               </div>
-              <div>
-                <Input
-                  variant="outlined"
-                  label="City"
-                  onChange={(e) => handleFieldChange("City", e.target.value)}
-                  placeholder="City"
-                ></Input>
-              </div>
-              <div>
-                <Input
-                  variant="outlined"
-                  label="State"
-                  onChange={(e) => handleFieldChange("State", e.target.value)}
-                  placeholder="State"
-                ></Input>
+              <div style={{ display: "flex", gap: "2px" }}>
+                <div className="mb-5">
+                  <SelectComp
+                    label="Country"
+                    isinput={false}
+                    options={countries}
+                    handle={(values) => {
+                      const value = values;
+                      setFields((prevState) => ({
+                        ...prevState,
+                        Country: value,
+                      }));
+                      setStates(getStates(value));
+                    }}
+                  />
+                </div>
+                <div className="mb-5">
+                  <SelectComp
+                    label="State"
+                    isinput={false}
+                    options={states}
+                    handle={(values) => {
+                      const value = values;
+                      setFields((prevState) => ({
+                        ...prevState,
+                        State: value,
+                      }));
+                      setCities(getCities(value));
+                    }}
+                  />
+                </div>
+                <div className="mb-5">
+                  <SelectComp
+                    label="City"
+                    isinput={false}
+                    options={cities}
+                    handle={(values) => {
+                      const value = values;
+                      setFields((prevState) => ({
+                        ...prevState,
+                        City: value,
+                      }));
+                    }}
+                  />
+                </div>
               </div>
               <div>
                 <Input
@@ -441,6 +495,7 @@ export default function ShowVendors() {
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={handleSave}
+              disabled={isFormIncomplete}
             >
               Save
             </button>

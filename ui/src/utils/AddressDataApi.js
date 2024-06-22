@@ -3,7 +3,9 @@ import data from "../assets/data/countries+states.json";
 export function getAllCountry() {
   let t = [];
   data.map((v, i) => {
-    t.push({ text: v.name, value: v.name });
+    if (v.name === "India") {
+      t.push({ text: v.name, value: v.name });
+    }
   });
   return t;
 }

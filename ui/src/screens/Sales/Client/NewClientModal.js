@@ -8,6 +8,13 @@ import {
   Button,
 } from "@material-tailwind/react";
 import { showmessage } from "../../../utils/api";
+import {
+  getAllCountry,
+  getStates,
+  getCities,
+  getFilterCities,
+} from "../../../utils/AddressDataApi";
+import SelectComp from "../components/SelectComp";
 
 export default function AddNewClientModal({ isOpen, handleOpen, handleClose }) {
   const [clientData, setClientData] = useState({
@@ -25,6 +32,9 @@ export default function AddNewClientModal({ isOpen, handleOpen, handleClose }) {
     pincode: "",
     country: "",
   });
+  const [countries, setCountries] = useState(getAllCountry());
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,11 +50,11 @@ export default function AddNewClientModal({ isOpen, handleOpen, handleClose }) {
     showmessage(res.message);
     handleClose();
   };
+
   const requiredFields = [
     "client_name",
     "contact_name",
     "phone",
-    "email",
     "gstin",
     "billing_address",
     "address",
@@ -58,6 +68,21 @@ export default function AddNewClientModal({ isOpen, handleOpen, handleClose }) {
     (field) => clientData[field] === "",
   );
 
+  const isFieldRequired = (field) =>
+    requiredFields.some(
+      (reqField) => reqField.toLowerCase() === field.toLowerCase(),
+    );
+
+  const getLabel = (field) =>
+    isFieldRequired(field) ? (
+      <>
+        {field.replace(/_/g, " ")}
+        <span style={{ color: "red" }}>*</span>
+      </>
+    ) : (
+      field.replace(/_/g, " ")
+    );
+
   return (
     <Dialog size="md" open={isOpen} handler={handleOpen}>
       <DialogHeader toggler={handleClose}>Add New Client</DialogHeader>
@@ -68,91 +93,116 @@ export default function AddNewClientModal({ isOpen, handleOpen, handleClose }) {
         >
           <Input
             variant="outlined"
-            label="Client Name"
+            label={getLabel("client_name")}
             name="client_name"
             value={clientData.client_name}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="Contact Name"
+            label={getLabel("contact_name")}
             name="contact_name"
             value={clientData.contact_name}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="Phone"
+            label={getLabel("phone")}
             name="phone"
             value={clientData.phone}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="Email"
+            label={getLabel("email")}
             name="email"
             value={clientData.email}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="GSTIN"
+            label={getLabel("gstin")}
             name="gstin"
             value={clientData.gstin}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="TIN"
+            label={getLabel("tin")}
             name="tin"
             value={clientData.tin}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="PAN"
+            label={getLabel("pan")}
             name="pan"
             value={clientData.pan}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="Billing Address"
+            label={getLabel("billing_address")}
             name="billing_address"
             value={clientData.billing_address}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="Address"
+            label={getLabel("address")}
             name="address"
             value={clientData.address}
             onChange={handleChange}
           />
+          <div style={{ display: "flex", gap: "2px" }}>
+            <div className="mb-5">
+              <SelectComp
+                label="Country"
+                isinput={false}
+                options={countries}
+                handle={(values) => {
+                  const value = values;
+                  setClientData((prevState) => ({
+                    ...prevState,
+                    country: value,
+                  }));
+                  setStates(getStates(value));
+                }}
+              />
+            </div>
+            <div className="mb-5">
+              <SelectComp
+                label="State"
+                isinput={false}
+                options={states}
+                handle={(values) => {
+                  const value = values;
+                  setClientData((prevState) => ({
+                    ...prevState,
+                    state: value,
+                  }));
+                  setCities(getCities(value));
+                }}
+              />
+            </div>
+            <div className="mb-5">
+              <SelectComp
+                label="City"
+                isinput={false}
+                options={cities}
+                handle={(values) => {
+                  const value = values;
+                  setClientData((prevState) => ({
+                    ...prevState,
+                    city: value,
+                  }));
+                }}
+              />
+            </div>
+          </div>
           <Input
             variant="outlined"
-            label="City"
-            name="city"
-            value={clientData.city}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
-            label="State"
-            name="state"
-            value={clientData.state}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
-            label="Country"
-            name="country"
-            value={clientData.country}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
-            label="Pincode"
+            label={getLabel("pincode")}
             name="pincode"
             value={clientData.pincode}
             onChange={handleChange}

@@ -16,6 +16,26 @@ const CompanyDetails = new EntitySchema({
       type: String,
       nullable: false,
     },
+    billHeadline: {
+      type: String,
+      nullable: false,
+    },
+    bankName: {
+      type: String,
+      nullable: false,
+    },
+    bankBranch: {
+      type: String,
+      nullable: false,
+    },
+    accountNumber: {
+      type: String,
+      nullable: false,
+    },
+    IFSC: {
+      type: String,
+      nullable: false,
+    },
     pincode: {
       type: String,
       nullable: false,
