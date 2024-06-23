@@ -226,6 +226,8 @@ export default function HomePage() {
     document.title = "Billing System";
   });
 
+  const [doUpdate, setDoUpdate] = React.useState(true);
+
   useEffect(() => {
     const updateProductQuantity = async () => {
       const res = await window.api.invoke(
@@ -233,9 +235,11 @@ export default function HomePage() {
         current_stock,
       );
     };
-    console.log(current_stock);
-    updateProductQuantity();
-  }, [current_stock]);
+    if (doUpdate) {
+      updateProductQuantity();
+      setDoUpdate(false);
+    }
+  }, [doUpdate]);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -298,8 +302,8 @@ export default function HomePage() {
             className={"h-screen sticky top-0 overflow-y-auto"}
             style={{
               background: "rgb(15 14 42 / 90%)",
-              minWidth: "20%",
-              maxWidth: "20%",
+              minWidth: "16%",
+              maxWidth: "16%",
             }}
           >
             <div className="flex gap-x-4 items-center p-5">
@@ -531,19 +535,19 @@ export default function HomePage() {
               <div className="firstContainer">
                 <div className="firstIndicators">
                   <GenericCard
-                    title="Today's Sale"
+                    title="Kya kre 1?"
                     value="&#8377;10,000"
                     backgroundColor="#FFFFFF"
                     shadowColor="#23d2d8b0"
                   />
                   <GenericCard
-                    title="Total Orders"
+                    title="Sales Done"
                     value={invoiceCount}
                     backgroundColor="#FFFFFF"
                     shadowColor="#003899c9"
                   />
                   <GenericCard
-                    title="Pending Orders"
+                    title="Kya kre 2?"
                     value="5"
                     backgroundColor="#FFFFFF"
                     shadowColor="#23d2d8b0"
@@ -772,7 +776,7 @@ export default function HomePage() {
               <div className="secondContainer">
                 <div className="firstIndicators">
                   <GenericCard
-                    title="Sales Done"
+                    title="Kya kre 3?"
                     value="14"
                     backgroundColor="#FFFFFF"
                     shadowColor="#003899c9"

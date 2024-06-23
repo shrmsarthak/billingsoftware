@@ -92,8 +92,6 @@ let tax_option = tax_type();
 let uom_option = uom_type();
 let current_stock = await get_product_quantities();
 
-//console.log(current_stock.data);
-
 export default function () {
   useEffect(() => {
     document.title = "New Invoice";
@@ -789,11 +787,11 @@ export default function () {
                   : ""
               }
               value={formData.Unit_Price}
+              onChange={(e) => handleFieldChange("Unit_Price", e.target.value)}
               style={{ minWidth: 100, width: 100 }}
               labelProps={{
                 className: "w-100",
               }}
-              onChange={(e) => handleFieldChange("Unit_Price", e.target.value)}
             />
           </div>
           <div className="mr-12 w-100">

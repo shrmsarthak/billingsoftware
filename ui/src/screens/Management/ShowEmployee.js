@@ -794,23 +794,69 @@ export default function ShowEmployee() {
 
   const isFormIncomplete = requiredFields.some((field) => fields[field] === "");
 
+  const isFieldRequired = (field) =>
+    requiredFields.some(
+      (reqField) => reqField.toLowerCase() === field.toLowerCase(),
+    );
+
+  const getLabel = (field) =>
+    isFieldRequired(field) ? (
+      <>
+        {field.replace(/_/g, " ")}
+        <span style={{ color: "red" }}>*</span>
+      </>
+    ) : (
+      field.replace(/_/g, " ")
+    );
+
   const requiredFieldsPayment = [
     "Employee_name",
     "Payment_date",
     "Amount",
     "Payment_type",
-    "Payment_notes",
   ];
 
   const isPaymentFormIncomplete = requiredFieldsPayment.some(
     (field) => paymentData[field] === "",
   );
 
+  const isFieldRequiredPayment = (field) =>
+    requiredFieldsPayment.some(
+      (reqField) => reqField.toLowerCase() === field.toLowerCase(),
+    );
+
+  const getLabelPayment = (field) =>
+    isFieldRequiredPayment(field) ? (
+      <>
+        {field.replace(/_/g, " ")}
+        <span style={{ color: "red" }}>*</span>
+      </>
+    ) : (
+      field.replace(/_/g, " ")
+    );
+
   const requiredFieldsLeave = ["employeeName", "leaveDate", "leaveReason"];
 
   const isLeaveFormIncomplete = requiredFieldsLeave.some(
     (field) => employeeApplyingLeave[field] === "",
   );
+
+  const isFieldRequiredLeave = (field) =>
+    requiredFieldsLeave.some(
+      (reqField) => reqField.toLowerCase() === field.toLowerCase(),
+    );
+
+  const getLabelLeave = (field) =>
+    isFieldRequiredLeave(field) ? (
+      <>
+        {field
+          .replace(/([A-Z])/g, " $1")
+          .replace(/^./, (str) => str.toUpperCase())}
+        <span style={{ color: "red" }}>*</span>
+      </>
+    ) : (
+      field.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
+    );
 
   return (
     <div className="flex flex-col w-full h-full px-5">
@@ -884,7 +930,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Employee Name"
+                  label={getLabel("Employee_name")}
                   placeholder="Employee Name"
                   onChange={(e) =>
                     handleFieldChange("Employee_name", e.target.value)
@@ -894,7 +940,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Age"
+                  label={getLabel("Age")}
                   type="number"
                   onChange={(e) => handleFieldChange("Age", e.target.value)}
                   placeholder="Age"
@@ -903,7 +949,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Contact No"
+                  label={getLabel("Contact_No")}
                   type="number"
                   onChange={(e) =>
                     handleFieldChange("Contact_No", e.target.value)
@@ -914,7 +960,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Employee Email"
+                  label={getLabel("Employee Email")}
                   placeholder="Employee Email"
                   onChange={(e) =>
                     handleFieldChange("Employee_email", e.target.value)
@@ -924,7 +970,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Employee Title"
+                  label={getLabel("Employee_Title")}
                   onChange={(e) =>
                     handleFieldChange("Employee_title", e.target.value)
                   }
@@ -934,7 +980,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Salary"
+                  label={getLabel("Salary")}
                   type="number"
                   onChange={(e) => handleFieldChange("Salary", e.target.value)}
                   placeholder="Salary"
@@ -943,7 +989,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Address"
+                  label={getLabel("Address")}
                   onChange={(e) => handleFieldChange("Address", e.target.value)}
                   placeholder="Address"
                 />
@@ -951,7 +997,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Joining Date"
+                  label={getLabel("Joining Date")}
                   type="date"
                   onChange={(e) =>
                     handleFieldChange("Joining_Date", e.target.value)
@@ -962,7 +1008,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Notes"
+                  label={getLabel("Notes")}
                   onChange={(e) => handleFieldChange("Notes", e.target.value)}
                   placeholder="Notes"
                 ></Input>
@@ -1001,7 +1047,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Employee Name"
+                  label={getLabelPayment("Employee Name")}
                   placeholder="Employee Name"
                   value={paymentData.Employee_name}
                   disabled
@@ -1010,7 +1056,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Payment Date"
+                  label={getLabelPayment("Payment_Date")}
                   type="date"
                   onChange={(e) =>
                     handlePaymentFieldChange("Payment_date", e.target.value)
@@ -1020,7 +1066,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Amount"
+                  label={getLabelPayment("Amount")}
                   type="number"
                   onChange={(e) =>
                     handlePaymentFieldChange("Amount", e.target.value)
@@ -1030,7 +1076,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Payment Type"
+                  label={getLabelPayment("Payment_Type")}
                   placeholder="Payment Type Eg: Cash, UPI"
                   onChange={(e) =>
                     handlePaymentFieldChange("Payment_type", e.target.value)
@@ -1040,7 +1086,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Payment Notes"
+                  label={getLabelPayment("Payment_Notes")}
                   placeholder="Payment Notes"
                   onChange={(e) =>
                     handlePaymentFieldChange("Payment_notes", e.target.value)
@@ -1254,7 +1300,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Employee Name"
+                  label={getLabelLeave("Employee_Name")}
                   value={employeeApplyingLeave.employeeName}
                   disabled
                 />
@@ -1262,7 +1308,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Leave Date"
+                  label={getLabelLeave("leaveDate")}
                   placeholder="Leave Date"
                   type="date"
                   onChange={(e) =>
@@ -1276,7 +1322,7 @@ export default function ShowEmployee() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Leave Reason"
+                  label={getLabelLeave("leaveReason")}
                   placeholder="Leave Reason"
                   onChange={(e) =>
                     setEmployeeApplyingLeave((prevState) => ({

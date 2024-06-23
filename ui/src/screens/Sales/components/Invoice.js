@@ -127,7 +127,7 @@ const Invoice = ({ data, details }) => {
               {/* Logo on the top left corner */}
               <View style={styles.logo_container}>
                 {/* Insert your company logo here */}
-                <Text>Company Logo</Text>
+                <Text>{details.companyDetails.billHeadline}</Text>
               </View>
 
               {/* Company details on the top right corner */}
@@ -398,6 +398,45 @@ const Invoice = ({ data, details }) => {
                   ).toFixed(2)}
                 </Text>
               </View>
+              <View style={styles.row}>
+                <Text style={styles.totalText}>Round off:</Text>
+                <Text style={styles.totalValue}>
+                  - 0.
+                  {
+                    (
+                      Number(details.Total_BeforeTax) +
+                      Number(details.Total_Tax) +
+                      Number(details.Shipping_Charges)
+                    )
+                      .toFixed(2)
+                      .toString()
+                      .split(".")[1]
+                  }
+                </Text>
+              </View>
+
+              <View style={styles.row}>
+                <Text style={styles.totalText}>Grand Total:</Text>
+                <Text style={styles.totalValue}>
+                  {(
+                    Number(details.Total_BeforeTax) +
+                    Number(details.Total_Tax) +
+                    Number(details.Shipping_Charges)
+                  ).toFixed(2) -
+                    (
+                      Number(
+                        (
+                          Number(details.Total_BeforeTax) +
+                          Number(details.Total_Tax) +
+                          Number(details.Shipping_Charges)
+                        )
+                          .toFixed(2)
+                          .split(".")[1],
+                      ) / 100
+                    ).toFixed(2)}
+                  .00
+                </Text>
+              </View>
             </View>
 
             {/* Total Amount in Words */}
@@ -424,6 +463,14 @@ const Invoice = ({ data, details }) => {
             ) : (
               <></>
             )}
+            <View style={styles.bankDetails}>
+              <Text style={styles.detail_text}>
+                {details.companyDetails.bankName} Bank A/c No:{" "}
+                {details.companyDetails.accountNumber} IFSC Code:{" "}
+                {details.companyDetails.IFSC} Branch:{" "}
+                {details.companyDetails.bankBranch}
+              </Text>
+            </View>
             <View style={styles.footer}>
               <Text>Thank you for your business!</Text>
             </View>
@@ -525,7 +572,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: 200, // Fixed width for the row container
+    width: 220, // Fixed width for the row container
     marginBottom: 5,
   },
   totalText: {
@@ -540,11 +587,12 @@ const styles = StyleSheet.create({
   totalAmountText: {
     fontSize: 12,
     fontWeight: "800",
+    width: 260,
   },
   totalValue: {
     fontSize: 12,
     fontWeight: "bold",
-    width: 40, // Fixed width for the text containing values
+    width: 70, // Fixed width for the text containing values
     textAlign: "right", // Align text to the right
   },
   totalAmountInWords: {
@@ -555,6 +603,11 @@ const styles = StyleSheet.create({
   footer: {
     position: "absolute",
     bottom: 10, // Adjusted position
+    left: 10, // Adjusted position
+  },
+  bankDetails: {
+    position: "absolute",
+    bottom: 40, // Adjusted position
     left: 10, // Adjusted position
   },
   header_container: {
@@ -631,7 +684,7 @@ const styles = StyleSheet.create({
   detail_text: {
     fontSize: 12, // Reduced font size for other details
     marginBottom: 3, // Reduced margin below each detail
-    overflow: "",
+    overflow: "auto",
   },
   buttonContainer: {
     position: "absolute",

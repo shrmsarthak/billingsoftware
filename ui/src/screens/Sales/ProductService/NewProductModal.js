@@ -8,35 +8,10 @@ import {
   Button,
 } from "@material-tailwind/react";
 import SelectComp from "../components/SelectComp";
-import { tax_type } from "../../../utils/SelectOptions";
+import { tax_type, uom_type } from "../../../utils/SelectOptions";
 import { showmessage } from "../../../utils/api";
 
-const unit_options = [
-  {
-    text: "Boxes",
-    value: "Boxes",
-  },
-  {
-    text: "CFT",
-    value: "CFT",
-  },
-  {
-    text: "Centimeters",
-    value: "Centimeters",
-  },
-  {
-    text: "Gram",
-    value: "Gram",
-  },
-  {
-    text: "Inches",
-    value: "Inches",
-  },
-  {
-    text: "Hours",
-    value: "Hours",
-  },
-];
+const unit_options = uom_type();
 
 const tax_option = tax_type();
 
@@ -89,6 +64,21 @@ export default function AddNewProductModal({
     (field) => productData[field] === "",
   );
 
+  const isFieldRequired = (field) =>
+    requiredFields.some(
+      (reqField) => reqField.toLowerCase() === field.toLowerCase(),
+    );
+
+  const getLabel = (field) =>
+    isFieldRequired(field) ? (
+      <>
+        {field.replace(/_/g, " ")}
+        <span style={{ color: "red" }}>*</span>
+      </>
+    ) : (
+      field.replace(/_/g, " ")
+    );
+
   return (
     <Dialog size="md" open={isOpen} handler={handleOpen}>
       <DialogHeader toggler={handleClose}>Add New Product</DialogHeader>
@@ -99,14 +89,14 @@ export default function AddNewProductModal({
         >
           <Input
             variant="outlined"
-            label="Product Name"
+            label={getLabel("product_name")}
             name="product_name"
             value={productData.product_name}
             onChange={handleChange}
           />
           <SelectComp
             variant="outlined"
-            label="Unit of Measure"
+            label={getLabel("uom")}
             options={unit_options}
             isinput={false}
             handle={(value) =>
@@ -118,7 +108,7 @@ export default function AddNewProductModal({
           />
           <SelectComp
             variant="outlined"
-            label="Tax"
+            label={getLabel("tax")}
             options={tax_option}
             isinput={false}
             handle={(value) =>
@@ -130,16 +120,30 @@ export default function AddNewProductModal({
           />
           <Input
             variant="outlined"
-            label="Description"
+            label={getLabel("description")}
             name="description"
             value={productData.description}
             onChange={handleChange}
           />
           <Input
             variant="outlined"
-            label="Purchase Price"
+            label={getLabel("purchase_price")}
             name="purchase_price"
             value={productData.purchase_price}
+            onChange={handleChange}
+          />
+          <Input
+            variant="outlined"
+            label="SKU"
+            name="sku"
+            value={productData.sku}
+            onChange={handleChange}
+          />
+          <Input
+            variant="outlined"
+            label={getLabel("unit_price")}
+            name="unit_price"
+            value={productData.unit_price}
             onChange={handleChange}
           />
           <Input
@@ -168,13 +172,6 @@ export default function AddNewProductModal({
             label="Storage Location"
             name="storage_location"
             value={productData.storage_location}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
-            label="Unit Price"
-            name="unit_price"
-            value={productData.unit_price}
             onChange={handleChange}
           />
         </div>
