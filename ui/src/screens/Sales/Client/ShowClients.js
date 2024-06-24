@@ -436,7 +436,7 @@ export default function ShowClientPage() {
                   }
                   setSearchQuery((prevSearchQuery) => ({
                     ...prevSearchQuery,
-                    clientId: values.select,
+                    clientId: values,
                   }));
                 }}
               />

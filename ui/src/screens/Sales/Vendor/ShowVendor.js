@@ -391,7 +391,11 @@ export default function ShowVendors() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Vendor Name"
+                  label={
+                    <>
+                      Vendor Name<span style={{ color: "red" }}>*</span>
+                    </>
+                  }
                   placeholder="Vendor Name"
                   onChange={(e) => handleFieldChange("Vendor", e.target.value)}
                 />
@@ -400,7 +404,11 @@ export default function ShowVendors() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Vendor email"
+                  label={
+                    <>
+                      Vendor Email<span style={{ color: "red" }}>*</span>
+                    </>
+                  }
                   onChange={(e) =>
                     handleFieldChange("Vendor_email", e.target.value)
                   }
@@ -411,7 +419,11 @@ export default function ShowVendors() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Contact Number"
+                  label={
+                    <>
+                      Contact Number<span style={{ color: "red" }}>*</span>
+                    </>
+                  }
                   type="number"
                   onChange={(e) =>
                     handleFieldChange("Contact_number", e.target.value)
@@ -423,7 +435,11 @@ export default function ShowVendors() {
               <div>
                 <Input
                   variant="outlined"
-                  label="Address"
+                  label={
+                    <>
+                      Address<span style={{ color: "red" }}>*</span>
+                    </>
+                  }
                   onChange={(e) => handleFieldChange("Address", e.target.value)}
                   placeholder="Address"
                 ></Input>
@@ -477,7 +493,11 @@ export default function ShowVendors() {
               <div>
                 <Input
                   variant="outlined"
-                  label="GSTIN"
+                  label={
+                    <>
+                      GSTIN<span style={{ color: "red" }}>*</span>
+                    </>
+                  }
                   onChange={(e) => handleFieldChange("GSTIN", e.target.value)}
                   placeholder="GSTIN"
                 ></Input>
@@ -485,20 +505,28 @@ export default function ShowVendors() {
             </div>
           </DialogBody>
           <DialogFooter>
-            <button
+            <Button
               onClick={closeModal}
               className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
               style={{ marginRight: 5 }}
             >
               Close
-            </button>
-            <button
+            </Button>
+            <Button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={handleSave}
-              disabled={isFormIncomplete}
+              disabled={
+                fields.Vendor === "" ||
+                fields.Vendor_email === "" ||
+                fields.Contact_number === "" ||
+                fields.Address === "" ||
+                fields.City === "" ||
+                fields.State === "" ||
+                fields.GSTIN === ""
+              }
             >
               Save
-            </button>
+            </Button>
           </DialogFooter>
         </Dialog>
       </>

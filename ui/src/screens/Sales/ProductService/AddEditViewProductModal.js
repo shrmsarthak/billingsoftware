@@ -217,27 +217,9 @@ export function AddEditViewProductModal({
                   />
                 </>
               )}
-              {showProductsModule && (
-                <>
-                  <Typography>Purchase Information</Typography>
-                  <Input
-                    variant="outlined"
-                    label="Purchase Rate"
-                    placeholder="Purchase Rate"
-                    value={data.purchase_price}
-                    disabled={isView}
-                    onChange={(v) => {
-                      const priceValue = v.target.value;
-                      const numericValue = priceValue.replace(/[^0-9]/g, "");
-                      setData({ ...data, purchase_price: numericValue });
-                    }}
-                  />
-                </>
-              )}
             </div>
           </div>
         </DialogBody>
-
         <DialogFooter className="space-x-2">
           <Button variant="gradient" color="gray" onClick={onSave}>
             {isView ? "Done" : editId ? "Update" : "Save"}

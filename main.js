@@ -106,7 +106,9 @@ async function getAllClientsList(args) {
     if (args.searchQuery) {
       const { searchQuery } = args;
       if (searchQuery.clientId) {
-        queryBuilder.andWhere("client.id = :id", { id: searchQuery.clientId });
+        queryBuilder.andWhere("client.client_name LIKE :client_name", {
+          client_name: `%${searchQuery.clientId}%`,
+        });
       }
       if (searchQuery.email) {
         queryBuilder.andWhere("client.email LIKE :email", {
@@ -280,6 +282,8 @@ async function addNewProduct(args) {
 }
 
 async function getAllProductsList(args) {
+  console.log("args", JSON.stringify(args));
+
   try {
     let skip = 0;
     const { page, limit } = args;
@@ -295,8 +299,8 @@ async function getAllProductsList(args) {
     if (args.searchQuery) {
       const { searchQuery } = args;
       if (searchQuery.productId) {
-        queryBuilder.andWhere("product.id = :id", {
-          id: searchQuery.productId,
+        queryBuilder.andWhere("product.product_name LIKE :product_name", {
+          product_name: `%${searchQuery.productId}%`,
         });
       }
       if (searchQuery.sku) {
@@ -1548,7 +1552,7 @@ ipcMain.handle("add-employee-attendance", async (ev, args) => {
     ////console.log(error);
     return {
       success: false,
-      message: "Failed to add employee payment",
+      message: "Failed to add employee attendance",
     };
   }
 });
@@ -1983,36 +1987,66 @@ async function addNewEmployeeLeave(leaveData) {
   }
 }
 
-// Function to add new employee attendance details
 async function addEmployeeAttendance(attendanceData) {
   try {
     // Get the repository for employee attendance details
     const attendanceRepo = DBManager.getRepository(EmployeeAttendanceDetails);
 
-    // Create the attendance details object
-    const attendanceDetailsObj = {
-      employeeName: attendanceData.employeeName,
-      todayDate: attendanceData.todayDate,
-      inTime: attendanceData.inTime,
-      outTime: attendanceData.outTime,
-    };
+    // Format the date to match the database format (YYYY-MM-DD)
 
-    // Save the new attendance details entity to the database
-    const result = await attendanceRepo
-      .createQueryBuilder()
-      .insert()
-      .values(attendanceDetailsObj)
-      .execute();
+    // Check if an entry already exists for the given employeeName and todayDate
+    const existingEntry = await attendanceRepo
+      .createQueryBuilder("employee_attendance")
+      .where("employee_attendance.employeeName = :employeeName", {
+        employeeName: attendanceData.employeeName,
+      })
+      .andWhere("employee_attendance.todayDate = :todayDate", {
+        todayDate: attendanceData.todayDate,
+      })
+      .getOne();
 
-    if (result) {
-      return {
-        success: true,
-        message: "New attendance details added successfully!",
+    if (existingEntry) {
+      // If an entry exists, update it with the new attendance data
+      const updateResult = await attendanceRepo
+        .createQueryBuilder()
+        .update(EmployeeAttendanceDetails)
+        .set({
+          inTime: attendanceData.inTime,
+          outTime: attendanceData.outTime,
+        })
+        .where("id = :id", { id: existingEntry.id })
+        .execute();
+
+      if (updateResult.affected === 1) {
+        return {
+          success: true,
+          message: "Attendance details updated successfully!",
+        };
+      } else {
+        throw new Error("Failed to update attendance details");
+      }
+    } else {
+      // If no entry exists, create a new attendance entry
+      const attendanceDetailsObj = {
+        employeeName: attendanceData.employeeName,
+        todayDate: attendanceData.todayDate,
+        inTime: attendanceData.inTime,
+        outTime: attendanceData.outTime,
       };
+
+      const saveResult = await attendanceRepo.save(attendanceDetailsObj);
+
+      if (saveResult) {
+        return {
+          success: true,
+          message: "New attendance details added successfully!",
+        };
+      } else {
+        throw new Error("Failed to save new attendance details");
+      }
     }
   } catch (error) {
-    ////console.error("Error adding new attendance details:", error);
-    // Throw the error so that calling code can handle it
+    console.error("Error adding or updating attendance details:", error);
     throw error;
   }
 }

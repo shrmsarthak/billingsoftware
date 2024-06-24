@@ -1272,7 +1272,7 @@ export default function ShowEmployee() {
               TABLE_ROWS={monthWiseAttendance.map((x) => {
                 return {
                   "Employee Name": x.employeeName,
-                  Date: convertDateToString(x.todayDate),
+                  Date: x.todayDate,
                   "IN Time": x.inTime,
                   "Out Time": x.outTime,
                 };
