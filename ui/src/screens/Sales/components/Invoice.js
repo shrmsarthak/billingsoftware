@@ -123,13 +123,16 @@ const Invoice = ({ data, details }) => {
       <Document>
         <Page size="A4" style={styles.page}>
           <View style={styles.pageContent}>
-            <View style={styles.header_container}>
-              {/* Logo on the top left corner */}
-              <View style={styles.logo_container}>
-                {/* Insert your company logo here */}
-                <Text>{details.companyDetails.billHeadline}</Text>
-              </View>
+            <View style={styles.logo_container}>
+              <Text>{details.companyDetails.companyName}</Text>
+            </View>
+            <View style={styles.logo_subheading_container}>
+              <Text style={styles.detail_text}>
+                {details.companyDetails.billHeadline}
+              </Text>
+            </View>
 
+            <View style={styles.header_container}>
               {/* Company details on the top right corner */}
               <View style={styles.company_details}>
                 <Text style={styles.company_name}>
@@ -147,6 +150,14 @@ const Invoice = ({ data, details }) => {
                 <Text style={styles.detail_text}>
                   {details.companyDetails.phone}
                 </Text>
+              </View>
+
+              <View style={styles.detail_text}>
+                <Text>Date: {formatDate(details.Issue_Date)}</Text>
+                <Text>GSTIN: {details.companyDetails.GSTNO}</Text>
+                {isNaN(details.PO_Number) ? null : (
+                  <Text>E-Way Bill: {details.PO_Number}</Text>
+                )}
               </View>
             </View>
 
@@ -465,14 +476,21 @@ const Invoice = ({ data, details }) => {
             )}
             <View style={styles.bankDetails}>
               <Text style={styles.detail_text}>
-                {details.companyDetails.bankName} Bank A/c No:{" "}
-                {details.companyDetails.accountNumber} IFSC Code:{" "}
-                {details.companyDetails.IFSC} Branch:{" "}
-                {details.companyDetails.bankBranch}
+                Bank: {details.companyDetails.bankName} Bank
+              </Text>
+              <Text style={styles.detail_text}>
+                A/c No: {details.companyDetails.accountNumber}
+              </Text>
+              <Text style={styles.detail_text}>
+                IFSC Code: {details.companyDetails.IFSC}
+              </Text>
+              <Text style={styles.detail_text}>
+                Branch: {details.companyDetails.bankBranch}{" "}
               </Text>
             </View>
-            <View style={styles.footer}>
-              <Text>Thank you for your business!</Text>
+            <View style={styles.signature}>
+              <Text style={styles.detail_text}>______________</Text>
+              <Text style={styles.sign_text}>Signature</Text>
             </View>
           </View>
         </Page>
@@ -587,7 +605,6 @@ const styles = StyleSheet.create({
   totalAmountText: {
     fontSize: 12,
     fontWeight: "800",
-    width: 260,
   },
   totalValue: {
     fontSize: 12,
@@ -597,7 +614,7 @@ const styles = StyleSheet.create({
   },
   totalAmountInWords: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     marginBottom: 8, // Adjusted margin
   },
   footer: {
@@ -607,8 +624,13 @@ const styles = StyleSheet.create({
   },
   bankDetails: {
     position: "absolute",
-    bottom: 40, // Adjusted position
+    bottom: 10, // Adjusted position
     left: 10, // Adjusted position
+  },
+  signature: {
+    position: "absolute",
+    bottom: 10, // Adjusted position
+    right: 10, // Adjusted position
   },
   header_container: {
     flexDirection: "row",
@@ -616,8 +638,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   logo_container: {
-    // Your logo container styles
-    maxWidth: "40%",
+    display: "flex",
+    alignItems: "center",
+    textTransform: "uppercase",
+  },
+  logo_subheading_container: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 10,
   },
   company_details: {
     // Your company details styles
@@ -685,6 +713,12 @@ const styles = StyleSheet.create({
     fontSize: 12, // Reduced font size for other details
     marginBottom: 3, // Reduced margin below each detail
     overflow: "auto",
+  },
+  sign_text: {
+    fontSize: 12, // Reduced font size for other details
+    marginBottom: 3, // Reduced margin below each detail
+    overflow: "auto",
+    marginLeft: 22,
   },
   buttonContainer: {
     position: "absolute",

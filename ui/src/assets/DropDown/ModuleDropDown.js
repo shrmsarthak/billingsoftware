@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import Select from "react-select";
+import Select, { components } from "react-select";
 
 export default function ModuleDropDown() {
   const location = useLocation();
@@ -14,67 +14,89 @@ export default function ModuleDropDown() {
     return "New " + titleCaseMiddlePart;
   }
 
-  function ListItemsOptions({ title, to }) {
-    const renderTitle = () => {
-      if (!title) return null;
-      return (
+  const CustomOption = (props) => {
+    const { innerRef, innerProps, data } = props;
+
+    const handleClick = (e) => {
+      e.stopPropagation();
+      navigate(data.to);
+    };
+
+    return (
+      <div
+        ref={innerRef}
+        {...innerProps}
+        onClick={handleClick}
+        className="dropDown-menu"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "none",
+          cursor: "pointer",
+          width: "100%",
+          height: "100%",
+          boxSizing: "border-box",
+          padding: 10, // Ensure padding to make the area easily clickable
+        }}
+      >
         <h1
           className="font-bold text-black"
           style={{
             display: "inline-flex",
             alignItems: "center",
             fontSize: "small",
+            margin: 0,
           }}
         >
-          {title}
+          {data.label}
         </h1>
-      );
-    };
-
-    const handleClick = () => {
-      navigate(to);
-    };
-
-    return (
-      <div
-        onClick={handleClick}
-        style={{
-          justifyContent: "center",
-          border: "none",
-          cursor: "pointer", // Add cursor style for better UX
-        }}
-      >
-        <div>{renderTitle()}</div>
       </div>
     );
-  }
+  };
 
   const options = [
     {
       value: "1",
-      label: <ListItemsOptions title="New Invoice" to="/sales/invoice/new" />,
+      label: "New Invoice",
+      to: "/sales/invoice/new",
     },
     {
       value: "2",
-      label: (
-        <ListItemsOptions title="New Quotation" to="/sales/quotation/new" />
-      ),
+      label: "New Quotation",
+      to: "/sales/quotation/new",
     },
     {
       value: "3",
-      label: <ListItemsOptions title="New Debit" to="/sales/debit/new" />,
+      label: "New Debit",
+      to: "/sales/debit/new",
     },
     {
       value: "4",
-      label: <ListItemsOptions title="New Credit" to="/sales/credit/new" />,
+      label: "New Credit",
+      to: "/sales/credit/new",
     },
   ];
+
+  const customStyles = {
+    option: (provided, state) => ({
+      ...provided,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "none",
+      padding: "10px", // Add padding to make the area easily clickable
+      cursor: "pointer",
+    }),
+  };
 
   return (
     <div style={{ width: 200, marginLeft: 20 }}>
       <Select
         options={options}
         placeholder={extractMiddleTitleCase(location.pathname)}
+        components={{ Option: CustomOption }}
+        styles={customStyles}
       />
     </div>
   );

@@ -25,7 +25,6 @@ export default function AddNewProductModal({
     uom: "",
     sku: "",
     product_name: "",
-    purchase_price: "",
     opening_balance: "",
     opening_value: "",
     opening_rate: "",
@@ -57,7 +56,6 @@ export default function AddNewProductModal({
     "description",
     "unit_price",
     "tax",
-    "purchase_price",
   ];
 
   const isFormIncomplete = requiredFields.some(
@@ -123,13 +121,6 @@ export default function AddNewProductModal({
             label={getLabel("description")}
             name="description"
             value={productData.description}
-            onChange={handleChange}
-          />
-          <Input
-            variant="outlined"
-            label={getLabel("purchase_price")}
-            name="purchase_price"
-            value={productData.purchase_price}
             onChange={handleChange}
           />
           <Input

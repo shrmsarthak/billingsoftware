@@ -62,7 +62,9 @@ export default function NewPurchasePage() {
   const initialValues = {
     Vendor: "",
     Document_No: "",
-    Issue_Date: new Date().toISOString().split("T")[0],
+    Issue_Date: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0],
     Project: "",
     Payment_Term: "15 days",
     Discount: "",
@@ -71,7 +73,7 @@ export default function NewPurchasePage() {
     Product: "",
     Description: "",
     UoM: "",
-    Qty: "",
+    Qty: 0,
     Unit_Price: "",
     Tax: "GST Rate 0%",
     Notes: "",
@@ -659,7 +661,12 @@ export default function NewPurchasePage() {
           <div className="mr-12">
             <Button
               onClick={() => setRows((pre) => [...pre, formData])}
-              disabled={formData.Vendor === "" || formData.Product === ""}
+              disabled={
+                formData.Vendor === "" ||
+                formData.Product === "" ||
+                formData.Qty === 0 ||
+                formData.Qty === "0"
+              }
             >
               +
             </Button>

@@ -1,16 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import Select from "react-select";
+import Select, { components } from "react-select";
 
 export default function ReportsDropDown() {
   const location = useLocation();
   const navigate = useNavigate();
-
-  function convertDropdownData(data) {
-    return data.map((item) => ({
-      text: item,
-      value: item,
-    }));
-  }
 
   function extractMiddleTitleCase(path) {
     const parts = path.split("/");
@@ -21,81 +14,104 @@ export default function ReportsDropDown() {
     return "Show " + titleCaseMiddlePart;
   }
 
-  function ListItemsOptions({ title, to }) {
-    const renderTitle = () => {
-      if (!title) return null;
-      return (
+  const CustomOption = (props) => {
+    const { innerRef, innerProps, data } = props;
+
+    const handleClick = (e) => {
+      e.stopPropagation();
+      navigate(data.to);
+    };
+
+    return (
+      <div
+        ref={innerRef}
+        {...innerProps}
+        onClick={handleClick}
+        className="dropDown-menu"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "none",
+          cursor: "pointer",
+          width: "100%",
+          height: "100%",
+          boxSizing: "border-box",
+          padding: 10,
+        }}
+      >
         <h1
           className="font-bold text-black"
           style={{
             display: "inline-flex",
             alignItems: "center",
             fontSize: "small",
+            margin: 0,
           }}
         >
-          {title}
+          {data.label}
         </h1>
-      );
-    };
-
-    const handleClick = () => {
-      navigate(to);
-    };
-
-    return (
-      <div
-        onClick={handleClick}
-        style={{
-          justifyContent: "center",
-          border: "none",
-          cursor: "pointer", // Add cursor style for better UX
-        }}
-      >
-        <div>{renderTitle()}</div>
       </div>
     );
-  }
+  };
 
   const options = [
     {
       value: "1",
-      label: <ListItemsOptions title="Show Invoice" to="/sales/invoice/show" />,
+      label: "Show Invoice",
+      to: "/sales/invoice/show",
     },
     {
       value: "2",
-      label: (
-        <ListItemsOptions title="Show Quotation" to="/sales/quotation/show" />
-      ),
+      label: "Show Quotation",
+      to: "/sales/quotation/show",
     },
     {
       value: "3",
-      label: <ListItemsOptions title="Show Debit" to="/sales/debit/show" />,
+      label: "Show Debit",
+      to: "/sales/debit/show",
     },
     {
       value: "4",
-      label: <ListItemsOptions title="Show Credit" to="/sales/credit/show" />,
+      label: "Show Credit",
+      to: "/sales/credit/show",
     },
     {
       value: "5",
-      label: (
-        <ListItemsOptions title="Show Purchase" to="/sales/purchase/show" />
-      ),
+      label: "Show Purchase",
+      to: "/sales/purchase/show",
     },
     {
       value: "6",
-      label: <ListItemsOptions title="Show Payment" to="/sales/payment/show" />,
+      label: "Show Payment",
+      to: "/sales/payment/show",
     },
     {
       value: "7",
-      label: <ListItemsOptions title="Show Vendors" to="/sales/vendors/show" />,
+      label: "Show Vendors",
+      to: "/sales/vendors/show",
     },
   ];
+
+  const customStyles = {
+    option: (provided, state) => ({
+      ...provided,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "none",
+      padding: "10px", // Add padding to make the area easily clickable
+      cursor: "pointer",
+    }),
+  };
 
   return (
     <div style={{ width: 200, marginLeft: 20 }}>
       <Select
         options={options}
         placeholder={extractMiddleTitleCase(location.pathname)}
+        components={{ Option: CustomOption }}
+        styles={customStyles}
       />
     </div>
   );

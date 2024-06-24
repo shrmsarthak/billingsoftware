@@ -91,7 +91,9 @@ export default function NewQuotationPage() {
   const initialValues = {
     Client: "",
     Quotation_No: "",
-    Issue_Date: new Date().toISOString().split("T")[0],
+    Issue_Date: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0],
     Ship_To: "",
     PO_Number: "",
     Payment_Term: "30 days",

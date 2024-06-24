@@ -14,7 +14,7 @@ const EmployeeAttendanceDetails = new EntitySchema({
       nullable: false,
     },
     todayDate: {
-      type: Date,
+      type: String,
       nullable: false,
     },
     inTime: {

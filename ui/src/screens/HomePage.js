@@ -42,7 +42,47 @@ const adjustedData = adjustQuantities(
   invoices.flat(),
   productWithZeroQuantity,
 );
-console.log("log", adjustedData);
+console.log("log", JSON.stringify(invoices.flat()));
+console.log("log2", JSON.stringify(purchaseOrders.flat()));
+
+function calculateTotalInvoicesSum(data) {
+  let totalSum = 0;
+
+  // Iterate over each object in the data array
+  data.forEach((item) => {
+    // Extract Total_BeforeTax, Total_Tax, and Shipping_Charges
+    const { Total_BeforeTax, Total_Tax, Shipping_Charges } = item;
+
+    // Convert string values to numbers
+    const beforeTax = parseFloat(Total_BeforeTax);
+    const tax = parseFloat(Total_Tax);
+    const shipping = parseFloat(Shipping_Charges);
+
+    // Calculate total for current object
+    const subtotal = beforeTax + tax + shipping;
+
+    // Add subtotal to totalSum
+    totalSum += subtotal;
+  });
+
+  return totalSum;
+}
+
+// Function to format a number as Indian currency
+function formatIndianCurrency(amount) {
+  // Convert number to string and split into integer and decimal parts
+  let parts = amount.toFixed(2).toString().split(".");
+  let integerPart = parts[0];
+  let decimalPart = parts[1];
+
+  // Add commas for thousands separator in integer part
+  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // Combine integer and decimal parts
+  const formattedAmount = `${integerPart}.${decimalPart}`;
+
+  return formattedAmount;
+}
 
 const current_stock = adjustedData?.map((x) => {
   return {
@@ -254,19 +294,16 @@ export default function HomePage() {
         navigate("/sales/invoice/show");
       }
       if (event.altKey && event.key.toLowerCase() === "p") {
-        navigate("/sales/purchase/show");
+        navigate("/sales/purchase/new");
       }
       if (event.ctrlKey && event.key.toLowerCase() === "p") {
-        navigate("/sales/payment/show");
+        navigate("/sales/payment/new");
       }
       if (event.ctrlKey && event.key.toLowerCase() === "i") {
         navigate("/sales/inventory/show");
       }
       if (event.ctrlKey && event.key.toLowerCase() === "e") {
         navigate("/mgmt/employee/show");
-      }
-      if (event.ctrlKey && event.key.toLowerCase() === "s") {
-        navigate("/sales/invoice/show");
       }
       if (event.altKey && event.key.toLowerCase() === "e") {
         navigate("/sales/expense/show");
@@ -535,8 +572,10 @@ export default function HomePage() {
               <div className="firstContainer">
                 <div className="firstIndicators">
                   <GenericCard
-                    title="Kya kre 1?"
-                    value="&#8377;10,000"
+                    title="Total Sales"
+                    value={formatIndianCurrency(
+                      calculateTotalInvoicesSum(invoices.flat()),
+                    )}
                     backgroundColor="#FFFFFF"
                     shadowColor="#23d2d8b0"
                   />
@@ -547,8 +586,14 @@ export default function HomePage() {
                     shadowColor="#003899c9"
                   />
                   <GenericCard
-                    title="Kya kre 2?"
-                    value="5"
+                    title="Total Purchases"
+                    value={formatIndianCurrency(
+                      calculateTotalInvoicesSum(
+                        purchaseOrders
+                          .flat()
+                          .filter((item) => item.Order_Type !== "Manufacture"),
+                      ),
+                    )}
                     backgroundColor="#FFFFFF"
                     shadowColor="#23d2d8b0"
                   />

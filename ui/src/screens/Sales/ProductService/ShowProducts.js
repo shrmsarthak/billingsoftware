@@ -95,7 +95,6 @@ export default function ShowProductsPage() {
   const [addEditModal, setAddEditModal] = useState(false);
   const [importModal, setImportModal] = useState(false);
   const [productIdDelete, setProductIdDelete] = useState("");
-
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
@@ -470,7 +469,7 @@ export default function ShowProductsPage() {
                   }
                   setSearchQuery((prevSearchQuery) => ({
                     ...prevSearchQuery,
-                    productId: values.select,
+                    productId: values,
                   }));
                 }}
               />

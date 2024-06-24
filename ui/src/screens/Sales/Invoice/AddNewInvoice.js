@@ -106,7 +106,9 @@ export default function () {
   const initialValues = {
     Client: "",
     Document_No: "",
-    Issue_Date: new Date().toISOString().split("T")[0],
+    Issue_Date: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0],
     Ship_To: "",
     PO_Number: "",
     Payment_Term: "30 days",
@@ -129,7 +131,7 @@ export default function () {
   };
   const [formData, setFormData] = useState(initialValues);
 
-  //console.log(formData);
+  console.log(companyDetails.data[0]);
 
   useEffect(() => {
     // Convert the issue date to a Date object
@@ -638,8 +640,8 @@ export default function () {
           <div className=" mr-12">
             <Input
               variant="outlined"
-              label="PO Number"
-              placeholder="PO Number"
+              label="E-Way Bill"
+              placeholder="E-Way Bill"
               onChange={(e) => handleFieldChange("PO_Number", e.target.value)}
             />
           </div>

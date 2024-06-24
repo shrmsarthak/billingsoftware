@@ -6599,5 +6599,8 @@ video {
 
 .hover-menu-list:hover{
   background-color: #ffffffad;
+}
 
+.dropDown-menu:hover{
+  background-color: rgba(175, 219, 252, 0.467);
 }
