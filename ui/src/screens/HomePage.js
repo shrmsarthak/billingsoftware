@@ -10,6 +10,10 @@ import {
   Input,
   Textarea,
   Button,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import {
   get_invoice_count,
@@ -22,12 +26,12 @@ import {
 import { Link, useNavigate, Navigate } from "react-router-dom";
 import adjustQuantities from "./Sales/Inventory/InventoryLogic";
 import { showmessage } from "../utils/api";
+import shortCuts from "../assets/images/keyboard-shortcuts.png";
 
 let invoices = await get_all_invoices();
 let purchaseOrders = await get_all_purchase_orders();
 let product_option = await get_all_product_option();
 product_option.shift();
-console.log(product_option);
 const productWithZeroQuantity = product_option.map((x) => {
   return {
     Product: x.text,
@@ -40,7 +44,7 @@ console.log(productWithZeroQuantity);
 const adjustedData = adjustQuantities(
   purchaseOrders.flat(),
   invoices.flat(),
-  productWithZeroQuantity,
+  productWithZeroQuantity
 );
 console.log("log", JSON.stringify(invoices.flat()));
 console.log("log2", JSON.stringify(purchaseOrders.flat()));
@@ -90,6 +94,8 @@ const current_stock = adjustedData?.map((x) => {
     Quantity: x.Quantity,
   };
 });
+
+const lowStockItemsCount = current_stock.filter((item) => item.Quantity <= 10);
 
 const Icon = ({ id, open }) => (
   <svg
@@ -267,12 +273,15 @@ export default function HomePage() {
   });
 
   const [doUpdate, setDoUpdate] = React.useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpen = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
 
   useEffect(() => {
     const updateProductQuantity = async () => {
       const res = await window.api.invoke(
         "update-product-quantity",
-        current_stock,
+        current_stock
       );
     };
     if (doUpdate) {
@@ -574,7 +583,7 @@ export default function HomePage() {
                   <GenericCard
                     title="Total Sales"
                     value={formatIndianCurrency(
-                      calculateTotalInvoicesSum(invoices.flat()),
+                      calculateTotalInvoicesSum(invoices.flat())
                     )}
                     backgroundColor="#FFFFFF"
                     shadowColor="#23d2d8b0"
@@ -591,8 +600,8 @@ export default function HomePage() {
                       calculateTotalInvoicesSum(
                         purchaseOrders
                           .flat()
-                          .filter((item) => item.Order_Type !== "Manufacture"),
-                      ),
+                          .filter((item) => item.Order_Type !== "Manufacture")
+                      )
                     )}
                     backgroundColor="#FFFFFF"
                     shadowColor="#23d2d8b0"
@@ -821,8 +830,8 @@ export default function HomePage() {
               <div className="secondContainer">
                 <div className="firstIndicators">
                   <GenericCard
-                    title="Kya kre 3?"
-                    value="14"
+                    title="Low Stock items"
+                    value={lowStockItemsCount?.length}
                     backgroundColor="#FFFFFF"
                     shadowColor="#003899c9"
                   />
@@ -902,6 +911,7 @@ export default function HomePage() {
                               fontSize: "large",
                               width: "85%",
                             }}
+                            onClick={handleOpen}
                           >
                             <svg
                               class="w-[30px] h-[30px] text-gray-800 dark:text-white"
@@ -984,6 +994,26 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
+              <Dialog size="lg" open={isModalOpen} handler={handleOpen}>
+                <DialogHeader toggler={handleClose}>
+                  Shortcuts Details
+                </DialogHeader>
+                <DialogBody>
+                  {" "}
+                  <div>
+                    <img src={shortCuts} alt="Shortcuts" />
+                  </div>
+                </DialogBody>
+                <DialogFooter>
+                  <Button
+                    onClick={handleClose}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                    style={{ marginRight: 5 }}
+                  >
+                    Close
+                  </Button>
+                </DialogFooter>
+              </Dialog>
             </div>
           </div>
         </div>

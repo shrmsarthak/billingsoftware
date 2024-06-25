@@ -64,7 +64,9 @@ function createWindow() {
       mainWindow.reload();
     });
   }
-
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow.webContents.setZoomFactor(0.9);
+  });
   mainWindow.on("closed", () => (mainWindow = null));
 }
 
