@@ -463,7 +463,7 @@ export default function ShowInvoicePage() {
                   Issue_Date: selectedRow.Issue_Date,
                   Document_No: selectedRow.Document_No,
                   Ship_To: selectedRow.Ship_To,
-                  PO_Number: selectedRow.PO_Number,
+                  PO_Number: selectedRow.Project,
                   PO_Date: selectedRow.PO_Date,
                   Due_Date: selectedRow.Due_Date,
                   Payment_Term: selectedRow.Payment_Term,

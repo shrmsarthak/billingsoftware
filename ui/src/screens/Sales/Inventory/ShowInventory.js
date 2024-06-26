@@ -169,7 +169,12 @@ export default function Inventory() {
       Description: obj.Description,
       Type: obj.Type,
       Price: obj.Price,
-      Quantity: obj.Quantity,
+      Quantity:
+        obj.Quantity <= 10 ? (
+          <div style={{ color: "red" }}>{obj.Quantity}</div>
+        ) : (
+          <div>{obj.Quantity}</div>
+        ),
       ActionButton: (
         <>
           <Tooltip content="View">
@@ -250,7 +255,12 @@ export default function Inventory() {
           Description: obj.Description,
           Type: obj.Type,
           Price: obj.Price,
-          Quantity: obj.Quantity,
+          Quantity:
+            obj.Quantity <= 10 ? (
+              <div style={{ color: "red" }}>{obj.Quantity}</div>
+            ) : (
+              <div>{obj.Quantity}</div>
+            ),
           ActionButton: (
             <>
               <Tooltip content="View">
@@ -297,13 +307,27 @@ export default function Inventory() {
   };
 
   function removeStatusField(objectsArray) {
-    // Iterate through each object in the array
-    return objectsArray.map((obj) => {
-      // Destructure the object to remove the "Status" field
-      const { ActionButton, ...rest } = obj;
-      // Return the object without the "Status" field
-      return rest;
-    });
+    return objectsArray
+      .map((obj) => {
+        const { ActionButton, Quantity, ...rest } = obj;
+
+        // Ensure Quantity is an integer if it contains JSX, otherwise keep as is
+        const extractedQuantity =
+          typeof Quantity === "object" && Quantity.props
+            ? parseInt(Quantity.props.children, 10)
+            : Quantity;
+
+        return {
+          ...rest,
+          Quantity: extractedQuantity,
+        };
+      })
+      .filter(
+        (obj) =>
+          obj.Quantity !== null &&
+          obj.Quantity !== undefined &&
+          !isNaN(obj.Quantity),
+      );
   }
 
   const exportInventory = async () => {

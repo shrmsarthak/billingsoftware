@@ -44,7 +44,7 @@ console.log(productWithZeroQuantity);
 const adjustedData = adjustQuantities(
   purchaseOrders.flat(),
   invoices.flat(),
-  productWithZeroQuantity
+  productWithZeroQuantity,
 );
 console.log("log", JSON.stringify(invoices.flat()));
 console.log("log2", JSON.stringify(purchaseOrders.flat()));
@@ -281,7 +281,7 @@ export default function HomePage() {
     const updateProductQuantity = async () => {
       const res = await window.api.invoke(
         "update-product-quantity",
-        current_stock
+        current_stock,
       );
     };
     if (doUpdate) {
@@ -583,7 +583,7 @@ export default function HomePage() {
                   <GenericCard
                     title="Total Sales"
                     value={formatIndianCurrency(
-                      calculateTotalInvoicesSum(invoices.flat())
+                      calculateTotalInvoicesSum(invoices.flat()),
                     )}
                     backgroundColor="#FFFFFF"
                     shadowColor="#23d2d8b0"
@@ -600,8 +600,8 @@ export default function HomePage() {
                       calculateTotalInvoicesSum(
                         purchaseOrders
                           .flat()
-                          .filter((item) => item.Order_Type !== "Manufacture")
-                      )
+                          .filter((item) => item.Order_Type !== "Manufacture"),
+                      ),
                     )}
                     backgroundColor="#FFFFFF"
                     shadowColor="#23d2d8b0"

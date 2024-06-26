@@ -131,7 +131,7 @@ export default function () {
   };
   const [formData, setFormData] = useState(initialValues);
 
-  console.log(companyDetails.data[0]);
+  console.log(companyDetails);
 
   useEffect(() => {
     // Convert the issue date to a Date object
