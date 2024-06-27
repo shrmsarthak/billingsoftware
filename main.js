@@ -3018,7 +3018,7 @@ async function addCompanyDetails(companyDetailsData) {
 
     const companyDetailsObj = {
       companyName: companyDetailsData.companyName,
-      billHeadline: companyDetailsData.billHeadline,
+      tagLine: companyDetailsData.tagLine,
       bankName: companyDetailsData.bankName,
       bankBranch: companyDetailsData.bankBranch,
       accountNumber: companyDetailsData.accountNumber,

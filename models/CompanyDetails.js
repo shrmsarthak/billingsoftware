@@ -16,9 +16,9 @@ const CompanyDetails = new EntitySchema({
       type: String,
       nullable: false,
     },
-    billHeadline: {
+    tagLine: {
       type: String,
-      nullable: false,
+      nullable: true,
     },
     bankName: {
       type: String,

@@ -25,7 +25,7 @@ const initialValues = {
   PAN: "",
   GSTNO: "",
   TIN: "",
-  billHeadline: "",
+  tagLine: "",
   bankName: "",
   bankBranch: "",
   accountNumber: "",
@@ -68,12 +68,24 @@ export default function AddCompanyDetails() {
     window.location.reload();
   };
 
+  function camelToTitleCase(camelCaseString) {
+    // Split the camel case string based on capital letters
+    let words = camelCaseString.replace(/([A-Z])/g, " $1");
+
+    // Capitalize the first letter of each word and join them back together
+    let titleCaseString = words
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+
+    return titleCaseString;
+  }
+
   const requiredFields = [
     "CompanyName",
     "Address",
     "Pincode",
     "City",
-    "BillHeadline",
     "BankName",
     "BankBranch",
     "AccountNumber",
@@ -129,15 +141,15 @@ export default function AddCompanyDetails() {
                     key={key}
                     type="text"
                     color="grey"
-                    placeholder={key}
+                    placeholder={camelToTitleCase(key)}
                     label={
                       isFieldRequired(key) ? (
                         <>
-                          {key}
+                          {camelToTitleCase(key)}
                           <span style={{ color: "red" }}>*</span>
                         </>
                       ) : (
-                        key
+                        camelToTitleCase(key)
                       )
                     }
                     value={value}

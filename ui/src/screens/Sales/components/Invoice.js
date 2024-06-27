@@ -128,7 +128,7 @@ const Invoice = ({ data, details }) => {
             </View>
             <View style={styles.logo_subheading_container}>
               <Text style={styles.detail_text}>
-                {details.companyDetails.billHeadline}
+                {details.companyDetails.tagLine}
               </Text>
             </View>
 

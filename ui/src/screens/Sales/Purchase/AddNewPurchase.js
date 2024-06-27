@@ -480,7 +480,7 @@ export default function NewPurchasePage() {
                   Issue_Date: formData.Issue_Date,
                   Document_No: formData.Document_No,
                   Ship_To: formData.Ship_To,
-                  PO_Number: formData.PO_Number,
+                  PO_Number: formData.Project,
                   PO_Date: formData.PO_Date,
                   Due_Date: formData.Due_Date,
                   Payment_Term: formData.Payment_Term,
@@ -561,7 +561,8 @@ export default function NewPurchasePage() {
           </div>
           <div className=" mr-12">
             <Input
-              label="Project"
+              label="E-Way Bill"
+              placeholder="E-Way Bill"
               isinput={false}
               onChange={(e) => handleFieldChange("Project", e.target.value)}
             />
@@ -642,6 +643,7 @@ export default function NewPurchasePage() {
               label="Purchase Rate"
               placeholder="Purchase Rate"
               onChange={(e) => handleFieldChange("Unit_Price", e.target.value)}
+              value={formData.Unit_Price}
             />
           </div>
           <div className="mr-12">
@@ -665,7 +667,9 @@ export default function NewPurchasePage() {
                 formData.Vendor === "" ||
                 formData.Product === "" ||
                 formData.Qty === 0 ||
-                formData.Qty === "0"
+                formData.Qty === "0" ||
+                formData.Unit_Price === 0 ||
+                formData.Unit_Price === "0"
               }
             >
               +
